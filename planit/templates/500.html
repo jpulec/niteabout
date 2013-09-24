@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Server error (500)' %}{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h1 class="panel-title">{% trans 'Server Error <em>(500)</em>' %}</h1>
+        </div>
+        <div class="panel-body">
+            <p>{% trans "There's been an error. It's been reported to the site administrators via e-mail and should be fixed shortly. Thanks for your patience." %}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
