@@ -1,6 +1,7 @@
 Django==1.5.4
 South==0.8.2
-django-geopostion==0.1.4
-django-rq==0.5.1
+django-geoposition==0.1.4
+-e git://github.com/ui/django-rq.git#egg=django-rq
 requests==1.2.3
 rq-scheduler==0.3.6
+django-rq-dashboard==0.2

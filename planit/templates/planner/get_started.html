@@ -6,10 +6,33 @@
 {% block body %}
 <div class="well">
     <h3>Just fill in the following information:</h3>
-    <form>
-    {% csrf_token %}
+    <form id="id_form">
     {{ form.as_p }}
-    <button type="submit" formmethod="post" formaction="{% url "planit" %}" class="btn btn-success">PlanIt!</button>
+    <button type="submit" formmethod="get" formaction="{% url "planit" %}" class="btn btn-success">PlanIt!</button>
     </form>
 </div>
 {% endblock body %}
+
+{% block script %}
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyBaLOIWJwRzsQWsWBrfdRA4C5XRnzenh5s&sensor=true"></script>
+<script>
+
+var input = document.getElementById('id_location_text');
+var options = {
+    types: ['(cities)'],
+           componentRestrictions: {country: 'us'}
+    };
+
+
+autocomplete = new google.maps.places.Autocomplete(input, options);
+
+google.maps.event.addListener(autocomplete, 'place_changed', function() {
+        var place = autocomplete.getPlace();
+    });
+
+$('#id_form').submit( function() {
+        $('#id_location').val(autocomplete.getPlace().geometry.location);
+    });
+
+</script>
+{% endblock script %}

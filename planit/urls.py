@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     url(r'^planit/$', GetStarted.as_view(), name="planit"),
     url(r'^planit/results/$', Results.as_view(), name="results"),
     url(r'^django-rq/', include('django_rq.urls')),
+    url(r'^admin/rq/', include('django_rq_dashboard.urls')),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

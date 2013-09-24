@@ -120,11 +120,12 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     'south',
+    'django_rq',
+    'django_rq_dashboard',
     'planit.apps.main',
     'planit.apps.planner',
     'planit.apps.gatherer',
     'geoposition',
-    'django_rq',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
@@ -138,6 +139,12 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     "formatters": {
+        "verbose": {
+            "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)s %(message)s"
+            },
+        "simple": {
+            "format": "%(levelname)s %(message)s"
+            },
         "rq_console": {
             "format": "%(asctime)s %(message)s",
             "datefmt": "%H:%M:%S",
@@ -149,6 +156,15 @@ LOGGING = {
         }
     },
     'handlers': {
+        'null': {
+            'level':'DEBUG',
+            'class': 'logging.NullHandler',
+            },
+        'console': {
+            'level': 'DEBUG',
+            'class': "logging.StreamHandler",
+            'formatter': 'simple'
+            },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -162,6 +178,11 @@ LOGGING = {
         },
     },
     'loggers': {
+        'django': {
+            'handlers': ['null'],
+            'propagate': True,
+            'level' : 'INFO',
+            },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
@@ -169,8 +190,14 @@ LOGGING = {
         },
         "rq.worker": {
             "handlers": ["rq_console"],
+            "propagate": True,
             "level": "DEBUG"
         },
+        'planit': {
+            'handlers': ['console'],
+            "level": 'DEBUG',
+            "propagate": True
+            },
     }
 }
 

@@ -16,7 +16,7 @@
         <tbody>
             {% for place in object_list %}
             <tr>
-                <td>{{ forloop.counter }}</td>
+                <td>{{ forloop.counter|add:page_obj.number }}</td>
                 <td>{{ place.name }}</td>
                 <td>{{ place.price }}</td>
             </tr>
@@ -24,6 +24,14 @@
         </tbody>
 
     </table>
-
+    {% if is_paginated %}
+    <ul class="pagination">
+        <li><a href="#">&laquo;</a></li>
+        {% for page in page_obj %}
+        <li><a href="?page={{ page.number }}">1</a></li>
+        {% endfor %}
+        <li><a href="#">&raquo;</a></li>
+    </ul>
+    {% endif %}
 </div>
 {% endblock body %}
