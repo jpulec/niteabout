@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Getting Started{% endblock title %}
+
+
+{% block body %}
+<div class="well">
+    <h3>Just fill in the following information:</h3>
+    <form>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" formmethod="post" formaction="{% url "planit" %}" class="btn btn-success">PlanIt!</button>
+    </form>
+</div>
+{% endblock body %}
