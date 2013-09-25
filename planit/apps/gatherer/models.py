@@ -10,27 +10,16 @@ PLACE_TYPES = (
     )
 
 
-class PlaceType(models.Model):
-    name = models.CharField(max_length="128", choices=PLACE_TYPES)
+class Tag(models.Model):
+    key = models.CharField(max_length="128")
+    value = models.CharField(max_length="256")
 
     def __unicode__(self):
-        return self.name
+        return self.key + ":" + self.value
 
 class Place(models.Model):
-    name = models.CharField(max_length=128)
-    types = models.ManyToManyField('PlaceType')
+    tags = models.ManyToManyField('Tag')
     pos = GeopositionField()
-
-    def __unicode__(self):
-        return str(self.__dict__)
-
-class GooglePlace(models.Model):
-    g_id = models.CharField(max_length=256)
-    g_rating = models.DecimalField(max_digits=2, decimal_places=1)
-    g_price = models.SmallIntegerField()
-    reference = models.CharField(max_length=256)
-    place = models.OneToOneField('Place', primary_key=True)
-
 
     def __unicode__(self):
         return str(self.__dict__)

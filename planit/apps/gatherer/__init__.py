@@ -25,8 +25,5 @@ def init_scheduler():
         if not (func, args) in functions or not interval in functions[(func, args)] or len(functions[(func, args)]) > 1:
             map(scheduler.cancel, filter(lambda x: (x.func, x.args)==(func, args), jobs))
             scheduler.schedule(now, func, args, interval=interval)
-    for type_, type_name in PLACE_TYPES:
-        schedule_once(tasks.google_scrape, (type_,), interval=86400)
-
 
 init_scheduler()
