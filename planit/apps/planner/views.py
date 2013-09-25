@@ -44,4 +44,9 @@ class Results(ListView):
         for place in list(places):
             if distance_in_miles(place.pos.latitude, place.pos.longitude, lat, lng) > threshold:
                 places.remove(place)
-        return places 
+        return places
+
+    def get_context_data(self, **kwargs):
+        context = super(Results, self).get_context_data(**kwargs)
+        context['getvars'] = self.request.META['QUERY_STRING']
+        return context

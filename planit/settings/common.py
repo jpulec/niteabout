@@ -122,6 +122,7 @@ INSTALLED_APPS = (
     'south',
     'django_rq',
     'django_rq_dashboard',
+    'mathfilters',
     'planit.apps.main',
     'planit.apps.planner',
     'planit.apps.gatherer',

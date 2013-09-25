@@ -5,3 +5,4 @@ django-geoposition==0.1.4
 requests==1.2.3
 rq-scheduler==0.3.6
 django-rq-dashboard==0.2
+django-mathfilters==0.1.3

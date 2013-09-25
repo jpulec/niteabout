@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load mathfilters %}
 {% block title %}Results{% endblock title %}
 
 
@@ -14,24 +14,38 @@
             </tr>
         </thead>
         <tbody>
-            {% for place in object_list %}
-            <tr>
-                <td>{{ forloop.counter|add:page_obj.number }}</td>
-                <td>{{ place.name }}</td>
-                <td>{{ place.price }}</td>
-            </tr>
-            {% endfor %}
+        {% for place in object_list %}
+        <tr>
+            <td>{{ page_obj.number|sub:1|mul:10|add:forloop.counter }}</td>
+            <td>{{ place.name }}</td>
+            <td>{{ place.price }}</td>
+        </tr>
+        {% endfor %}
         </tbody>
 
     </table>
     {% if is_paginated %}
-    <ul class="pagination">
-        <li><a href="#">&laquo;</a></li>
-        {% for page in page_obj %}
-        <li><a href="?page={{ page.number }}">1</a></li>
-        {% endfor %}
-        <li><a href="#">&raquo;</a></li>
-    </ul>
+    <div class="center">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li><a href="?{{ getvars }}&page={{ page_obj.previous_page_number }}{{ hashtag }}" class="prev">&lsaquo;&lsaquo;</a></li>
+            {% else %}
+            <li class="disabled"><a href="#">&lsaquo;&lsaquo;</a></li>
+            {% endif %}
+            {% for page_num in paginator.page_range %}
+            {% ifequal page_num page_obj.number %}
+            <li class="active"><a href="#">{{ page_num }}</a></li>
+            {% else %}
+            <li><a href="?{{ getvars }}&page={{ page_num }}{{ hashtag }}" class="page">{{ page_num }}</a></li>
+            {% endifequal %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li><a href="?{{ getvars }}&page={{ page_obj.next_page_number }}{{ hashtag }}" class="next"> &rsaquo;&rsaquo;</a></li>
+            {% else %}
+            <li class="disabled"><a href="#">&rsaquo;&rsaquo;</a></li>
+            {% endif %}
+        </ul>
+    </div>
     {% endif %}
 </div>
 {% endblock body %}

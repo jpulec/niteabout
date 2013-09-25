@@ -34,7 +34,5 @@ def google_scrape():
             for type in result['types']:
                 place_type, created = PlaceType.objects.get_or_create(name=type)
                 place.types.add(place_type)
-            logger.info(result)
-            logger.info(place)
         g_place, created = GooglePlace.objects.get_or_create(place=place, g_id=result['id'], g_rating=result.get('rating', 0.0), g_price=result.get('price', -1), reference=result['reference'])
     return True
