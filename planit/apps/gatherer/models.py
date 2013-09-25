@@ -1,12 +1,16 @@
 from django.db import models
 from geoposition.fields import GeopositionField
 
-class PlaceType(models.Model):
-    PLACE_TYPES = (
-            ('bar', 'Bar'),
-            ('restaurant', 'Restaurant')
-        )
 
+PLACE_TYPES = (
+        ('bar', 'Bar'),
+        ('restaurant', 'Restaurant'),
+        ('night club', 'Night Club'),
+        ('cafe', 'Cafe'),
+    )
+
+
+class PlaceType(models.Model):
     name = models.CharField(max_length="128", choices=PLACE_TYPES)
 
     def __unicode__(self):

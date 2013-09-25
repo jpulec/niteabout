@@ -8,9 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 @job
-def google_scrape():
+def google_scrape(types):
     location = "43.068302,-89.388352"
-    types = "bar|restaurant"
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=%s&location=%s&rankby=distance&sensor=false&types=%s" % (os.environ['GOOGLE_API_KEY'], location, types)
     logger.info("Google request url:%s" % url)
     results = None
