@@ -14,3 +14,6 @@ class TagAdmin(admin.ModelAdmin):
 
 admin.site.register(Place, PlaceAdmin)
 admin.site.register(Tag, TagAdmin)
+admin.site.register(Genre)
+admin.site.register(Movie)
+admin.site.register(MovieReview)

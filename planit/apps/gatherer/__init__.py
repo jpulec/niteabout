@@ -27,6 +27,6 @@ def init_scheduler():
             map(scheduler.cancel, filter(lambda x: (x.func, x.args)==(func, func_args), jobs))
             scheduler.schedule(now, func, func_args, *args, **kwargs)
 
-    schedule_once(parse_openstreetmap, ('planit/osm/madison.osm.bz2',), interval=60*24, timeout=-1)
+    schedule_once(parse_openstreetmap, ('planit/osm/Madison.osm',), interval=60*24*7, timeout=-1)
 
 init_scheduler()

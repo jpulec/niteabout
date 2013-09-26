@@ -19,6 +19,7 @@ class Migration(SchemaMigration):
         # Adding model 'Place'
         db.create_table(u'gatherer_place', (
             ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length='256')),
             ('pos', self.gf('geoposition.fields.GeopositionField')(max_length=42)),
             ('timestamp', self.gf('django.db.models.fields.DateTimeField')(null=True)),
             ('version', self.gf('django.db.models.fields.IntegerField')(null=True)),
@@ -50,8 +51,9 @@ class Migration(SchemaMigration):
         u'gatherer.place': {
             'Meta': {'object_name': 'Place'},
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': "'256'"}),
             'pos': ('geoposition.fields.GeopositionField', [], {'max_length': '42'}),
-            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['gatherer.Tag']", 'symmetrical': 'False'}),
+            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'tags'", 'symmetrical': 'False', 'to': u"orm['gatherer.Tag']"}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'version': ('django.db.models.fields.IntegerField', [], {'null': 'True'})
         },
