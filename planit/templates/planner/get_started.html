@@ -28,11 +28,12 @@ autocomplete = new google.maps.places.Autocomplete(input, options);
 
 google.maps.event.addListener(autocomplete, 'place_changed', function() {
         var place = autocomplete.getPlace();
-    });
+        $('#id_location').val(place.geometry.location);
+   });
 
-$('#id_form').submit( function() {
+$('#id_form').submit( function () {
         $('#id_location').val(autocomplete.getPlace().geometry.location);
-    });
+        });
 
 </script>
 {% endblock script %}

@@ -38,11 +38,11 @@ class Results(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        threshold = self.request.GET['max_distance']
+        threshold = float(self.request.GET['max_distance'])
         places = list(Place.objects.filter(types__name=self.request.GET['type']))
         lat, lng = self.request.GET['location'].split(',')
         for place in list(places):
-            if distance_in_miles(place.pos.latitude, place.pos.longitude, lat, lng) > threshold:
+            if distance_in_miles(place.pos.latitude, place.pos.longitude, lat, lng) > threshold: 
                 places.remove(place)
         return places
 

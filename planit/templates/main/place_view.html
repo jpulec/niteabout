@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ place.name }}{% endblock %}
+
+
+{% block body %}
+<div class="well">
+    <h3>{{ place.name }}</h3>
+    {{ place.pos }}
+    {% for type in place.types.all %}
+        {{ type.name }}
+    {% endfor %}
+    {% if place.google_place %}
+        {{ place.google_place.g_rating }}
+        {{ place.google_place.g_price }}
+    {% endif %}
+</div>
+{% endblock body %}

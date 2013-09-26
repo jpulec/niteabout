@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
-from planit.apps.main.views import Home
+from planit.apps.main.views import Home, Place
 from planit.apps.planner.views import GetStarted, Results
 
 urlpatterns = patterns('',
@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     url(r'^$', Home.as_view(), name="home"),
     url(r'^planit/$', GetStarted.as_view(), name="planit"),
     url(r'^planit/results/$', Results.as_view(), name="results"),
+    url(r'^place/(?P<pk>\d+)/$', Place.as_view(), name="place"),
     url(r'^django-rq/', include('django_rq.urls')),
     url(r'^admin/rq/', include('django_rq_dashboard.urls')),
     # Uncomment the admin/doc line below to enable admin documentation:

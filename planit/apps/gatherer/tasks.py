@@ -26,12 +26,14 @@ def google_scrape(types):
         logger.error("Connection issue:%s" % e)
         return False
     for result in results:
-        place, created = Place.objects.get_or_create(name=result['name'], pos=(str(result['geometry']['location']['lat']) + "," + str(result['geometry']['location']['lng'])))
-        if not created:
-            continue
-        else:
-            for type in result['types']:
-                place_type, created = PlaceType.objects.get_or_create(name=type)
+        place, created_place = Place.objects.get_or_create(name=result['name'], pos=(str(result['geometry']['location']['lat']) + "," + str(result['geometry']['location']['lng'])))
+        for type in result['types']:
+            place_type, created_type = PlaceType.objects.get_or_create(name=type)
+            if created_type:
                 place.types.add(place_type)
-        g_place, created = GooglePlace.objects.get_or_create(place=place, g_id=result['id'], g_rating=result.get('rating', 0.0), g_price=result.get('price', -1), reference=result['reference'])
+        g_place, created_google_place = GooglePlace.objects.get_or_create(place=place, g_id=result['id'])
+        g_place.g_rating = result.get('rating', 0.0)
+        g_place.g_price = result.get('price', -1)
+        g_place.reference = result['reference']
+        g_place.save()
     return True
