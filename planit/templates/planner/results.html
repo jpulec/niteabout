@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load mathfilters %}
+{% load planner_extras %}
 {% block title %}Results{% endblock title %}
 
 
@@ -10,15 +11,13 @@
             <tr>
                 <th>Rank</th>
                 <th>Name</th>
-                <th>Price</th>
             </tr>
         </thead>
         <tbody>
-        {% for place in object_list %}
+        {% for place in places_list %}
         <tr>
             <td>{{ page_obj.number|sub:1|mul:10|add:forloop.counter }}</td>
-            <td><a href="{% url "place" place.id %}">{{ place.name }}</a></td>
-            <td>{{ place.googleplace.g_price }}</td>
+            <td>{{ place.name }}</td>
         </tr>
         {% endfor %}
         </tbody>

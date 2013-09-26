@@ -8,75 +8,58 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'PlaceType'
-        db.create_table(u'gatherer_placetype', (
+        # Adding model 'Tag'
+        db.create_table(u'gatherer_tag', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length='128')),
+            ('key', self.gf('django.db.models.fields.CharField')(max_length='128')),
+            ('value', self.gf('django.db.models.fields.CharField')(max_length='256')),
         ))
-        db.send_create_signal(u'gatherer', ['PlaceType'])
+        db.send_create_signal(u'gatherer', ['Tag'])
 
         # Adding model 'Place'
         db.create_table(u'gatherer_place', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=128)),
+            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
             ('pos', self.gf('geoposition.fields.GeopositionField')(max_length=42)),
+            ('timestamp', self.gf('django.db.models.fields.DateTimeField')(null=True)),
+            ('version', self.gf('django.db.models.fields.IntegerField')(null=True)),
         ))
         db.send_create_signal(u'gatherer', ['Place'])
 
-        # Adding M2M table for field types on 'Place'
-        m2m_table_name = db.shorten_name(u'gatherer_place_types')
+        # Adding M2M table for field tags on 'Place'
+        m2m_table_name = db.shorten_name(u'gatherer_place_tags')
         db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('place', models.ForeignKey(orm[u'gatherer.place'], null=False)),
-            ('placetype', models.ForeignKey(orm[u'gatherer.placetype'], null=False))
+            ('tag', models.ForeignKey(orm[u'gatherer.tag'], null=False))
         ))
-        db.create_unique(m2m_table_name, ['place_id', 'placetype_id'])
-
-        # Adding model 'GooglePlace'
-        db.create_table(u'gatherer_googleplace', (
-            ('g_id', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('g_rating', self.gf('django.db.models.fields.DecimalField')(max_digits=2, decimal_places=1)),
-            ('g_price', self.gf('django.db.models.fields.SmallIntegerField')()),
-            ('reference', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('place', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['gatherer.Place'], unique=True, primary_key=True)),
-        ))
-        db.send_create_signal(u'gatherer', ['GooglePlace'])
+        db.create_unique(m2m_table_name, ['place_id', 'tag_id'])
 
 
     def backwards(self, orm):
-        # Deleting model 'PlaceType'
-        db.delete_table(u'gatherer_placetype')
+        # Deleting model 'Tag'
+        db.delete_table(u'gatherer_tag')
 
         # Deleting model 'Place'
         db.delete_table(u'gatherer_place')
 
-        # Removing M2M table for field types on 'Place'
-        db.delete_table(db.shorten_name(u'gatherer_place_types'))
-
-        # Deleting model 'GooglePlace'
-        db.delete_table(u'gatherer_googleplace')
+        # Removing M2M table for field tags on 'Place'
+        db.delete_table(db.shorten_name(u'gatherer_place_tags'))
 
 
     models = {
-        u'gatherer.googleplace': {
-            'Meta': {'object_name': 'GooglePlace'},
-            'g_id': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'g_price': ('django.db.models.fields.SmallIntegerField', [], {}),
-            'g_rating': ('django.db.models.fields.DecimalField', [], {'max_digits': '2', 'decimal_places': '1'}),
-            'place': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['gatherer.Place']", 'unique': 'True', 'primary_key': 'True'}),
-            'reference': ('django.db.models.fields.CharField', [], {'max_length': '256'})
-        },
         u'gatherer.place': {
             'Meta': {'object_name': 'Place'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
             'pos': ('geoposition.fields.GeopositionField', [], {'max_length': '42'}),
-            'types': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['gatherer.PlaceType']", 'symmetrical': 'False'})
+            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['gatherer.Tag']", 'symmetrical': 'False'}),
+            'timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'version': ('django.db.models.fields.IntegerField', [], {'null': 'True'})
         },
-        u'gatherer.placetype': {
-            'Meta': {'object_name': 'PlaceType'},
+        u'gatherer.tag': {
+            'Meta': {'object_name': 'Tag'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': "'128'"})
+            'key': ('django.db.models.fields.CharField', [], {'max_length': "'128'"}),
+            'value': ('django.db.models.fields.CharField', [], {'max_length': "'256'"})
         }
     }
 
