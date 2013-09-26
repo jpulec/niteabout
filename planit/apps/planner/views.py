@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect
 
 from planit.apps.planner.util import distance_in_miles
 from planit.apps.planner.forms import GetStartedForm
-from planit.apps.gatherer.models import Place
+from planit.apps.gatherer.models import Place, Tag
 
 class GetStarted(FormView):
     template_name = "planner/get_started.html"
@@ -36,10 +36,11 @@ class Results(ListView):
     template_name = "planner/results.html"
     model = Place
     paginate_by = 10
+    context_object_name = "places_list"
 
     def get_queryset(self):
         threshold = self.request.GET['max_distance']
-        places = list(Place.objects.filter(types__name=self.request.GET['type']))
+        places = list(Place.objects.filter(tags__value=self.request.GET['type']))
         lat, lng = self.request.GET['location'].split(',')
         for place in list(places):
             if distance_in_miles(place.pos.latitude, place.pos.longitude, lat, lng) > threshold:
@@ -49,4 +50,5 @@ class Results(ListView):
     def get_context_data(self, **kwargs):
         context = super(Results, self).get_context_data(**kwargs)
         context['getvars'] = self.request.META['QUERY_STRING']
+        context['tags'] = Tag.objects.values('key').distinct()
         return context
