@@ -6,12 +6,30 @@
 <div class="well">
     <h3>{{ place.name }}</h3>
     {{ place.pos }}
-    {% for type in place.types.all %}
-        {{ type.name }}
+    {% for tag in place.tags.all %}
+    <p>
+    {{ tag.key }}:{{ tag.value }}
+    </p>
     {% endfor %}
-    {% if place.google_place %}
-        {{ place.google_place.g_rating }}
-        {{ place.google_place.g_price }}
-    {% endif %}
+    <div id="map-container">
+        <div id="map-canvas" style="width:100%;height:400px">
+        </div>
+    </div>
+    <p>
+    <div id="place-details-container">
+        <div id="travelMode" class="btn-group" name="travel-group" data-toggle="buttons-radio">
+            <button type="button" onclick="calcRoute($(this).val())" class="btn active" value="WALKING">Walking</button> 
+            <button type="button" onclick="calcRoute($(this).val())" class="btn" value="DRIVING">Driving</button> 
+        </div>
+    </div>
+    </p>
+    <p>
+    <h3 style="display: inline">Total Distance:</h3><div id="totalDistance" style="display: inline"></div>
+    </p>
 </div>
 {% endblock body %}
+
+{% block script %}
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBaLOIWJwRzsQWsWBrfdRA4C5XRnzenh5s&sensor=true"></script>
+{% include "main/place_view_js.html" %}
+{% endblock script %}

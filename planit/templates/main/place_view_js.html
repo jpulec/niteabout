@@ -1,0 +1,59 @@
+<script type="text/javascript">
+var initialLocation;
+var directionsDisplay;
+var directionService = new google.maps.DirectionsService();
+
+function initialize() {
+    var mapOptions = {
+    center: new google.maps.LatLng( {{ place.pos }} ),
+        zoom: 16,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var map = new google.maps.Map(document.getElementById("map-canvas"),
+            mapOptions);
+    if(navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+                window.initialLocation = new google.maps.LatLng(position.coords.latitude,
+                    position.coords.longitude);
+                calcRoute("WALKING");
+                }, function () {
+                handleNoGeolocation(true);
+                });
+    }
+    else {
+        handleNoGeolocation(false);
+    }
+
+    function handleNoGeolocation(errorFlag) {
+        if (errorFlag == true ) {
+            alert("Geolocation failed");
+            initialLocation = null;
+        } else {
+            alert("Your browser doesn't support geolocation.");
+            initialLocation = null;
+        }
+    }
+
+    directionsDisplay = new google.maps.DirectionsRenderer();
+    directionsDisplay.setMap(map);
+}
+
+function calcRoute(selectedMode) {
+    var start = window.initialLocation;
+    var end = new google.maps.LatLng( {{ place.pos }} );
+    var request = {
+origin: start,
+        destination: end,
+        travelMode: google.maps.TravelMode[selectedMode]
+    };
+    directionService.route(request, function(result, status) {
+            if (status == google.maps.DirectionsStatus.OK) {
+            directionsDisplay.setDirections(result);
+            $('#totalDistance').text(result.routes[0].legs[0].distance.text);
+            }
+            });
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+

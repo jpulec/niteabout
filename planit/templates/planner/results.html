@@ -17,7 +17,7 @@
         {% for place in places_list %}
         <tr>
             <td>{{ page_obj.number|sub:1|mul:10|add:forloop.counter }}</td>
-            <td>{{ place.name }}</td>
+            <td><a href="{% url "place" place.id %}">{{ place.name }}</a></td>
         </tr>
         {% endfor %}
         </tbody>

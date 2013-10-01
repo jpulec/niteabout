@@ -24,9 +24,9 @@
 <div class="container">
     <div class="header">
         <ul class="nav nav-pills pull-right">
-            <li class="active"><a href="{% url "home" %}">Home</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
+            <li{% if selected == "home" %} class="active"{% endif %}><a href="{% url "home" %}">Home</a></li>
+            <li{% if selected == "about" %} class="active"{% endif %}><a href="{% url "about" %}">About</a></li>
+            <li{% if selected == "contact" %} class="active"{% endif %}><a href="{% url "contact" %}">Contact</a></li>
         </ul>
         <h3 class="text-muted">PlanIt</h3>
     </div>

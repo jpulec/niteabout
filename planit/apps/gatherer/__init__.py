@@ -1,5 +1,4 @@
 import logging
-from planit.apps.gatherer.models import PLACE_TYPES
 from planit.apps.gatherer.tasks import parse_openstreetmap 
 
 logger = logging.getLogger(__name__)

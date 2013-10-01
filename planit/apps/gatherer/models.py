@@ -1,14 +1,6 @@
 from django.db import models
 from geoposition.fields import GeopositionField
-
-
-PLACE_TYPES = (
-        ('bar', 'Bar'),
-        ('restaurant', 'Restaurant'),
-        ('night club', 'Night Club'),
-        ('cafe', 'Cafe'),
-    )
-
+from planit.apps.gatherer import signals
 
 class Tag(models.Model):
     key = models.CharField(max_length="128")
@@ -16,6 +8,9 @@ class Tag(models.Model):
 
     def __unicode__(self):
         return self.key + ":" + self.value
+
+    class Meta:
+        unique_together = ('key', 'value',)
 
 class Place(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -66,3 +61,5 @@ class MovieReview(models.Model):
     score = models.IntegerField()
     reviewer = models.CharField(max_length=64)
     movie = models.ForeignKey('Movie')
+
+

@@ -40,10 +40,13 @@ class Results(ListView):
 
     def get_queryset(self):
         threshold = self.request.GET['max_distance']
-        places = list(Place.objects.filter(tags__value=self.request.GET['type']))
+        places = Place.objects.filter(tags__value=self.request.GET['amenity'])
+        if 'cusine' in self.request.GET:
+            places = places.filter(tags__value__in=self.request.GET.getlist('cusine'))
+        places = list(places)
         lat, lng = self.request.GET['location'].split(',')
         for place in list(places):
-            if distance_in_miles(place.pos.latitude, place.pos.longitude, lat, lng) > threshold: 
+            if distance_in_miles(place.pos.latitude, place.pos.longitude, lat, lng) > float(threshold):
                 places.remove(place)
         return places
 

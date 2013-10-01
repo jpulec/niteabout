@@ -7,7 +7,18 @@
 <div class="well">
     <h3>Just fill in the following information:</h3>
     <form id="id_form">
-    {{ form.as_p }}
+        {% for field in form.visible_fields %}
+        <div class="form-group">
+        {{ field.label_tag }}:
+        {{ field }}
+        </div>
+        {% endfor %}
+        {% for field in form.hidden_fields %}
+        {{ field }}
+        {% endfor %}
+            
+        <div id="form-extra" class="form-group">
+        </div>
     <button type="submit" formmethod="get" formaction="{% url "planit" %}" class="btn btn-success">PlanIt!</button>
     </form>
 </div>

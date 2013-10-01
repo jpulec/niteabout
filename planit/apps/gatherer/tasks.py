@@ -12,16 +12,15 @@ logger = logging.getLogger(__name__)
 @job
 def parse_openstreetmap(file_name):
     relevant_keys = ["name", "opening_hours", "cusine", "drink", "amenity"]
-    relevant_values = ["cinema"]
+    relevant_values = ["cinema", "bar", "cafe", "pub", "restaurant"]
     for entity in osmread.parse_file(file_name):
         if isinstance(entity, osmread.Node):
             if "amenity" in entity.tags:
                 if entity.tags['amenity'] in relevant_values and "name" in entity.tags:
                     try:
-                        print entity.tags["name"]
                         new_place, created = Place.objects.get_or_create(id=entity.id, name=entity.tags['name'], pos=(str(entity.lat) + "," + str(entity.lon)))
-                        if new_place.version != entity.version:
-                            new_place.version = entity.version
+                        if new_place.version < int(entity.version):
+                            new_place.version = int(entity.version)
                             new_place.timestamp = datetime.datetime.utcfromtimestamp(entity.timestamp)
                             new_place.save()
                             for k, v in entity.tags.iteritems():
