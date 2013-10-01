@@ -12,10 +12,14 @@ class PlaceAdmin(admin.ModelAdmin):
     list_display = ('name', 'pos',)
 
     filter_horizontal = ('tags',)
+    list_filter = ('tags',)
+    search_fields = ['name']
+
 
 class TagAdmin(admin.ModelAdmin):
     fields = ['key', 'value']
     list_display = ('key', 'value',)
+    search_fields = ['key']
 
 admin.site.register(Place, PlaceAdmin)
 admin.site.register(Tag, TagAdmin)

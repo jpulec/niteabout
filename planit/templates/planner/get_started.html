@@ -1,34 +1,43 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 {% block title %}Getting Started{% endblock title %}
+
+{% block header_extra %}
+{{ wizard.form.media }}
+{% endblock header_extra %}
 
 
 {% block body %}
 <div class="well">
-    <h3>Just fill in the following information:</h3>
-    <form id="id_form">
-        {% for field in form.visible_fields %}
-        <div class="form-group">
-        {{ field.label_tag }}:
-        {{ field }}
-        </div>
-        {% endfor %}
-        {% for field in form.hidden_fields %}
-        {{ field }}
-        {% endfor %}
+    <p> Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
+    <form action="" method="post" id="id_form">
+        {% csrf_token %}
+        <table>
+        {{ wizard.management_form }}
+        {% if wizard.form.forms %}
+            {{ wizard.form.management_form }}
+            {% for form in wizard.form.forms %}
+                {{ form.as_p }}    
+            {% endfor %}
+            {% else %}
+            {{ wizard.form }}
             
-        <div id="form-extra" class="form-group">
-        </div>
-    <button type="submit" formmethod="get" formaction="{% url "planit" %}" class="btn btn-success">PlanIt!</button>
+            {% endif %}
+        </table>
+        {% if wizard.steps.prev %}
+        <button class="btn btn-success" name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}">{% trans "Star Over" %}</button>
+        <button class="btn btn-success" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "Back" %}</button>
+        {% endif %}
+        <button class="btn btn-success" type="submit"/>{% trans "Next" %}</button>
     </form>
 </div>
 {% endblock body %}
 
 {% block script %}
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyBaLOIWJwRzsQWsWBrfdRA4C5XRnzenh5s&sensor=true"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyBaLOIWJwRzsQWsWBrfdRA4C5XRnzenh5s&sensor=false"></script>
 <script>
 
-var input = document.getElementById('id_location_text');
+var input = document.getElementById('id_getstarted-location_text');
 var options = {
     types: ['(cities)'],
            componentRestrictions: {country: 'us'}
@@ -39,12 +48,8 @@ autocomplete = new google.maps.places.Autocomplete(input, options);
 
 google.maps.event.addListener(autocomplete, 'place_changed', function() {
         var place = autocomplete.getPlace();
-        $('#id_location').val(place.geometry.location);
+        $('#id_getstarted-location').val(place.geometry.location);
    });
-
-$('#id_form').submit( function () {
-        $('#id_location').val(autocomplete.getPlace().geometry.location);
-        });
 
 </script>
 {% endblock script %}
