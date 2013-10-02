@@ -20,16 +20,6 @@ class Place(models.Model):
     timestamp = models.DateTimeField(null=True)
     version = models.IntegerField(null=True)
 
-
-    def loudness(self):
-        return self.tags.get(key="loudness").value
-
-    def opening_hours(self):
-        return self.tags.get(key="opening_hours").value
-
-    def amenity(self):
-        return self.tags.filter(key="amenity").values_list('value', flat=True)
-
     def get_tags(self):
         return self.tags.all()
 
@@ -52,15 +42,28 @@ class Movie(models.Model):
     title = models.CharField(max_length=256)
     year = models.IntegerField()
     genres = models.ManyToManyField('Genre')
-    mpaa = models.CharField(max_length=8, choices=MPAA_CHOICES)
+    rating = models.CharField(max_length=8, choices=MPAA_CHOICES)
     synopsis = models.TextField()
-    runtime = models.IntegerField()
+    runtime = models.IntegerField(null=True, blank=True)
 
+    def __unicode__(self):
+        return self.title + " (" + str(self.year) + ") "
+
+class MovieShowtime(models.Model):
+    dt = models.DateTimeField()
+    theater = models.ForeignKey('Place', null=True, blank=True)
+    movie = models.ForeignKey('Movie')
+
+    def __unicode__(self):
+        return str(self.movie) + " is showing " + " at " + str(self.theater) + " at " + str(dt)
 
 class MovieReview(models.Model):
     score = models.IntegerField()
     reviewer = models.CharField(max_length=64)
     movie = models.ForeignKey('Movie')
+
+    def __unicode__(self):
+        return self.reviewer + " gave " + str(self.movie) + " a " + str(self.score)
 
 DAYS_OF_WEEK = (
         (0, "Sunday"),
@@ -71,6 +74,7 @@ DAYS_OF_WEEK = (
         (5, "Friday"),
         (6, "Saturday")
         )
+
 
 class BarSpecial(models.Model):
     bar = models.ForeignKey('Place')

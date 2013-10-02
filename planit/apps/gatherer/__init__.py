@@ -1,5 +1,5 @@
 import logging
-from planit.apps.gatherer.tasks import parse_openstreetmap 
+from planit.apps.gatherer.tasks import parse_openstreetmap, scrape_fandango
 
 logger = logging.getLogger(__name__)
 
@@ -27,5 +27,6 @@ def init_scheduler():
             scheduler.schedule(now, func, func_args, *args, **kwargs)
 
     schedule_once(parse_openstreetmap, ('planit/osm/Madison.osm',), interval=60*24*7, timeout=-1)
+    #schedule_once(scrape_fandango, ("53703",), interval=60*24*7, timeout=-1)
 
 init_scheduler()
