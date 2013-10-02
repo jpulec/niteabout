@@ -5,11 +5,15 @@ from django.shortcuts import render_to_response
 from django.utils.encoding import force_text
 from django.http import HttpResponseRedirect
 from django.contrib.formtools.wizard.views import NamedUrlSessionWizardView
-import inspect
+from django.contrib.gis.geoip import GeoIP
+import logging
+import requests
 
 from planit.apps.planner.util import distance_in_miles
 from planit.apps.planner.forms import GetStartedForm, RestaurantForm
 from planit.apps.gatherer.models import Place, Tag
+
+logger = logging.getLogger(__name__)
 
 class GetStarted(FormView):
     template_name = "planner/get_started.html"
@@ -20,6 +24,12 @@ class GetStarted(FormView):
         self.request.session['search_query'] = self.request.POST
         return super(GetStarted, self).form_valid(form)
 
+def geocode(city_state):
+    response = requests.get("https://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=false" % city_state)
+    logger.info(response)
+    json = response.json()
+    return json['results'][0]['geometry']['location']['lat'], json['results'][0]['geometry']['location']['lng']
+
 class Results(ListView):
     template_name = "planner/results.html"
     model = Place
@@ -27,15 +37,13 @@ class Results(ListView):
     context_object_name = "places_list"
 
     def get_queryset(self):
-        for item in self.request.session['search_query']:
-            print item
         search = self.request.session['search_query']
         threshold = search['max_distance']
         places = Place.objects.filter(tags__value=search['amenity'])
-        if 'cusine' in search:
-            places = places.filter(tags__value__in=search.getlist('cusine'))
+        if 'cusine' in search and search['cusine']:
+            places = places.filter(tags__value__in=search['cusine'])
         places = list(places)
-        lat, lng = search['location'].split(',')
+        lat, lng = geocode(search['location_text'])
         for place in list(places):
             if distance_in_miles(place.pos.latitude, place.pos.longitude, lat, lng) > float(threshold):
                 places.remove(place)
@@ -73,9 +81,9 @@ class PlannerWizard(NamedUrlSessionWizardView):
     #    return [ FORM_TEMPLATES[self.steps.current]]
 
     def done(self, form_list, **kwargs):
+        self.request.session['search_query'] = {}
         for form in form_list:
-            for field in form:
-                self.request.session['search_query'][field.name] = field
+            self.request.session['search_query'].update(form.cleaned_data)
         return HttpResponseRedirect('/planit/results/')
 
 

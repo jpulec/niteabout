@@ -45,11 +45,5 @@ var options = {
 
 
 autocomplete = new google.maps.places.Autocomplete(input, options);
-
-google.maps.event.addListener(autocomplete, 'place_changed', function() {
-        var place = autocomplete.getPlace();
-        $('#id_getstarted-location').val(place.geometry.location);
-   });
-
 </script>
 {% endblock script %}

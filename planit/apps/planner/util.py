@@ -9,11 +9,11 @@ def distance_in_miles(lat1, long1, lat2, long2):
 
 # phi = 90 - latitude
     phi1 = (Decimal(90.0) - lat1)*degrees_to_radians
-    phi2 = (Decimal(90.0) - Decimal(lat2[1:]))*degrees_to_radians
+    phi2 = (Decimal(90.0) - Decimal(lat2))*degrees_to_radians
 
 # theta = longitude
     theta1 = long1*degrees_to_radians
-    theta2 = Decimal(long2[:-1])*degrees_to_radians
+    theta2 = Decimal(long2)*degrees_to_radians
 
 # Compute spherical
 # distance from

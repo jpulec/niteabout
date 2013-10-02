@@ -8,7 +8,6 @@ PLACE_TYPES = ((tag.value, tag.value.capitalize()) for tag in Tag.objects.filter
 CUSINE_TYPES = ((tag.value, tag.value.capitalize()) for tag in Tag.objects.filter(key="cusine"))
 
 class GetStartedForm(forms.Form):
-    location = forms.CharField(max_length=128, required=True, widget=HiddenInput())
     location_text = forms.CharField(max_length=128, required=True, widget=TextInput(attrs={"required":""}))
     amenity = forms.ChoiceField(choices=PLACE_TYPES, required=True)
     max_distance = forms.DecimalField(max_digits=3, decimal_places=1, required=True, widget=TextInput(attrs={"required":""}))
@@ -18,4 +17,4 @@ class GetStartedForm(forms.Form):
                                                                                   'min':'1'}))
 
 class RestaurantForm(forms.Form):
-    cusine = forms.MultipleChoiceField(choices=CUSINE_TYPES, widget=CheckboxSelectMultiple())
+    cusine = forms.MultipleChoiceField(choices=CUSINE_TYPES, widget=CheckboxSelectMultiple(), required=False)
