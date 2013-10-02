@@ -8,7 +8,7 @@ from django.contrib.formtools.wizard.views import NamedUrlSessionWizardView
 import inspect
 
 from planit.apps.planner.util import distance_in_miles
-from planit.apps.planner.forms import GetStartedForm, RestaurantForm, PLACE_TYPES
+from planit.apps.planner.forms import GetStartedForm, RestaurantForm
 from planit.apps.gatherer.models import Place, Tag
 
 class GetStarted(FormView):
@@ -27,6 +27,8 @@ class Results(ListView):
     context_object_name = "places_list"
 
     def get_queryset(self):
+        for item in self.request.session['search_query']:
+            print item
         search = self.request.session['search_query']
         threshold = search['max_distance']
         places = Place.objects.filter(tags__value=search['amenity'])
@@ -45,16 +47,23 @@ class Results(ListView):
         context['tags'] = Tag.objects.values('key').distinct()
         return context
 
-
 FORMS = [("getstarted", GetStartedForm),
          ("restaurant", RestaurantForm)]
 
 FORM_TEMPLATES = {"getstarted": "planner/get_started.html",
                   "restaurant": "planner/restaurant.html"}
 
+#PLACE_TYPES = ((tag.value, tag.value.capitalize()) for tag in Tag.objects.filter(key="amenity"))
 
+def check_restaurant(wizard):
+    cleaned_data = wizard.get_cleaned_data_for_step('getstarted') or {'amenity':'none'}
+    return cleaned_data['amenity'] == 'restaurant'
+
+
+planner_conds = {'restaurant':check_restaurant }
 #planner_conds = {'restaurant': lambda wizard: wizard.get_cleaned_data_for_step('getstarted').get('amenity', "") == 'restaurant'}
-planner_conds = { amenity[0]:(lambda wizard: wizard.get_cleaned_data_for_step('getstarted').get('amenity', "") == amenity[0]) for amenity in PLACE_TYPES }
+#print [ amenity for amenity in PLACE_TYPES ]
+#planner_conds = { amenity[0]:(lambda wizard: wizard.get_cleaned_data_for_step('getstarted').get('amenity', "") == amenity[0]) for amenity in PLACE_TYPES }
 
 class PlannerWizard(NamedUrlSessionWizardView):
     template_name = "planner/get_started.html"
@@ -64,7 +73,9 @@ class PlannerWizard(NamedUrlSessionWizardView):
     #    return [ FORM_TEMPLATES[self.steps.current]]
 
     def done(self, form_list, **kwargs):
-        self.request.session['search_query'] = form_list
+        for form in form_list:
+            for field in form:
+                self.request.session['search_query'][field.name] = field
         return HttpResponseRedirect('/planit/results/')
 
 
