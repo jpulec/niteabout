@@ -21,8 +21,18 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('key', 'value',)
     search_fields = ['key']
 
+class BarSpecialAdmin(admin.ModelAdmin):
+    fields = ['bar', 'start_time', 'end_time', 'day', 'deal']
+    search_fields = ['bar']
+
+    def render_change_form(self, request, context, *args, **kwargs):
+        specials_tags = Tag.objects.filter(key='amenity', value__in=['bar','pub'])
+        context['adminform'].form.fields['bar'].queryset = Place.objects.filter(tags__in=specials_tags)
+        return super(BarSpecialAdmin, self).render_change_form(request, context, args, kwargs)
+
 admin.site.register(Place, PlaceAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Genre)
 admin.site.register(Movie)
 admin.site.register(MovieReview)
+admin.site.register(BarSpecial, BarSpecialAdmin)

@@ -46,4 +46,4 @@ nosetests.xml
 *.sql
 
 .env
-db
+#db

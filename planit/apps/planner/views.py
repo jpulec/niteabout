@@ -10,7 +10,7 @@ import logging
 import requests
 
 from planit.apps.planner.util import distance_in_miles
-from planit.apps.planner.forms import GetStartedForm, RestaurantForm
+from planit.apps.planner.forms import GetStartedForm, RestaurantForm, BarForm, CafeForm, CinemaForm, PubForm
 from planit.apps.gatherer.models import Place, Tag
 
 logger = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ class Results(ListView):
         if 'cusine' in search and search['cusine']:
             places = places.filter(tags__value__in=search['cusine'])
         places = list(places)
-        lat, lng = geocode(search['location_text'])
+        lat, lng = geocode(search['location'])
         for place in list(places):
             if distance_in_miles(place.pos.latitude, place.pos.longitude, lat, lng) > float(threshold):
                 places.remove(place)
@@ -56,22 +56,26 @@ class Results(ListView):
         return context
 
 FORMS = [("getstarted", GetStartedForm),
-         ("restaurant", RestaurantForm)]
+         ("restaurant", RestaurantForm),
+         ('bar', BarForm),
+         ('cafe', CafeForm),
+         ('cinema', CinemaForm),
+         ('pub', PubForm),]
 
 FORM_TEMPLATES = {"getstarted": "planner/get_started.html",
-                  "restaurant": "planner/restaurant.html"}
+                  "restaurant": "planner/restaurant.html",
+                  "bar":"planner/bar.html",
+                  "cafe":"planner/cafe.html"}
 
-#PLACE_TYPES = ((tag.value, tag.value.capitalize()) for tag in Tag.objects.filter(key="amenity"))
+PLACE_TYPES = (tag.value for tag in Tag.objects.filter(key="amenity"))
 
-def check_restaurant(wizard):
-    cleaned_data = wizard.get_cleaned_data_for_step('getstarted') or {'amenity':'none'}
-    return cleaned_data['amenity'] == 'restaurant'
+def check_amenity(amenity):
+    def check_amenity_func(wizard):
+        cleaned_data = wizard.get_cleaned_data_for_step('getstarted') or {'amenity':'none'}
+        return cleaned_data['amenity'] == amenity
+    return check_amenity_func
 
-
-planner_conds = {'restaurant':check_restaurant }
-#planner_conds = {'restaurant': lambda wizard: wizard.get_cleaned_data_for_step('getstarted').get('amenity', "") == 'restaurant'}
-#print [ amenity for amenity in PLACE_TYPES ]
-#planner_conds = { amenity[0]:(lambda wizard: wizard.get_cleaned_data_for_step('getstarted').get('amenity', "") == amenity[0]) for amenity in PLACE_TYPES }
+planner_conds = { amenity: check_amenity(amenity) for amenity in PLACE_TYPES }
 
 class PlannerWizard(NamedUrlSessionWizardView):
     template_name = "planner/get_started.html"
@@ -85,6 +89,4 @@ class PlannerWizard(NamedUrlSessionWizardView):
         for form in form_list:
             self.request.session['search_query'].update(form.cleaned_data)
         return HttpResponseRedirect('/planit/results/')
-
-
 
