@@ -6,6 +6,7 @@ from django.utils.encoding import force_text
 from django.http import HttpResponseRedirect
 from django.contrib.formtools.wizard.views import NamedUrlSessionWizardView
 from django.contrib.gis.geoip import GeoIP
+from django.db.models import Q
 import logging
 import requests
 
@@ -49,10 +50,11 @@ class Results(ListView):
     
     def handle(self, amenity):
         def handle_amenity(search):
-            places = Place.objects.filter(tags__value=search['amenity'])
+            places = Place.objects.filter(tags__key="amenity", tags__value=search['amenity']).filter(
+                                          Q(tags__key="price", tags__value__lte=search['price']) | ~Q(tags__key="price"))
             if amenity == 'restaurant':
                 if search['cusine']:
-                    places = places.filter(tags__value__in=search['cusine'])
+                    places = places.filter(tags__key="cusine", tags__value__in=search['cusine'])
             elif amenity == 'bar':
                 if search['specials']:
                     places = places.filter(barspecial__deal__in=search['specials'])
@@ -63,7 +65,6 @@ class Results(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(Results, self).get_context_data(**kwargs)
-        context['getvars'] = self.request.META['QUERY_STRING']
         context['tags'] = Tag.objects.values('key').distinct()
         return context
 
