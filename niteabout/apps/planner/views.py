@@ -47,7 +47,7 @@ class Results(ListView):
             if distance_in_miles(place.pos.latitude, place.pos.longitude, lat, lng) > float(threshold):
                 places.remove(place)
         return places
-    
+
     def handle(self, amenity):
         def handle_amenity(search):
             places = Place.objects.filter(tags__key="amenity", tags__value=search['amenity']).filter(
