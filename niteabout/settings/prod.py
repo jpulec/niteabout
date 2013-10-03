@@ -26,3 +26,11 @@ MEDIA_URL += "media/"
 
 INSTALLED_APPS += ('gunicorn', 'storages',)
 
+REDIS_URL = urlparse.urlparse(os.environ.get('REDISTOGO_URL', 'redis://localhost:6959'))
+
+RQ_QUEUES = {
+        'default': {
+            'URL': REDIS_URL,
+            'DB': 0,
+            },
+        }
