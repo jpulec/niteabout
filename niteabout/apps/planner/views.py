@@ -9,9 +9,9 @@ from django.contrib.gis.geoip import GeoIP
 import logging
 import requests
 
-from planit.apps.planner.util import distance_in_miles
-from planit.apps.planner.forms import GetStartedForm, RestaurantForm, BarForm, CafeForm, CinemaForm, PubForm
-from planit.apps.gatherer.models import Place, Tag
+from niteabout.apps.planner.util import distance_in_miles
+from niteabout.apps.planner.forms import GetStartedForm, RestaurantForm, BarForm, CafeForm, CinemaForm, PubForm
+from niteabout.apps.gatherer.models import Place, Tag
 
 logger = logging.getLogger(__name__)
 

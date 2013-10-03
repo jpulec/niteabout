@@ -1,8 +1,8 @@
 from django import forms
 from django.forms.widgets import HiddenInput, CheckboxSelectMultiple, TextInput
 
-from planit.apps.planner.widgets import RangeInput
-from planit.apps.gatherer.models import Tag, BarSpecial, Genre
+from niteabout.apps.planner.widgets import RangeInput
+from niteabout.apps.gatherer.models import Tag, BarSpecial, Genre
 
 PLACE_TYPES = ((tag.value, tag.value.capitalize()) for tag in Tag.objects.filter(key="amenity"))
 CUSINE_TYPES = ((tag.value, tag.value.capitalize()) for tag in Tag.objects.filter(key="cusine"))

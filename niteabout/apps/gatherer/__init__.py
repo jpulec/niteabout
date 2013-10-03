@@ -1,5 +1,5 @@
 import logging
-from planit.apps.gatherer.tasks import parse_openstreetmap, scrape_fandango, scrape_onconnect
+from niteabout.apps.gatherer.tasks import parse_openstreetmap, scrape_fandango, scrape_onconnect
 
 logger = logging.getLogger(__name__)
 

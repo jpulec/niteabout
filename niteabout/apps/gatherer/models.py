@@ -89,4 +89,4 @@ class BarSpecial(models.Model):
         return str([bar for bar in self.bars.all()]) + " has " + self.deal + " on " + str(self.day) + " starting at " + str(self.start_time) + " until " + str(self.end_time)
 
 
-from planit.apps.gatherer import signals
+from niteabout.apps.gatherer import signals

@@ -7,7 +7,7 @@ import datetime
 import feedparser
 import xml.etree.ElementTree as ET
 
-from planit.apps.gatherer.models import Place, Tag, Movie, MovieShowtime, Genre
+from niteabout.apps.gatherer.models import Place, Tag, Movie, MovieShowtime, Genre
 
 logger = logging.getLogger(__name__)
 

@@ -3,7 +3,7 @@ import requests
 import xml.etree.ElementTree as ET
 import logging
 
-from planit.apps.gatherer.models import *
+from niteabout.apps.gatherer.models import *
 
 logger = logging.getLogger(__name__)
 

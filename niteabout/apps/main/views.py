@@ -3,8 +3,8 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.core.mail import send_mail
 
-from planit.apps.gatherer.models import Place
-from planit.apps.main.forms import ContactForm
+from niteabout.apps.gatherer.models import Place
+from niteabout.apps.main.forms import ContactForm
 
 class Home(TemplateView):
     template_name = "main/home.html"

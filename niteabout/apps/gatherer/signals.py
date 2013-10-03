@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 import requests, logging
 import datetime
 
-from planit.apps.gatherer.models import Place
+from niteabout.apps.gatherer.models import Place
 
 
 logger = logging.getLogger(__name__)
