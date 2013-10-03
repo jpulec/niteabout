@@ -32,4 +32,4 @@ class PubForm(forms.Form):
     specials = forms.MultipleChoiceField(choices=BAR_SPECIALS, widget=CheckboxSelectMultiple(), required=False)
 
 class CinemaForm(forms.Form):
-    pass
+    genres = forms.MultipleChoiceField(choices=CINEMA_GENRES, widget=CheckboxSelectMultiple(), required=True)

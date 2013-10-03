@@ -4,10 +4,12 @@ import xml.etree.ElementTree as ET
 import requests, logging
 import datetime
 
+from planit.apps.gatherer.models import Place
+
 
 logger = logging.getLogger(__name__)
 
-@receiver(m2m_changed)
+@receiver(m2m_changed, sender=Place)
 def update_osm(sender, **kwargs):
     action = kwargs.pop('action', None)
     instance = kwargs.pop('instance', None)

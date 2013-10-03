@@ -16,6 +16,9 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'gatherer', ['Tag'])
 
+        # Adding unique constraint on 'Tag', fields ['key', 'value']
+        db.create_unique(u'gatherer_tag', ['key', 'value'])
+
         # Adding model 'Place'
         db.create_table(u'gatherer_place', (
             ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
@@ -47,9 +50,9 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
             ('title', self.gf('django.db.models.fields.CharField')(max_length=256)),
             ('year', self.gf('django.db.models.fields.IntegerField')()),
-            ('mpaa', self.gf('django.db.models.fields.CharField')(max_length=8)),
+            ('rating', self.gf('django.db.models.fields.CharField')(max_length=8)),
             ('synopsis', self.gf('django.db.models.fields.TextField')()),
-            ('runtime', self.gf('django.db.models.fields.IntegerField')()),
+            ('runtime', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
         ))
         db.send_create_signal(u'gatherer', ['Movie'])
 
@@ -62,6 +65,15 @@ class Migration(SchemaMigration):
         ))
         db.create_unique(m2m_table_name, ['movie_id', 'genre_id'])
 
+        # Adding model 'MovieShowtime'
+        db.create_table(u'gatherer_movieshowtime', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('dt', self.gf('django.db.models.fields.DateTimeField')()),
+            ('theater', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gatherer.Place'], null=True, blank=True)),
+            ('movie', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gatherer.Movie'])),
+        ))
+        db.send_create_signal(u'gatherer', ['MovieShowtime'])
+
         # Adding model 'MovieReview'
         db.create_table(u'gatherer_moviereview', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -71,8 +83,22 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'gatherer', ['MovieReview'])
 
+        # Adding model 'BarSpecial'
+        db.create_table(u'gatherer_barspecial', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('bar', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gatherer.Place'])),
+            ('start_time', self.gf('django.db.models.fields.TimeField')()),
+            ('end_time', self.gf('django.db.models.fields.TimeField')()),
+            ('day', self.gf('django.db.models.fields.IntegerField')(default=0, max_length=1)),
+            ('deal', self.gf('django.db.models.fields.TextField')()),
+        ))
+        db.send_create_signal(u'gatherer', ['BarSpecial'])
+
 
     def backwards(self, orm):
+        # Removing unique constraint on 'Tag', fields ['key', 'value']
+        db.delete_unique(u'gatherer_tag', ['key', 'value'])
+
         # Deleting model 'Tag'
         db.delete_table(u'gatherer_tag')
 
@@ -91,11 +117,26 @@ class Migration(SchemaMigration):
         # Removing M2M table for field genres on 'Movie'
         db.delete_table(db.shorten_name(u'gatherer_movie_genres'))
 
+        # Deleting model 'MovieShowtime'
+        db.delete_table(u'gatherer_movieshowtime')
+
         # Deleting model 'MovieReview'
         db.delete_table(u'gatherer_moviereview')
 
+        # Deleting model 'BarSpecial'
+        db.delete_table(u'gatherer_barspecial')
+
 
     models = {
+        u'gatherer.barspecial': {
+            'Meta': {'object_name': 'BarSpecial'},
+            'bar': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gatherer.Place']"}),
+            'day': ('django.db.models.fields.IntegerField', [], {'default': '0', 'max_length': '1'}),
+            'deal': ('django.db.models.fields.TextField', [], {}),
+            'end_time': ('django.db.models.fields.TimeField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'start_time': ('django.db.models.fields.TimeField', [], {})
+        },
         u'gatherer.genre': {
             'Meta': {'object_name': 'Genre'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -105,8 +146,8 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Movie'},
             'genres': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['gatherer.Genre']", 'symmetrical': 'False'}),
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
-            'mpaa': ('django.db.models.fields.CharField', [], {'max_length': '8'}),
-            'runtime': ('django.db.models.fields.IntegerField', [], {}),
+            'rating': ('django.db.models.fields.CharField', [], {'max_length': '8'}),
+            'runtime': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'synopsis': ('django.db.models.fields.TextField', [], {}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
             'year': ('django.db.models.fields.IntegerField', [], {})
@@ -118,6 +159,13 @@ class Migration(SchemaMigration):
             'reviewer': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
             'score': ('django.db.models.fields.IntegerField', [], {})
         },
+        u'gatherer.movieshowtime': {
+            'Meta': {'object_name': 'MovieShowtime'},
+            'dt': ('django.db.models.fields.DateTimeField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'movie': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gatherer.Movie']"}),
+            'theater': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gatherer.Place']", 'null': 'True', 'blank': 'True'})
+        },
         u'gatherer.place': {
             'Meta': {'object_name': 'Place'},
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
@@ -128,7 +176,7 @@ class Migration(SchemaMigration):
             'version': ('django.db.models.fields.IntegerField', [], {'null': 'True'})
         },
         u'gatherer.tag': {
-            'Meta': {'object_name': 'Tag'},
+            'Meta': {'unique_together': "(('key', 'value'),)", 'object_name': 'Tag'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'key': ('django.db.models.fields.CharField', [], {'max_length': "'128'"}),
             'value': ('django.db.models.fields.CharField', [], {'max_length': "'256'"})

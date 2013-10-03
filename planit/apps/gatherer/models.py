@@ -1,6 +1,5 @@
 from django.db import models
 from geoposition.fields import GeopositionField
-from planit.apps.gatherer import signals
 
 class Tag(models.Model):
     key = models.CharField(max_length="128")
@@ -29,6 +28,9 @@ class Place(models.Model):
 class Genre(models.Model):
     name = models.CharField(max_length=64)
 
+    def __unicode__(self):
+        return self.name
+
 class Movie(models.Model):
     MPAA_CHOICES = (
             ("g", "G"),
@@ -55,7 +57,7 @@ class MovieShowtime(models.Model):
     movie = models.ForeignKey('Movie')
 
     def __unicode__(self):
-        return str(self.movie) + " is showing " + " at " + str(self.theater) + " at " + str(dt)
+        return str(self.movie) + " is showing " + " at " + str(self.theater) + " at " + str(self.dt)
 
 class MovieReview(models.Model):
     score = models.IntegerField()
@@ -77,11 +79,14 @@ DAYS_OF_WEEK = (
 
 
 class BarSpecial(models.Model):
-    bar = models.ForeignKey('Place')
+    bars = models.ManyToManyField('Place')
     start_time = models.TimeField()
     end_time = models.TimeField()
     day = models.IntegerField(max_length=1, default=0, choices=DAYS_OF_WEEK)
     deal = models.TextField()
 
     def __unicode__(self):
-        return str(self.bar.name) + " has " + self.deal + " on " + str(self.day) + " starting at " + str(self.start_time) + " until " + str(self.end_time)
+        return str([bar for bar in self.bars.all()]) + " has " + self.deal + " on " + str(self.day) + " starting at " + str(self.start_time) + " until " + str(self.end_time)
+
+
+from planit.apps.gatherer import signals

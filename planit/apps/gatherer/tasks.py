@@ -49,36 +49,43 @@ def scrape_onconnect(area_code):
     start_date = datetime.date.today().isoformat()
     radius = "100"
     url = "http://data.tmsapi.com/v1/movies/showings?startDate=%s&zip=%s&radius=%s&api_key=%s" % (start_date, area_code, radius, os.environ["ONCONNECT_API_KEY"])
+    logger.info(url)
     response = requests.get(url)
     logger.info(response)
     json = response.json()
     for movie in json:
-        id = movie['tmsId']
+        id = movie['tmsId'][2:]
         title = movie['title']
-        synopsis = movie['longDescription']
-        rating = movie['ratings'][0].get('code', '')
-        genres = movie['genres']
-        year = movie['releaseYear']
-        runtime = movie['runtime']
+        synopsis = movie.get('longDescription', '')
+        if not synopsis:
+            synopsis = movie.get('shortDescription', '')
+        rating = movie.get('ratings', '')
+        if rating:
+            rating[0].get('code', '')
+        genres = movie.get('genres', '')
+        year = movie.get('releaseYear', 0)
+        runtime = movie.get('runTime', 0)
         new_movie, created = Movie.objects.get_or_create(id=id, title=title, synopsis=synopsis, rating=rating, year=year)
         if created:
-            for genre in genres:
-                new_genre, created = Genre.objects.get_or_create(name=genre)
-                new_movie.add(new_genre)
-            new_movie.save()
+            if genres:
+                for genre in genres:
+                    new_genre, created = Genre.objects.get_or_create(name=genre)
+                    new_movie.genres.add(new_genre)
+                new_movie.save()
         for showtime in movie['showtimes']:
-            theater_name = showtime['theatre']['name']
+            theater_name = showtime['theatre'].get('name', '')
             theater_id = showtime['theatre']['id']
-            url = "http://data.tmsapi.com/v1/theatres/%s?api_key=%s" % (theater_id, os.environ['ONCONNECT_API_KEY'])
-            response = requests.get(url)
-            logger.info(response)
-            theater_json = response.json()
-            lat = theater_json['location']['geoCode']['latitude']
-            lng = theater_json['location']['geoCode']['longitude']
+            #url = "http://data.tmsapi.com/v1/theatres/%s?api_key=%s" % (theater_id, os.environ['ONCONNECT_API_KEY'])
+            #response = requests.get(url)
+            #logger.info(response)
+            #theater_json = response.json()
+            #lat = theater_json['location']['geoCode']['latitude']
+            #lng = theater_json['location']['geoCode']['longitude']
             #new_theater, created = Place.objects.get_or_create()
             time = dateutil.parser.parse(showtime['dateTime'])
             new_showtime, created = MovieShowtime.objects.get_or_create(dt=time, movie=new_movie)
-        return True
+    return True
+
 @job
 def scrape_fandango(area_code):
     url = "http://www.fandango.com/rss/moviesnearme_%s.rss" % area_code

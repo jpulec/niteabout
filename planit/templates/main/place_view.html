@@ -26,6 +26,12 @@
     <p>
     <h3 style="display: inline">Total Distance:</h3><div id="totalDistance" style="display: inline"></div>
     </p>
+    {% if place.barspecial_set.all %}
+        {% for special in place.barspecial_set.all %}
+            {{ special.start_time }} - {{ special.end_time }}:
+            <p>{{ special.deal }}</p>
+        {% endfor %}
+    {% endif %}
 </div>
 {% endblock body %}
 

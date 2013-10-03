@@ -118,7 +118,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
-    'django.contrib.gis',
+    #'django.contrib.gis',
     'django.contrib.admin',
     'south',
     'django_rq',
@@ -222,4 +222,4 @@ RQ_QUEUES = {
             }
         }
 
-GEOIP_PATH = os.path.join(BASE_DIR, "geoip")
+#GEOIP_PATH = os.path.join(BASE_DIR, "geoip")

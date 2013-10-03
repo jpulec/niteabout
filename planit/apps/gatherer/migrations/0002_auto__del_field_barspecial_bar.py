@@ -8,36 +8,38 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'BarSpecial'
-        db.create_table(u'gatherer_barspecial', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('bar', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['gatherer.Place'])),
-            ('start', self.gf('django.db.models.fields.DateTimeField')()),
-            ('end', self.gf('django.db.models.fields.DateTimeField')()),
-            ('deal', self.gf('django.db.models.fields.TextField')()),
-        ))
-        db.send_create_signal(u'gatherer', ['BarSpecial'])
+        # Deleting field 'BarSpecial.bar'
+        db.delete_column(u'gatherer_barspecial', 'bar_id')
 
-        # Adding unique constraint on 'Tag', fields ['key', 'value']
-        db.create_unique(u'gatherer_tag', ['key', 'value'])
+        # Adding M2M table for field bars on 'BarSpecial'
+        m2m_table_name = db.shorten_name(u'gatherer_barspecial_bars')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('barspecial', models.ForeignKey(orm[u'gatherer.barspecial'], null=False)),
+            ('place', models.ForeignKey(orm[u'gatherer.place'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['barspecial_id', 'place_id'])
 
 
     def backwards(self, orm):
-        # Removing unique constraint on 'Tag', fields ['key', 'value']
-        db.delete_unique(u'gatherer_tag', ['key', 'value'])
+        # Adding field 'BarSpecial.bar'
+        db.add_column(u'gatherer_barspecial', 'bar',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['gatherer.Place']),
+                      keep_default=False)
 
-        # Deleting model 'BarSpecial'
-        db.delete_table(u'gatherer_barspecial')
+        # Removing M2M table for field bars on 'BarSpecial'
+        db.delete_table(db.shorten_name(u'gatherer_barspecial_bars'))
 
 
     models = {
         u'gatherer.barspecial': {
             'Meta': {'object_name': 'BarSpecial'},
-            'bar': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gatherer.Place']"}),
+            'bars': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['gatherer.Place']", 'symmetrical': 'False'}),
+            'day': ('django.db.models.fields.IntegerField', [], {'default': '0', 'max_length': '1'}),
             'deal': ('django.db.models.fields.TextField', [], {}),
-            'end': ('django.db.models.fields.DateTimeField', [], {}),
+            'end_time': ('django.db.models.fields.TimeField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'start': ('django.db.models.fields.DateTimeField', [], {})
+            'start_time': ('django.db.models.fields.TimeField', [], {})
         },
         u'gatherer.genre': {
             'Meta': {'object_name': 'Genre'},
@@ -48,8 +50,8 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Movie'},
             'genres': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['gatherer.Genre']", 'symmetrical': 'False'}),
             'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
-            'mpaa': ('django.db.models.fields.CharField', [], {'max_length': '8'}),
-            'runtime': ('django.db.models.fields.IntegerField', [], {}),
+            'rating': ('django.db.models.fields.CharField', [], {'max_length': '8'}),
+            'runtime': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'synopsis': ('django.db.models.fields.TextField', [], {}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
             'year': ('django.db.models.fields.IntegerField', [], {})
@@ -60,6 +62,13 @@ class Migration(SchemaMigration):
             'movie': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gatherer.Movie']"}),
             'reviewer': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
             'score': ('django.db.models.fields.IntegerField', [], {})
+        },
+        u'gatherer.movieshowtime': {
+            'Meta': {'object_name': 'MovieShowtime'},
+            'dt': ('django.db.models.fields.DateTimeField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'movie': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gatherer.Movie']"}),
+            'theater': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['gatherer.Place']", 'null': 'True', 'blank': 'True'})
         },
         u'gatherer.place': {
             'Meta': {'object_name': 'Place'},

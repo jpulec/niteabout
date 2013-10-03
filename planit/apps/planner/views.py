@@ -39,15 +39,27 @@ class Results(ListView):
     def get_queryset(self):
         search = self.request.session['search_query']
         threshold = search['max_distance']
-        places = Place.objects.filter(tags__value=search['amenity'])
-        if 'cusine' in search and search['cusine']:
-            places = places.filter(tags__value__in=search['cusine'])
+        places = self.handle(search['amenity'])(search)
         places = list(places)
         lat, lng = geocode(search['location'])
         for place in list(places):
             if distance_in_miles(place.pos.latitude, place.pos.longitude, lat, lng) > float(threshold):
                 places.remove(place)
         return places
+    
+    def handle(self, amenity):
+        def handle_amenity(search):
+            places = Place.objects.filter(tags__value=search['amenity'])
+            if amenity == 'restaurant':
+                if search['cusine']:
+                    places = places.filter(tags__value__in=search['cusine'])
+            elif amenity == 'bar':
+                if search['specials']:
+                    places = places.filter(barspecial__deal__in=search['specials'])
+            elif amenity == 'cinema':
+                pass
+            return places
+        return handle_amenity
 
     def get_context_data(self, **kwargs):
         context = super(Results, self).get_context_data(**kwargs)
