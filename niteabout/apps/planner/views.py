@@ -12,7 +12,7 @@ import requests
 
 from niteabout.apps.planner.util import distance_in_miles
 from niteabout.apps.planner.forms import GetStartedForm, RestaurantForm, BarForm, CafeForm, CinemaForm, PubForm
-from niteabout.apps.gatherer.models import Place, Tag
+from niteabout.apps.gatherer.models import Place, StringTag, IntTag, BarSpecial, Genre
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,11 @@ class Results(ListView):
     paginate_by = 10
     context_object_name = "places_list"
 
+    def get_context_data(self, **kwargs):
+        context = super(Results, self).get_context_data(**kwargs)
+        context['selected'] = 'planner'
+        return context
+
     def get_queryset(self):
         search = self.request.session['search_query']
         threshold = search['max_distance']
@@ -50,23 +55,17 @@ class Results(ListView):
 
     def handle(self, amenity):
         def handle_amenity(search):
-            places = Place.objects.filter(tags__key="amenity", tags__value=search['amenity']).filter(
-                                          Q(tags__key="price", tags__value__lte=search['price']) | ~Q(tags__key="price"))
+            places = Place.objects.filter(string_tags__key="amenity", string_tags__value=search['amenity']).exclude(int_tags__key="price", int_tags__value__gt=search['price'])
             if amenity == 'restaurant':
-                if search['cusine']:
-                    places = places.filter(tags__key="cusine", tags__value__in=search['cusine'])
+                if search.get('cusine', ''):
+                    places = places.filter(string_tags__key="cusine", string_tags__value__in=search['cusine'])
             elif amenity == 'bar':
-                if search['specials']:
+                if search.get('specials', ''):
                     places = places.filter(barspecial__deal__in=search['specials'])
             elif amenity == 'cinema':
                 pass
             return places
         return handle_amenity
-
-    def get_context_data(self, **kwargs):
-        context = super(Results, self).get_context_data(**kwargs)
-        context['tags'] = Tag.objects.values('key').distinct()
-        return context
 
 FORMS = [("getstarted", GetStartedForm),
          ("restaurant", RestaurantForm),
@@ -80,12 +79,17 @@ FORM_TEMPLATES = {"getstarted": "planner/get_started.html",
                   "bar":"planner/bar.html",
                   "cafe":"planner/cafe.html"}
 
-PLACE_TYPES = (tag.value for tag in Tag.objects.filter(key="amenity"))
+PLACE_TYPES = (tag.value for tag in StringTag.objects.filter(key="amenity"))
+
+AMENITY_CORRESPONDING_TAGS = {'restaurant': StringTag.objects.filter(key='cusine').exists(),
+                              'bar':BarSpecial.objects.all().exists(),
+                              'cinema':Genre.objects.all().exists()}
+
 
 def check_amenity(amenity):
     def check_amenity_func(wizard):
         cleaned_data = wizard.get_cleaned_data_for_step('getstarted') or {'amenity':'none'}
-        return cleaned_data['amenity'] == amenity
+        return cleaned_data['amenity'] == amenity and AMENITY_CORRESPONDING_TAGS[amenity]
     return check_amenity_func
 
 planner_conds = { amenity: check_amenity(amenity) for amenity in PLACE_TYPES }
@@ -96,6 +100,11 @@ class PlannerWizard(NamedUrlSessionWizardView):
     #def get_template_names(self):
     #    print inspect.getmembers(self.steps)
     #    return [ FORM_TEMPLATES[self.steps.current]]
+
+    def get_context_data(self, **kwargs):
+        context = super(PlannerWizard, self).get_context_data(**kwargs)
+        context['selected'] = 'planner'
+        return context
 
     def done(self, form_list, **kwargs):
         self.request.session['search_query'] = {}

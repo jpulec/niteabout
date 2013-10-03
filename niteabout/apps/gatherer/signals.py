@@ -25,7 +25,7 @@ def update_osm(sender, **kwargs):
         node = tree.find("node")
         prev_tags = node.findall("tag")
         changed = False
-        for tag in instance.tags.all():
+        for tag in instance.string_tags.all():
             if tag.key in ["opening_hours", "cusine"]:
                 prev_tag_list = [ prev_tag for prev_tag in prev_tags if prev_tag.get('k') == tag.key]
                 for item in prev_tag_list:

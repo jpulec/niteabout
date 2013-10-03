@@ -6,20 +6,19 @@
 <div class="well">
     <h3>{{ place.name }}</h3>
     {{ place.pos }}
-    {% for tag in place.tags.all %}
-    <p>
-    {{ tag.key }}:{{ tag.value }}
-    </p>
-    {% endfor %}
     <div id="map-container">
         <div id="map-canvas" style="width:100%;height:400px">
         </div>
     </div>
     <p>
     <div id="place-details-container">
-        <div id="travelMode" class="btn-group" name="travel-group" data-toggle="buttons-radio">
-            <button type="button" onclick="calcRoute($(this).val())" class="btn active" value="WALKING">Walking</button> 
-            <button type="button" onclick="calcRoute($(this).val())" class="btn" value="DRIVING">Driving</button> 
+        <div id="travelMode" class="btn-group" name="travel-group" data-toggle="buttons">
+            <label class="btn btn-primary active">
+            <input type="radio" onchange="calcRoute($(this).val())" value="WALKING">Walking
+        </label>
+        <label class="btn btn-primary">
+            <input type="radio" onchange="calcRoute($(this).val())" value="DRIVING">Driving 
+        </label>
         </div>
     </div>
     </p>

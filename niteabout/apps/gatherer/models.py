@@ -1,7 +1,7 @@
 from django.db import models
 from geoposition.fields import GeopositionField
 
-class Tag(models.Model):
+class StringTag(models.Model):
     key = models.CharField(max_length="128")
     value = models.CharField(max_length="256")
 
@@ -11,16 +11,24 @@ class Tag(models.Model):
     class Meta:
         unique_together = ('key', 'value',)
 
+class IntTag(models.Model):
+    key = models.CharField(max_length=128)
+    value = models.IntegerField()
+
+    def __unicode__(self):
+        return self.key + ":" + str(self.value)
+
+    class Meta:
+        unique_together = ('key','value',)
+
 class Place(models.Model):
     id = models.IntegerField(primary_key=True)
-    tags = models.ManyToManyField('Tag', related_name="tags")
+    string_tags = models.ManyToManyField('StringTag', related_name="string_tags")
+    int_tags = models.ManyToManyField('IntTag', related_name="int_tags")
     name = models.CharField(max_length="256")
     pos = GeopositionField()
     timestamp = models.DateTimeField(null=True)
     version = models.IntegerField(null=True)
-
-    def get_tags(self):
-        return self.tags.all()
 
     def __unicode__(self):
         return self.name + ":" + str(self.pos)

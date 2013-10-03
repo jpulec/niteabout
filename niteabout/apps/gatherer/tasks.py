@@ -7,7 +7,7 @@ import datetime
 import feedparser
 import xml.etree.ElementTree as ET
 
-from niteabout.apps.gatherer.models import Place, Tag, Movie, MovieShowtime, Genre
+from niteabout.apps.gatherer.models import Place, StringTag, IntTag, Movie, MovieShowtime, Genre
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +28,8 @@ def parse_openstreetmap(file_name):
                             for k, v in entity.tags.iteritems():
                                 if k in relevant_keys or v in relevant_values:
                                     if k != "name":
-                                        new_tag, created = Tag.objects.get_or_create(key=k, value=v)
-                                        new_place.tags.add(new_tag)
+                                        new_tag, created = StringTag.objects.get_or_create(key=k, value=v)
+                                        new_place.string_tags.add(new_tag)
                     except Exception as e:
                         logger.exception(e)
                         return False
