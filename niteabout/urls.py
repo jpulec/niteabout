@@ -14,8 +14,8 @@ urlpatterns = patterns('',
     url(r'^planit/(?P<step>.+)/$', planner_wizard, name="planit_step"),
     url(r'^planit/$', planner_wizard, name="planit"),
     url(r'^place/(?P<pk>\d+)/$', Place.as_view(), name="place"),
-    url(r'^django-rq/', include('django_rq.urls')),
-    url(r'^admin/rq/', include('django_rq_dashboard.urls')),
+#    url(r'^django-rq/', include('django_rq.urls')),
+#    url(r'^admin/rq/', include('django_rq_dashboard.urls')),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

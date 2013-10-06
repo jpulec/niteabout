@@ -1,13 +1,18 @@
 from common import *
-import dj_database_url
 
-DATABASES['default'] = dj_database_url.config()
+DATABASES['default'] = {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ['MYSQL_NAME'],
+            'USER': os.environ['MYSQL_USERNAME'],
+            'PASSWORD': os.environ['MYSQL_PASSWORD'],
+            'HOST': os.environ['MYSQL_HOST'],
+            'PORT': os.environ['MYSQL_PORT'],
+        }
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*.niteabout.com', 'niteabout.com']
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
@@ -19,18 +24,11 @@ AWS_QUERYSTRING_AUTH = False
 
 
 S3_URL = 'https://%s.s3.amazonaws.com/' % AWS_STORAGE_BUCKET_NAME
-STATIC_URL = MEDIA_URL = S3_URL
 
-STATIC_URL += "static/"
-MEDIA_URL += "media/"
+STATIC_ROOT = "static/"
+MEDIA_ROOT = "media/"
 
-INSTALLED_APPS += ('gunicorn', 'storages',)
+STATIC_URL = S3_URL + STATIC_ROOT
+MEDIA_URL = S3_URL + MEDIA_ROOT
 
-REDIS_URL = urlparse.urlparse(os.environ.get('REDISTOGO_URL', 'redis://localhost:6959'))
-
-RQ_QUEUES = {
-        'default': {
-            'URL': REDIS_URL,
-            'DB': 0,
-            },
-        }
+INSTALLED_APPS += ('gunicorn', 'storages','pyqs',)

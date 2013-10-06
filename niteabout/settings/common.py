@@ -121,8 +121,6 @@ INSTALLED_APPS = (
     #'django.contrib.gis',
     'django.contrib.admin',
     'south',
-    'django_rq',
-    'django_rq_dashboard',
     'mathfilters',
     'niteabout.apps.main',
     'niteabout.apps.planner',
@@ -147,10 +145,6 @@ LOGGING = {
         "simple": {
             "format": "%(levelname)s %(message)s"
             },
-        "rq_console": {
-            "format": "%(asctime)s %(message)s",
-            "datefmt": "%H:%M:%S",
-            },
         },
     'filters': {
         'require_debug_false': {
@@ -172,12 +166,6 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        "rq_console": {
-            "level": "DEBUG",
-            "class": "rq.utils.ColorizingStreamHandler",
-            "formatter": "rq_console",
-            "exclude": ["%(asctime)s"],
-        },
     },
     'loggers': {
         'django': {
@@ -190,11 +178,11 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        "rq.worker": {
-            "handlers": ["rq_console"],
-            "propagate": True,
-            "level": "DEBUG"
-        },
+        'pyqs': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+            },
         'niteabout': {
             'handlers': ['console'],
             "level": 'DEBUG',
@@ -204,12 +192,3 @@ LOGGING = {
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-RQ_QUEUES = {
-        'default': {
-            'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379'), # If you're on Heroku
-            'DB': 0,
-            },
-        }
-
-#GEOIP_PATH = os.path.join(BASE_DIR, "geoip")
