@@ -99,7 +99,7 @@ MIDDLEWARE_CLASSES = (
     #'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'niteabout.urls'
+ROOT_URLCONF = 'niteabout.urls.frontend'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'niteabout.wsgi.application'

@@ -11,7 +11,7 @@ DATABASES['default'] = {
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-ALLOWED_HOSTS = ['*.niteabout.com', 'niteabout.com']
+ALLOWED_HOSTS = ['admin.niteabout.com', 'niteabout.com']
 
 
 STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
@@ -32,3 +32,14 @@ STATIC_URL = S3_URL + STATIC_ROOT
 MEDIA_URL = S3_URL + MEDIA_ROOT
 
 INSTALLED_APPS += ('gunicorn', 'storages','pyqs',)
+
+#Have to add to beginning
+#MIDDLEWARE_CLASSES = ('subdomains.middleware.SubdomainURLRoutingMiddleware',) + MIDDLEWARE_CLASSES
+
+ROOT_URLCONF = "niteabout.urls"
+
+#SUBDOMAIN_URLCONFS = {
+#        'admin': 'niteabout.urls.admin'
+#        }
+
+SESSION_COOKIE_SECURE = True
