@@ -4,7 +4,7 @@ from django.forms.widgets import HiddenInput, CheckboxSelectMultiple, TextInput
 from niteabout.apps.planner.widgets import RangeInput
 from niteabout.apps.gatherer.models import StringTag, IntTag, BarSpecial, Genre
 
-PLACE_TYPES = ((tag.value, tag.value.capitalize()) for tag in StringTag.objects.filter(key="amenity").exclude(key='amenity', value__in=['cinema','cafe']))
+PLACE_TYPES = ((tag.value, tag.value.capitalize()) for tag in StringTag.objects.filter(key="amenity").exclude(key='amenity', value__in=['cinema','cafe', 'restaurant', 'pub']))
 CUSINE_TYPES = ((tag.value, tag.value.capitalize()) for tag in StringTag.objects.filter(key="cusine"))
 BAR_SPECIALS = ((special.deal, special.deal.capitalize()) for special in BarSpecial.objects.all())
 CINEMA_GENRES = ((genre.name, genre.name.capitalize()) for genre in Genre.objects.all())

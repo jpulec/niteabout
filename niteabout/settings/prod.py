@@ -41,5 +41,3 @@ ROOT_URLCONF = "niteabout.urls"
 #SUBDOMAIN_URLCONFS = {
 #        'admin': 'niteabout.urls.admin'
 #        }
-
-SESSION_COOKIE_SECURE = True

@@ -47,8 +47,7 @@ class Movie(models.Model):
             ("r", "R"),
             ("nc17", "NC-17"),
         )
-
-    id = models.IntegerField(primary_key=True)
+    tms_id = models.CharField(max_length=14)
     title = models.CharField(max_length=256)
     year = models.IntegerField()
     genres = models.ManyToManyField('Genre')
