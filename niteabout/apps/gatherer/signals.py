@@ -9,7 +9,7 @@ from niteabout.apps.gatherer.models import Place
 
 logger = logging.getLogger(__name__)
 
-@receiver(m2m_changed, sender=Place)
+#@receiver(m2m_changed, sender=Place)
 def update_osm(sender, **kwargs):
     action = kwargs.pop('action', None)
     instance = kwargs.pop('instance', None)

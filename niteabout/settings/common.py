@@ -125,6 +125,7 @@ INSTALLED_APPS = (
     'niteabout.apps.main',
     'niteabout.apps.planner',
     'niteabout.apps.gatherer',
+    'niteabout.apps.places',
     'geoposition',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
