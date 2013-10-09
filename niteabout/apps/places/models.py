@@ -14,13 +14,16 @@ class Tag(models.Model):
 class OSMPlace(models.Model):
     id = models.IntegerField(primary_key=True)
     tags = models.ManyToManyField('Tag')
-    name = models.CharField(max_length=256)
-    pos = GeopositionField()
+    lat = models.FloatField()
+    lon = models.FloatField()
     timestamp = models.DateTimeField(null=True)
     version = models.IntegerField(null=True)
 
+    class Meta:
+        unique_together = ('id', 'lat', 'lon',)
+
     def __unicode__(self):
-        return self.name + str(self.pos)
+        return str(self.id) + ":" + str(self.lat) + "," + str(self.lon)
 
 class Place(models.Model):
     osm_place = models.OneToOneField('OSMPlace', blank=True, null=True)
@@ -28,33 +31,43 @@ class Place(models.Model):
     pos = GeopositionField()
 
     class Meta:
-        abstract = True
+        unique_together = ('name', 'pos',)
 
     def __unicode__(self):
         return self.name + ":" + str(self.pos)
 
 class PriceMixin(models.Model):
-    price = models.PositiveSmallIntegerField()
+    price = models.PositiveSmallIntegerField(blank=True, null=True)
 
     class Meta:
         abstract = True
 
 class VolumeMixin(models.Model):
-    volume = models.PositiveSmallIntegerField()
+    volume = models.PositiveSmallIntegerField(blank=True, null=True)
 
     class Meta:
         abstract = True
 
 class Bar(Place, PriceMixin, VolumeMixin):
-    dancing = models.PositiveSmallIntegerField()
+    dancing = models.PositiveSmallIntegerField(blank=True, null=True)
 
-class Cusine(models.Model):
+class Cuisine(models.Model):
     name = models.CharField(max_length=128)
 
+    def __unicode__(self):
+        return self.name
+
 class Restaurant(Place, PriceMixin, VolumeMixin):
-    cusine = models.ForeignKey('Cusine')
+    cuisines = models.ManyToManyField('Cuisine')
+
+    def cuisine_names(self):
+        return ', '.join([c.name for c in self.cuisines.all()])
+    cuisine_names.short_description = "Cuisine"
 
 class BarAndRestaurant(Bar, Restaurant):
+    pass
+
+class Theater(Place, PriceMixin):
     pass
 
 DAYS_OF_WEEK = (

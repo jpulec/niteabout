@@ -99,7 +99,7 @@ MIDDLEWARE_CLASSES = (
     #'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'niteabout.urls.frontend'
+ROOT_URLCONF = 'niteabout.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'niteabout.wsgi.application'
@@ -126,6 +126,7 @@ INSTALLED_APPS = (
     'niteabout.apps.planner',
     'niteabout.apps.gatherer',
     'niteabout.apps.places',
+    'niteabout.apps.movies',
     'geoposition',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',

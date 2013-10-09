@@ -12,7 +12,8 @@ import requests
 
 from niteabout.apps.planner.util import distance_in_miles
 from niteabout.apps.planner.forms import GetStartedForm, RestaurantForm, BarForm, CafeForm, CinemaForm, PubForm
-from niteabout.apps.gatherer.models import Place, StringTag, IntTag, BarSpecial, Genre
+from niteabout.apps.places.models import Tag, Bar, Restaurant, BarSpecial, Place
+from niteabout.apps.movies.models import Genre
 
 logger = logging.getLogger(__name__)
 
@@ -55,13 +56,15 @@ class Results(ListView):
 
     def handle(self, amenity):
         def handle_amenity(search):
-            places = Place.objects.filter(string_tags__key="amenity", string_tags__value=search['amenity']).exclude(int_tags__key="price", int_tags__value__gt=search['price'])
+            places = None
             if amenity == 'restaurant':
+                places = Restaurant.objects.all()
                 if search.get('cusine', ''):
-                    places = places.filter(string_tags__key="cusine", string_tags__value__in=search['cusine'])
+                    places = Restaurant.objects.filter(cusines__name_in=search['cusine'])
             elif amenity == 'bar':
+                places = Bar.objects.all()
                 if search.get('specials', ''):
-                    places = places.filter(barspecial__deal__in=search['specials'])
+                    places = Bar.objects.filter(barspecial__deal__in=search['specials'])
             elif amenity == 'cinema':
                 pass
             return places
@@ -79,9 +82,9 @@ FORM_TEMPLATES = {"getstarted": "planner/get_started.html",
                   "bar":"planner/bar.html",
                   "cafe":"planner/cafe.html"}
 
-PLACE_TYPES = (tag.value for tag in StringTag.objects.filter(key="amenity"))
+PLACE_TYPES = (tag.value for tag in Tag.objects.filter(key="amenity"))
 
-AMENITY_CORRESPONDING_TAGS = {'restaurant': StringTag.objects.filter(key='cusine').exists(),
+AMENITY_CORRESPONDING_TAGS = {'restaurant': Tag.objects.filter(key='cusine').exists(),
                               'bar':BarSpecial.objects.all().exists(),
                               'cinema':Genre.objects.all().exists()}
 
