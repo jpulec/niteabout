@@ -6,7 +6,7 @@ from dateutil.parser import parse
 import datetime
 import feedparser
 import xml.etree.ElementTree as ET
-#from pyqs import task
+from pyqs import task
 
 
 from niteabout.apps.places.models import OSMPlace, Tag, Place, PlaceCategory
@@ -28,7 +28,7 @@ def create_osm(entity):
     update(new_place, entity)
     return new_place
 
-#@task(queue='niteabout-staging')
+@task(queue='niteabout-staging')
 def parse_openstreetmap(file_name):
     for entity in osmread.parse_file(file_name):
         if isinstance(entity, osmread.Node) and "amenity" in entity.tags and "name" in entity.tags:
