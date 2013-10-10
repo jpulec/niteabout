@@ -117,8 +117,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
-    #'django.contrib.gis',
     'django.contrib.admin',
     'south',
     'mathfilters',
@@ -128,8 +126,6 @@ INSTALLED_APPS = (
     'niteabout.apps.places',
     'niteabout.apps.movies',
     'geoposition',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
 )
 
 # A sample logging configuration. The only tangible logging
