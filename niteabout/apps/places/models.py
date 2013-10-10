@@ -25,10 +25,34 @@ class OSMPlace(models.Model):
     def __unicode__(self):
         return str(self.id) + ":" + str(self.lat) + "," + str(self.lon)
 
+class Cuisine(models.Model):
+    name = models.CharField(max_length=128)
+
+    def __unicode__(self):
+        return self.name
+
+class PlaceCategory(models.Model):
+    name = models.CharField(max_length=128)
+
+    def __unicode__(self):
+        return self.name
+
+class Attire(models.Model):
+    name = models.CharField(max_length=128)
+
+    def __unicode__(self):
+        return self.name
+
 class Place(models.Model):
     osm_place = models.OneToOneField('OSMPlace', blank=True, null=True)
     name = models.CharField(max_length="256")
     pos = GeopositionField()
+    categories = models.ManyToManyField('PlaceCategory')
+    price = models.PositiveSmallIntegerField(blank=True, null=True)
+    volume = models.PositiveSmallIntegerField(blank=True, null=True)
+    dancing = models.PositiveSmallIntegerField(blank=True, null=True)
+    cuisines = models.ManyToManyField('Cuisine', blank=True, null=True)
+    attire = models.ForeignKey('Attire', blank=True, null=True)
 
     class Meta:
         unique_together = ('name', 'pos',)
@@ -36,39 +60,9 @@ class Place(models.Model):
     def __unicode__(self):
         return self.name + ":" + str(self.pos)
 
-class PriceMixin(models.Model):
-    price = models.PositiveSmallIntegerField(blank=True, null=True)
-
-    class Meta:
-        abstract = True
-
-class VolumeMixin(models.Model):
-    volume = models.PositiveSmallIntegerField(blank=True, null=True)
-
-    class Meta:
-        abstract = True
-
-class Bar(Place, PriceMixin, VolumeMixin):
-    dancing = models.PositiveSmallIntegerField(blank=True, null=True)
-
-class Cuisine(models.Model):
-    name = models.CharField(max_length=128)
-
-    def __unicode__(self):
-        return self.name
-
-class Restaurant(Place, PriceMixin, VolumeMixin):
-    cuisines = models.ManyToManyField('Cuisine')
-
-    def cuisine_names(self):
-        return ', '.join([c.name for c in self.cuisines.all()])
-    cuisine_names.short_description = "Cuisine"
-
-class BarAndRestaurant(Bar, Restaurant):
-    pass
-
-class Theater(Place, PriceMixin):
-    pass
+    def category_names(self):
+        return ', '.join([c.name for c in self.categories.all()])
+    category_names.short_description = "Categories"
 
 DAYS_OF_WEEK = (
         (0, "Sunday"),
@@ -80,12 +74,21 @@ DAYS_OF_WEEK = (
         (6, "Saturday")
         )
 
-class BarSpecial(models.Model):
-    bars = models.ForeignKey('Bar')
+class Hours(models.Model):
+    place = models.ForeignKey('Place')
+    day = models.IntegerField(choices=DAYS_OF_WEEK, unique=True)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    def __unicode__(self):
+        return str(self.place) + " opens at " + str(self.open_time) + " and closes at " + str(self.close_time) + " on " + str(self.day)
+
+class Deal(models.Model):
+    place = models.ForeignKey('Place')
     start_time = models.TimeField(blank=True, null=True)
     end_time = models.TimeField(blank=True, null=True)
-    day = models.IntegerField(max_length=1, default=0, choices=DAYS_OF_WEEK)
+    day = models.IntegerField(max_length=1, choices=DAYS_OF_WEEK, blank=True, null=True)
     deal = models.TextField()
 
     def __unicode__(self):
-        return str([bar for bar in self.bars.all()]) + " has " + self.deal + " on " + str(self.day) + " starting at " + str(self.start_time) + " until " + str(self.end_time)
+        return str(self.place) + " has " + self.deal + " on " + str(self.day) + " starting at " + str(self.start_time) + " until " + str(self.end_time)

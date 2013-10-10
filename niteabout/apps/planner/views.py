@@ -12,7 +12,7 @@ import requests
 
 from niteabout.apps.planner.util import distance_in_miles
 from niteabout.apps.planner.forms import GetStartedForm, RestaurantForm, BarForm, CafeForm, CinemaForm, PubForm
-from niteabout.apps.places.models import Tag, Bar, Restaurant, BarSpecial, Place
+from niteabout.apps.places.models import Tag, Place, Deal
 from niteabout.apps.movies.models import Genre
 
 logger = logging.getLogger(__name__)
@@ -58,13 +58,13 @@ class Results(ListView):
         def handle_amenity(search):
             places = None
             if amenity == 'restaurant':
-                places = Restaurant.objects.all()
+                places = Place.objects.all()
                 if search.get('cusine', ''):
-                    places = Restaurant.objects.filter(cusines__name_in=search['cusine'])
+                    places = Place.objects.filter(cusines__name_in=search['cusine'])
             elif amenity == 'bar':
-                places = Bar.objects.all()
+                places = Place.objects.all()
                 if search.get('specials', ''):
-                    places = Bar.objects.filter(barspecial__deal__in=search['specials'])
+                    places = Place.objects.filter(barspecial__deal__in=search['specials'])
             elif amenity == 'cinema':
                 pass
             return places
@@ -85,7 +85,7 @@ FORM_TEMPLATES = {"getstarted": "planner/get_started.html",
 PLACE_TYPES = (tag.value for tag in Tag.objects.filter(key="amenity"))
 
 AMENITY_CORRESPONDING_TAGS = {'restaurant': Tag.objects.filter(key='cusine').exists(),
-                              'bar':BarSpecial.objects.all().exists(),
+                              'bar':Deal.objects.all().exists(),
                               'cinema':Genre.objects.all().exists()}
 
 

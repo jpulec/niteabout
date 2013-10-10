@@ -40,7 +40,7 @@ class Migration(SchemaMigration):
         db.create_table(u'movies_movieshowtime', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('dt', self.gf('django.db.models.fields.DateTimeField')()),
-            ('theater', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['places.Theater'], null=True, blank=True)),
+            ('theater', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['places.Place'], null=True, blank=True)),
             ('movie', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['movies.Movie'])),
         ))
         db.send_create_signal(u'movies', ['MovieShowtime'])
@@ -101,7 +101,17 @@ class Migration(SchemaMigration):
             'dt': ('django.db.models.fields.DateTimeField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'movie': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['movies.Movie']"}),
-            'theater': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.Theater']", 'null': 'True', 'blank': 'True'})
+            'theater': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.Place']", 'null': 'True', 'blank': 'True'})
+        },
+        u'places.attire': {
+            'Meta': {'object_name': 'Attire'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
+        },
+        u'places.cuisine': {
+            'Meta': {'object_name': 'Cuisine'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
         u'places.osmplace': {
             'Meta': {'unique_together': "(('id', 'lat', 'lon'),)", 'object_name': 'OSMPlace'},
@@ -114,21 +124,27 @@ class Migration(SchemaMigration):
         },
         u'places.place': {
             'Meta': {'unique_together': "(('name', 'pos'),)", 'object_name': 'Place'},
+            'attire': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.Attire']", 'symmetrical': 'False'}),
+            'categories': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.PlaceCategory']", 'symmetrical': 'False'}),
+            'cuisines': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.Cuisine']", 'symmetrical': 'False'}),
+            'dancing': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': "'256'"}),
             'osm_place': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['places.OSMPlace']", 'unique': 'True', 'null': 'True', 'blank': 'True'}),
-            'pos': ('geoposition.fields.GeopositionField', [], {'max_length': '42'})
+            'pos': ('geoposition.fields.GeopositionField', [], {'max_length': '42'}),
+            'price': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'volume': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'})
+        },
+        u'places.placecategory': {
+            'Meta': {'object_name': 'PlaceCategory'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
         u'places.tag': {
             'Meta': {'unique_together': "(('key', 'value'),)", 'object_name': 'Tag'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'key': ('django.db.models.fields.CharField', [], {'max_length': "'128'"}),
             'value': ('django.db.models.fields.CharField', [], {'max_length': "'256'"})
-        },
-        u'places.theater': {
-            'Meta': {'object_name': 'Theater', '_ormbases': [u'places.Place']},
-            u'place_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['places.Place']", 'unique': 'True', 'primary_key': 'True'}),
-            'price': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'})
         }
     }
 

@@ -1,6 +1,6 @@
 from django.db import models
 
-from niteabout.apps.places.models import Theater
+from niteabout.apps.places.models import Place
 
 class Genre(models.Model):
     name = models.CharField(max_length=64)
@@ -29,7 +29,7 @@ class Movie(models.Model):
 
 class MovieShowtime(models.Model):
     dt = models.DateTimeField()
-    theater = models.ForeignKey(Theater, null=True, blank=True)
+    theater = models.ForeignKey(Place, null=True, blank=True)
     movie = models.ForeignKey('Movie')
 
     def __unicode__(self):

@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 #from pyqs import task
 
 
-from niteabout.apps.places.models import OSMPlace, Tag, Restaurant, Bar
+from niteabout.apps.places.models import OSMPlace, Tag, Place, PlaceCategory
 
 logger = logging.getLogger(__name__)
 
@@ -33,14 +33,15 @@ def parse_openstreetmap(file_name):
     for entity in osmread.parse_file(file_name):
         if isinstance(entity, osmread.Node) and "amenity" in entity.tags and "name" in entity.tags:
             amenity = entity.tags['amenity']
-            try:
-                new_place = create_osm(entity)
-                if amenity == 'bar' or amenity == 'pub':
-                    new_bar, created = Bar.objects.get_or_create(name=entity.tags['name'], pos=(str(entity.lat) + "," + str(entity.lon)), osm_place=new_place)
-                elif amenity == 'restaurant':
-                    new_restaurant, created = Restaurant.objects.get_or_create(name=entity.tags['name'], pos=(str(entity.lat) + "," + str(entity.lon)), osm_place=new_place)
-            except Exception as e:
-                logger.exception(e)
+            if amenity in ['bar','pub','restaurant']:
+                try:
+                    new_osm = create_osm(entity)
+                    new_category, created = PlaceCategory.objects.get_or_create(name=amenity.capitalize())
+                    new_place, created = Place.objects.get_or_create(name=entity.tags['name'], pos=(str(entity.lat) + "," + str(entity.lon)), osm_place=new_osm)
+                    new_place.categories.add(new_category)
+                    new_place.save()
+                except Exception as e:
+                    logger.exception(e)
 #
 #
 #@job
