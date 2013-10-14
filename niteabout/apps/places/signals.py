@@ -1,13 +1,28 @@
-from django.db.models.signals import m2m_changed
+from django.db.models.signals import m2m_changed, post_save
 from django.dispatch import receiver
 import xml.etree.ElementTree as ET
 import requests, logging
 import datetime
 
-from niteabout.apps.gatherer.models import Place
+from niteabout.apps.places.models import Place, OSMPlace
 
 
 logger = logging.getLogger(__name__)
+
+
+#@receiver(post_save, sender=Place)
+def create_place(sender, **kwargs):
+    created = kwargs.pop('created', False)
+    if created:
+        instance = kwargs.pop('instance', None)
+        payload = """<?xml version='1.0' encoding='utf-8'?><osm><changeset></changeset></osm>"""
+        headers = {'content-type': 'application/xml' }
+        cs_num = requests.put("http://api.openstreetmap.org/api/0.6/changeset/create", auth=('jpulec', 'Killerjim7'), data=payload, headers=headers)
+        logger.info(cs_num.text)
+        xml = '<osm><node changeset="' + cs_num.text + '" lat="' + str(instance.pos.latitude) + '" lon="' + str(instance.pos.longitude) + '"><tag k="name" v="' + instance.name + '"/></node></osm>'
+        response = requests.put("http://api.openstreetmap.org/api/0.6/node/create", data=xml, headers=headers, auth=('jpulec', 'Killerjim7'))
+        logger.info(response)
+
 
 #@receiver(m2m_changed, sender=Place)
 def update_osm(sender, **kwargs):

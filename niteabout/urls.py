@@ -5,7 +5,7 @@ admin.autodiscover()
 from niteabout.apps.main.views import Home, About, Contact, Place, Thanks
 from niteabout.apps.planner.views import GetStarted, Results, PlannerWizard, FORMS, planner_conds
 
-planner_wizard = PlannerWizard.as_view(FORMS, condition_dict=planner_conds, url_name='planit_step', done_step_name="finished")
+planner_wizard = PlannerWizard.as_view(FORMS, url_name='planit_step', done_step_name="finished")
 
 urlpatterns = patterns('',
     # Examples:

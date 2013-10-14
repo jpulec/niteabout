@@ -11,8 +11,8 @@ import logging
 import requests
 
 from niteabout.apps.planner.util import distance_in_miles
-from niteabout.apps.planner.forms import GetStartedForm, RestaurantForm, BarForm, CafeForm, CinemaForm, PubForm
-from niteabout.apps.places.models import Tag, Place, Deal
+from niteabout.apps.planner.forms import GetStartedForm, RestaurantForm, BarForm, CafeForm, CinemaForm, PubForm, MoreDetailsForm
+from niteabout.apps.places.models import Tag, Place, Deal, PlaceCategory, Cuisine
 from niteabout.apps.movies.models import Genre
 
 logger = logging.getLogger(__name__)
@@ -46,56 +46,54 @@ class Results(ListView):
     def get_queryset(self):
         search = self.request.session['search_query']
         threshold = search['max_distance']
-        places = self.handle(search['amenity'])(search)
+        places = self.handle_place(search)
         places = list(places)
         lat, lng = geocode(search['location'])
         for place in list(places):
             if distance_in_miles(place.pos.latitude, place.pos.longitude, lat, lng) > float(threshold):
                 places.remove(place)
+        best_place = None
+        best_score = float("inf")
+        for place in places:
+            if place - search < best_score:
+                best_place = place
+                best_score = place - search
         return places
 
-    def handle(self, amenity):
-        def handle_amenity(search):
-            places = None
-            if amenity == 'restaurant':
-                places = Place.objects.all()
-                if search.get('cusine', ''):
-                    places = Place.objects.filter(cusines__name_in=search['cusine'])
-            elif amenity == 'bar':
-                places = Place.objects.all()
-                if search.get('specials', ''):
-                    places = Place.objects.filter(barspecial__deal__in=search['specials'])
-            elif amenity == 'cinema':
-                pass
-            return places
-        return handle_amenity
+    def handle_place(self, search):
+        places = Place.objects.filter(categories__name=search['place'])
+        if search.get('cuisine', ''):
+            places = Place.objects.filter(cusines__name_in=search['cuisine'])
+        if search.get('specials', ''):
+            places = Place.objects.filter(barspecial__deal__in=search['specials'])
+        return places
 
-FORMS = [("getstarted", GetStartedForm),
-         ("restaurant", RestaurantForm),
-         ('bar', BarForm),
-         ('cafe', CafeForm),
-         ('cinema', CinemaForm),
-         ('pub', PubForm),]
+FORMS = [("Getstarted", GetStartedForm),
+         ("MoreDetails", MoreDetailsForm),]
+        
+       # ("Restaurant", RestaurantForm),
+        # ('Bar', BarForm),
+        # ('Pub', PubForm),]
 
 FORM_TEMPLATES = {"getstarted": "planner/get_started.html",
                   "restaurant": "planner/restaurant.html",
                   "bar":"planner/bar.html",
                   "cafe":"planner/cafe.html"}
 
-PLACE_TYPES = (tag.value for tag in Tag.objects.filter(key="amenity"))
+PLACE_TYPES = (c.name for c in PlaceCategory.objects.all())
 
-AMENITY_CORRESPONDING_TAGS = {'restaurant': Tag.objects.filter(key='cusine').exists(),
-                              'bar':Deal.objects.all().exists(),
-                              'cinema':Genre.objects.all().exists()}
+AMENITY_CORRESPONDING_TAGS = {'restaurant': Cuisine.objects.all(),
+                              'bar':Deal.objects.all(),
+                              'cinema':Genre.objects.all()}
 
 
-def check_amenity(amenity):
-    def check_amenity_func(wizard):
-        cleaned_data = wizard.get_cleaned_data_for_step('getstarted') or {'amenity':'none'}
-        return cleaned_data['amenity'] == amenity and AMENITY_CORRESPONDING_TAGS[amenity]
-    return check_amenity_func
+def check_place(place):
+    def check_place_func(wizard):
+        cleaned_data = wizard.get_cleaned_data_for_step('Getstarted') or {'place':'none'}
+        return cleaned_data['place'] == place
+    return check_place_func
 
-planner_conds = { amenity: check_amenity(amenity) for amenity in PLACE_TYPES }
+planner_conds = { place: check_place(place) for place in PLACE_TYPES }
 
 class PlannerWizard(NamedUrlSessionWizardView):
     template_name = "planner/get_started.html"

@@ -11,12 +11,14 @@ CINEMA_GENRES = ((genre.name, genre.name.capitalize()) for genre in Genre.object
 
 class GetStartedForm(forms.Form):
     location = forms.ChoiceField(choices=(('madison', 'Madison, WI'),))
-    #location = forms.CharField(max_length=128, required=True, widget=TextInput(attrs={"required":"",
-                                                                                   #   }))
     place = forms.ModelChoiceField(queryset=PlaceCategory.objects.all(), required=True)
     max_distance = forms.DecimalField(max_digits=3, decimal_places=1, required=True, widget=TextInput(attrs={"required":""}))
-    price = forms.IntegerField(required=True, min_value=1, max_value=5, widget=RangeInput(attrs={'max':'5',
-                                                                                  'min':'1'}))
+
+class MoreDetailsForm(forms.ModelForm):
+    class Meta:
+        model = Place
+        fields = ('price', 'dancing', 'volume', 'attire',)
+
 
 class RestaurantForm(forms.Form):
     cusine = forms.MultipleChoiceField(choices=CUSINE_TYPES, widget=CheckboxSelectMultiple(), required=False)

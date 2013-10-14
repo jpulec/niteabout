@@ -9,6 +9,12 @@ logger = logging.getLogger(__name__)
 
 class HoursInline(admin.TabularInline):
     model = Hours
+    extra = 7
+    max_num = 7
+
+class DealsInline(admin.TabularInline):
+    model = Deal
+    extra = 1
 
 class PlaceAdmin(admin.ModelAdmin):
     fields = ['name', 'pos', 'categories', 'price', 'volume', 'dancing', 'cuisines', 'attire',]
@@ -16,10 +22,11 @@ class PlaceAdmin(admin.ModelAdmin):
     list_editable = ('price', 'volume', 'dancing', 'attire',)
     filter_horizontal = ('cuisines', 'categories',)
 
-    list_filter = ('categories', 'cuisines', 'price', 'attire', 'volume', 'dancing',)
+    list_filter = ('categories', 'cuisines', 'price', 'volume', 'dancing', 'attire',)
     list_related = True
     inlines = [
             HoursInline,
+            DealsInline,
             ]
 
     search_fields = ['name']
@@ -33,5 +40,4 @@ admin.site.register(Tag)
 admin.site.register(Cuisine)
 admin.site.register(Hours)
 admin.site.register(PlaceCategory)
-admin.site.register(Attire)
 admin.site.register(Deal)
