@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.gis.db import models as geomodels
 from geoposition.fields import GeopositionField
 
 import logging
@@ -16,7 +17,7 @@ class Tag(models.Model):
         unique_together = ('key', 'value',)
 
 class OSMPlace(models.Model):
-    id = models.IntegerField(primary_key=True)
+    osm_id = models.BigIntegerField()
     tags = models.ManyToManyField('Tag')
     lat = models.FloatField()
     lon = models.FloatField()
@@ -24,10 +25,13 @@ class OSMPlace(models.Model):
     version = models.IntegerField(null=True)
 
     class Meta:
-        unique_together = ('id', 'lat', 'lon',)
+        abstract= True
+        unique_together = ('osm_id', 'lat', 'lon',)
 
     def __unicode__(self):
-        return str(self.id) + ":" + str(self.lat) + "," + str(self.lon)
+        return str(self.osm_id) + ":" + str(self.lat) + "," + str(self.lon)
+
+
 
 class Cuisine(models.Model):
     name = models.CharField(max_length=128)
@@ -41,7 +45,7 @@ class PlaceCategory(models.Model):
     def __unicode__(self):
         return self.name
 
-class Place(models.Model):
+class Place(OSMPlace):
     PRICES = (
             (1, "$"),
             (2, "$$"),
@@ -70,22 +74,18 @@ class Place(models.Model):
             (4, "At Least Wear A Button Down"),
             (5, "Suit Up"),
             )
-
-    osm_place = models.OneToOneField('OSMPlace', blank=True, null=True)
-    name = models.CharField(max_length="256")
-    pos = GeopositionField()
+    name = models.CharField(max_length=256)
+    geom = geomodels.PointField()
     categories = models.ManyToManyField('PlaceCategory')
     price = models.PositiveSmallIntegerField(choices=PRICES, blank=True, null=True)
     volume = models.PositiveSmallIntegerField(choices=VOLUMES, blank=True, null=True)
     dancing = models.PositiveSmallIntegerField(choices=DANCINGS, blank=True, null=True)
     attire = models.PositiveSmallIntegerField(choices=ATTIRES, blank=True, null=True)
     cuisines = models.ManyToManyField('Cuisine', blank=True, null=True)
-
-    class Meta:
-        unique_together = ('name', 'pos',)
+    objects = geomodels.GeoManager() 
 
     def __unicode__(self):
-        return self.name + ":" + str(self.pos)
+        return str(self.name) + ":" + str(self.geom)
 
     def __sub__(self, other):
         if isinstance(other, Place):

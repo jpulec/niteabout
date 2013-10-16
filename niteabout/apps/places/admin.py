@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django.contrib.gis.admin.options import OSMGeoAdmin, GeoModelAdmin
+from django.contrib.gis.admin.widgets import OpenLayersWidget
+from django.conf import settings
 import requests
 import xml.etree.ElementTree as ET
 import logging
@@ -16,25 +19,25 @@ class DealsInline(admin.TabularInline):
     model = Deal
     extra = 1
 
-class PlaceAdmin(admin.ModelAdmin):
-    fields = ['name', 'pos', 'categories', 'price', 'volume', 'dancing', 'cuisines', 'attire',]
+class PlaceAdmin(OSMGeoAdmin):
+    display_wkt = True
+    inlines = [
+            HoursInline,
+            DealsInline,
+            ]
+    fields = ['name', 'geom', 'categories', 'price', 'volume', 'dancing', 'cuisines', 'attire',]
     list_display = ('name', 'price', 'volume', 'dancing', 'attire', 'category_names',)
     list_editable = ('price', 'volume', 'dancing', 'attire',)
     filter_horizontal = ('cuisines', 'categories',)
 
     list_filter = ('categories', 'cuisines', 'price', 'volume', 'dancing', 'attire',)
     list_related = True
-    inlines = [
-            HoursInline,
-            DealsInline,
-            ]
 
     search_fields = ['name']
 
     class Meta:
         model = Place
 
-admin.site.register(OSMPlace)
 admin.site.register(Place, PlaceAdmin)
 admin.site.register(Tag)
 admin.site.register(Cuisine)

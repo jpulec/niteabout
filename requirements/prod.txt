@@ -4,3 +4,4 @@ django-storages==1.1.8
 boto==2.13.3
 MySQL-Python==1.2.4
 django-subdomains==2.0.4
+psycopg2==2.5.1

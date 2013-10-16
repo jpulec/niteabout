@@ -19,28 +19,6 @@ class Migration(SchemaMigration):
         # Adding unique constraint on 'Tag', fields ['key', 'value']
         db.create_unique(u'places_tag', ['key', 'value'])
 
-        # Adding model 'OSMPlace'
-        db.create_table(u'places_osmplace', (
-            ('id', self.gf('django.db.models.fields.IntegerField')(primary_key=True)),
-            ('lat', self.gf('django.db.models.fields.FloatField')()),
-            ('lon', self.gf('django.db.models.fields.FloatField')()),
-            ('timestamp', self.gf('django.db.models.fields.DateTimeField')(null=True)),
-            ('version', self.gf('django.db.models.fields.IntegerField')(null=True)),
-        ))
-        db.send_create_signal(u'places', ['OSMPlace'])
-
-        # Adding unique constraint on 'OSMPlace', fields ['id', 'lat', 'lon']
-        db.create_unique(u'places_osmplace', ['id', 'lat', 'lon'])
-
-        # Adding M2M table for field tags on 'OSMPlace'
-        m2m_table_name = db.shorten_name(u'places_osmplace_tags')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('osmplace', models.ForeignKey(orm[u'places.osmplace'], null=False)),
-            ('tag', models.ForeignKey(orm[u'places.tag'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['osmplace_id', 'tag_id'])
-
         # Adding model 'Cuisine'
         db.create_table(u'places_cuisine', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -58,9 +36,13 @@ class Migration(SchemaMigration):
         # Adding model 'Place'
         db.create_table(u'places_place', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('osm_place', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['places.OSMPlace'], unique=True, null=True, blank=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length='256')),
-            ('pos', self.gf('geoposition.fields.GeopositionField')(max_length=42)),
+            ('osm_id', self.gf('django.db.models.fields.BigIntegerField')()),
+            ('lat', self.gf('django.db.models.fields.FloatField')()),
+            ('lon', self.gf('django.db.models.fields.FloatField')()),
+            ('timestamp', self.gf('django.db.models.fields.DateTimeField')(null=True)),
+            ('version', self.gf('django.db.models.fields.IntegerField')(null=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=256)),
+            ('geom', self.gf('django.contrib.gis.db.models.fields.PointField')()),
             ('price', self.gf('django.db.models.fields.PositiveSmallIntegerField')(null=True, blank=True)),
             ('volume', self.gf('django.db.models.fields.PositiveSmallIntegerField')(null=True, blank=True)),
             ('dancing', self.gf('django.db.models.fields.PositiveSmallIntegerField')(null=True, blank=True)),
@@ -68,8 +50,17 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'places', ['Place'])
 
-        # Adding unique constraint on 'Place', fields ['name', 'pos']
-        db.create_unique(u'places_place', ['name', 'pos'])
+        # Adding unique constraint on 'Place', fields ['osm_id', 'lat', 'lon']
+        db.create_unique(u'places_place', ['osm_id', 'lat', 'lon'])
+
+        # Adding M2M table for field tags on 'Place'
+        m2m_table_name = db.shorten_name(u'places_place_tags')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('place', models.ForeignKey(orm[u'places.place'], null=False)),
+            ('tag', models.ForeignKey(orm[u'places.tag'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['place_id', 'tag_id'])
 
         # Adding M2M table for field categories on 'Place'
         m2m_table_name = db.shorten_name(u'places_place_categories')
@@ -112,23 +103,14 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        # Removing unique constraint on 'Place', fields ['name', 'pos']
-        db.delete_unique(u'places_place', ['name', 'pos'])
-
-        # Removing unique constraint on 'OSMPlace', fields ['id', 'lat', 'lon']
-        db.delete_unique(u'places_osmplace', ['id', 'lat', 'lon'])
+        # Removing unique constraint on 'Place', fields ['osm_id', 'lat', 'lon']
+        db.delete_unique(u'places_place', ['osm_id', 'lat', 'lon'])
 
         # Removing unique constraint on 'Tag', fields ['key', 'value']
         db.delete_unique(u'places_tag', ['key', 'value'])
 
         # Deleting model 'Tag'
         db.delete_table(u'places_tag')
-
-        # Deleting model 'OSMPlace'
-        db.delete_table(u'places_osmplace')
-
-        # Removing M2M table for field tags on 'OSMPlace'
-        db.delete_table(db.shorten_name(u'places_osmplace_tags'))
 
         # Deleting model 'Cuisine'
         db.delete_table(u'places_cuisine')
@@ -138,6 +120,9 @@ class Migration(SchemaMigration):
 
         # Deleting model 'Place'
         db.delete_table(u'places_place')
+
+        # Removing M2M table for field tags on 'Place'
+        db.delete_table(db.shorten_name(u'places_place_tags'))
 
         # Removing M2M table for field categories on 'Place'
         db.delete_table(db.shorten_name(u'places_place_categories'))
@@ -175,26 +160,22 @@ class Migration(SchemaMigration):
             'place': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.Place']"}),
             'start_time': ('django.db.models.fields.TimeField', [], {})
         },
-        u'places.osmplace': {
-            'Meta': {'unique_together': "(('id', 'lat', 'lon'),)", 'object_name': 'OSMPlace'},
-            'id': ('django.db.models.fields.IntegerField', [], {'primary_key': 'True'}),
-            'lat': ('django.db.models.fields.FloatField', [], {}),
-            'lon': ('django.db.models.fields.FloatField', [], {}),
-            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.Tag']", 'symmetrical': 'False'}),
-            'timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'version': ('django.db.models.fields.IntegerField', [], {'null': 'True'})
-        },
         u'places.place': {
-            'Meta': {'unique_together': "(('name', 'pos'),)", 'object_name': 'Place'},
+            'Meta': {'unique_together': "(('osm_id', 'lat', 'lon'),)", 'object_name': 'Place'},
             'attire': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'categories': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.PlaceCategory']", 'symmetrical': 'False'}),
             'cuisines': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['places.Cuisine']", 'null': 'True', 'blank': 'True'}),
             'dancing': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'geom': ('django.contrib.gis.db.models.fields.PointField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': "'256'"}),
-            'osm_place': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['places.OSMPlace']", 'unique': 'True', 'null': 'True', 'blank': 'True'}),
-            'pos': ('geoposition.fields.GeopositionField', [], {'max_length': '42'}),
+            'lat': ('django.db.models.fields.FloatField', [], {}),
+            'lon': ('django.db.models.fields.FloatField', [], {}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
+            'osm_id': ('django.db.models.fields.BigIntegerField', [], {}),
             'price': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.Tag']", 'symmetrical': 'False'}),
+            'timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'version': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'volume': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'})
         },
         u'places.placecategory': {

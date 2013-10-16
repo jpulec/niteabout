@@ -8,8 +8,9 @@ import feedparser
 import xml.etree.ElementTree as ET
 from pyqs import task
 
+from django.contrib.gis.geos import Point
 
-from niteabout.apps.places.models import OSMPlace, Tag, Place, PlaceCategory
+from niteabout.apps.places.models import Tag, Place, PlaceCategory
 
 logger = logging.getLogger(__name__)
 
@@ -23,11 +24,6 @@ def update(new_place, entity):
         new_tag, created = Tag.objects.get_or_create(key=k, value=v)
         new_place.tags.add(new_tag)
 
-def create_osm(entity):
-    new_place, created = OSMPlace.objects.get_or_create(id=entity.id, lat=entity.lat, lon=entity.lon, defaults={'version':entity.version})
-    update(new_place, entity)
-    return new_place
-
 @task(queue='niteabout-staging')
 def parse_openstreetmap(file_name):
     for entity in osmread.parse_file(file_name):
@@ -35,11 +31,14 @@ def parse_openstreetmap(file_name):
             amenity = entity.tags['amenity']
             if amenity in ['bar','pub','restaurant']:
                 try:
-                    new_osm = create_osm(entity)
-                    new_category, created = PlaceCategory.objects.get_or_create(name=amenity.capitalize())
-                    new_place, created = Place.objects.get_or_create(name=entity.tags['name'], pos=(str(entity.lat) + "," + str(entity.lon)), osm_place=new_osm)
-                    new_place.categories.add(new_category)
-                    new_place.save()
+                    new_place, created = Place.objects.get_or_create(osm_id=entity.id, lat=entity.lat, lon=entity.lon, defaults={'name': entity.tags['name'],
+                                                                                                                                 'version': entity.version,
+                                                                                                                                 'geom': Point(entity.lat, entity.lon)})
+                    update(new_place, entity)
+                    if created:
+                        new_category, created = PlaceCategory.objects.get_or_create(name=amenity.capitalize())
+                        new_place.categories.add(new_category)
+                        new_place.save()
                 except Exception as e:
                     logger.exception(e)
 #
