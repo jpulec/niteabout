@@ -1,14 +1,5 @@
 from common import *
 
-DATABASES['default'] = {
-            'ENGINE': 'django.contrib.gis.db.backends.postgis',
-            'NAME': os.environ['POSTGRESQL_NAME'],
-            'USER': os.environ['POSTGRESQL_USERNAME'],
-            'PASSWORD': os.environ['POSTGRESQL_PASSWORD'],
-            'HOST': os.environ['POSTGRESQL_HOST'],
-            'PORT': os.environ['POSTGRESQL_PORT'],
-        }
-
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 ALLOWED_HOSTS = ['admin.niteabout.com', 'niteabout.com']
@@ -31,13 +22,10 @@ MEDIA_ROOT = "media/"
 STATIC_URL = S3_URL + STATIC_ROOT
 MEDIA_URL = S3_URL + MEDIA_ROOT
 
-INSTALLED_APPS += ('gunicorn', 'storages','pyqs','django.contrib.gis',)
+INSTALLED_APPS += ('gunicorn', 'storages','pyqs',)
 
-#Have to add to beginning
-#MIDDLEWARE_CLASSES = ('subdomains.middleware.SubdomainURLRoutingMiddleware',) + MIDDLEWARE_CLASSES
-
-ROOT_URLCONF = "niteabout.urls"
-
-#SUBDOMAIN_URLCONFS = {
-#        'admin': 'niteabout.urls.admin'
-#        }
+EMAIL_USE_TLS = True
+EMAIL_HOST = os.environ['EMAIL_HOST']
+EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = os.eniron['EMAIL_HOST_PASSWORD']
+EMAIL_PORT = 587

@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
-from niteabout.apps.main.views import Home, About, Contact, Place, Thanks
+from niteabout.apps.main.views import Home, About, Contact, Place, Thanks, Profile
 from niteabout.apps.planner.views import GetStarted, Results, PlannerWizard, FORMS, planner_conds
 
 planner_wizard = PlannerWizard.as_view(FORMS, url_name='planit_step', done_step_name="finished")
@@ -23,7 +23,8 @@ urlpatterns = patterns('',
     url(r'^about/$', About.as_view(), name="about"),
     url(r'^contact/$', Contact.as_view(), name='contact'),
     url(r'^thanks/$', Thanks.as_view(), name="thanks"),
-
+    url(r'^accounts/', include('django.contrib.auth.urls')),
+    url(r'^accounts/profile/$', Profile.as_view(), name="profile"),
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
 )
