@@ -1,12 +1,12 @@
 from common import *
 
 DATABASES['default'] = {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ['MYSQL_NAME'],
-            'USER': os.environ['MYSQL_USERNAME'],
-            'PASSWORD': os.environ['MYSQL_PASSWORD'],
-            'HOST': os.environ['MYSQL_HOST'],
-            'PORT': os.environ['MYSQL_PORT'],
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': os.environ['POSTGRESQL_NAME'],
+            'USER': os.environ['POSTGRESQL_USERNAME'],
+            'PASSWORD': os.environ['POSTGRESQL_PASSWORD'],
+            'HOST': os.environ['POSTGRESQL_HOST'],
+            'PORT': os.environ['POSTGRESQL_PORT'],
         }
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -31,7 +31,7 @@ MEDIA_ROOT = "media/"
 STATIC_URL = S3_URL + STATIC_ROOT
 MEDIA_URL = S3_URL + MEDIA_ROOT
 
-INSTALLED_APPS += ('gunicorn', 'storages','pyqs',)
+INSTALLED_APPS += ('gunicorn', 'storages','pyqs','django.contrib.gis',)
 
 #Have to add to beginning
 #MIDDLEWARE_CLASSES = ('subdomains.middleware.SubdomainURLRoutingMiddleware',) + MIDDLEWARE_CLASSES

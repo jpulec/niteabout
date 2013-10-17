@@ -49,9 +49,6 @@ class Results(ListView):
         places = self.handle_place(search)
         places = list(places)
         lat, lng = geocode(search['location'])
-        for place in list(places):
-            if distance_in_miles(place.pos.latitude, place.pos.longitude, lat, lng) > float(threshold):
-                places.remove(place)
         best_place = None
         best_score = float("inf")
         for place in places:
