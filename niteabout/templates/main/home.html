@@ -10,7 +10,7 @@
 <div class="jumbotron">
     <h1>Welcome to NiteAbout</h1>
     <p class="lead">Give us the What, Who, and When, and we'll do the rest</p>
-    <form>
+    <form action="{% url "plan" %}">
         <table>
         {{ form.as_table }}
     </table>

@@ -3,16 +3,14 @@ from django.contrib import admin
 admin.autodiscover()
 
 from niteabout.apps.main.views import Home, About, Contact, Place, Thanks, Profile
-from niteabout.apps.planner.views import GetStarted, Results, PlannerWizard, FORMS, planner_conds
-
-planner_wizard = PlannerWizard.as_view(FORMS, url_name='planit_step', done_step_name="finished")
+from niteabout.apps.plan.views import Plan
 
 urlpatterns = patterns('',
-    # Examples:
     url(r'^$', Home.as_view(), name="home"),
-    url(r'^planit/results/$', Results.as_view(), name="results"),
-    url(r'^planit/(?P<step>.+)/$', planner_wizard, name="planit_step"),
-    url(r'^planit/$', planner_wizard, name="planit"),
+    url(r'^plan/$', Plan.as_view(), name="plan"),
+    #url(r'^planit/results/$', Results.as_view(), name="results"),
+    #url(r'^planit/(?P<step>.+)/$', planner_wizard, name="planit_step"),
+    #url(r'^planit/$', planner_wizard, name="planit"),
     url(r'^place/(?P<pk>\d+)/$', Place.as_view(), name="place"),
 #    url(r'^django-rq/', include('django_rq.urls')),
 #    url(r'^admin/rq/', include('django_rq_dashboard.urls')),

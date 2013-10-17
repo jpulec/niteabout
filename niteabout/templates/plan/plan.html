@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Your NiteAbout{% endblock %}
+
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <span class="col-md-5">Best Matches</span>
+        <span class="col-md-5 col-md-offset-2">Weird Matches</span>
+    <div class="col-md-5 table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Activity</th>
+                    <th>Place</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in best_events %}
+                <tr>
+                    <td>{{ event.activity }}</td>
+                    <td>{{ event.place }}</td>
+                {% endfor %}
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-2 table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for time_slot in timespans %}
+                <tr>
+                    <td>{{ time_slot }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-5 table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Activity</th>
+                    <th>Place</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in weird_events %}
+                <tr>
+                    <td>{{ event.activity }}</td>
+                    <td>{{ event.place }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-3 col-md-offset-9">
+        <button type="submit" class="btn btn-success">Refine Further?</button>
+    </div>
+</div>
+</div>
+{% endblock body %}

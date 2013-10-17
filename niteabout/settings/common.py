@@ -106,7 +106,7 @@ INSTALLED_APPS = (
     'south',
     'mathfilters',
     'niteabout.apps.main',
-    'niteabout.apps.planner',
+    'niteabout.apps.plan',
     'niteabout.apps.gatherer',
     'niteabout.apps.places',
     'niteabout.apps.movies',
@@ -173,3 +173,4 @@ LOGGING = {
     }
 }
 
+TIME_INPUT_FORMATS = ['%H:%M', '%I:%M%p', '%I:%M %p']
