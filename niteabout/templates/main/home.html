@@ -8,13 +8,18 @@
 
 {% block body %}
 <div class="jumbotron">
-    <h1>Welcome to NiteAbout</h1>
+    <h1>NiteAbout</h1>
     <p class="lead">Give us the What, Who, and When, and we'll do the rest</p>
     <form action="{% url "plan" %}">
         <table>
         {{ form.as_table }}
-    </table>
-        <button class="btn btn-primary" type="submit">Go!</button>
+        <tr>
+            <td></td>
+            <td>
+            <button class="btn btn-lg btn-primary" type="submit">Let's Go!</button>
+        </td>
+    </tr>
+        </table>
     </form>
 </div>
 {% endblock body %}
