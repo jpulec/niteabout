@@ -1,11 +1,31 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 
+{% block header %}
+<link href="{{ STATIC_URL }}jqueryui/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet">
+
+{% endblock header %}
 
 {% block body %}
 <div class="jumbotron">
     <h1>Welcome to NiteAbout</h1>
-    <p class="lead"> Need a date planned for you?</p>
-    <p><a class="btn btn-lg btn-success" href="{% url "planit" %}">Get Started</a></p> 
+    <p class="lead">Give us the What, Who, and When, and we'll do the rest</p>
+    <form action="{% url "plan" %}">
+        <table>
+        {{ form.as_table }}
+    </table>
+        <button class="btn btn-primary" type="submit">Go!</button>
+    </form>
 </div>
 {% endblock body %}
+
+{% block script %}
+<script src="{{ STATIC_URL }}jqueryui/js/jquery-ui-1.10.3.custom.min.js"></script>
+<script>
+$(function() {
+        $("#datepicker").datepicker({
+            changeMonth:true,
+          });
+        });
+</script>
+{% endblock script %}

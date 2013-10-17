@@ -15,3 +15,5 @@ MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware','django
 INSTALLED_APPS += ('debug_toolbar','django_pdb')
 
 TEMPLATE_CONTEXT_PROCESSORS += ( 'django.core.context_processors.debug',)
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

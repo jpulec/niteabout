@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Your NiteAbout{% endblock %}
+
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <span class="col-md-5">Best Matches</span>
+        <span class="col-md-5 col-md-offset-2">Weird Matches</span>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th class="col-md-1">Activity</th>
+                    <th class="col-md-4">Place</th>
+                    <th class="col-md-2 success">Time</th>
+                    <th class="col-md-1">Activity</th>
+                    <th class="col-md-4">Place</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row.best.activity }}</td>
+                <td>{{ row.best.place }}</td>
+                <td class="success">{{ row.time }}</td>
+                <td>{{ row.weird.activity }}</td>
+                <td>{{ row.weird.place }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-3 col-md-offset-9">
+        <button type="submit" class="btn btn-success">Refine Further?</button>
+    </div>
+</div>
+</div>
+{% endblock body %}

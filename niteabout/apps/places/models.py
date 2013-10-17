@@ -56,7 +56,7 @@ class Place(OSMPlace):
     objects = geomodels.GeoManager() 
 
     def __unicode__(self):
-        return str(self.name) + ":" + str(self.geom)
+        return str(self.name)
 
     def __sub__(self, other):
         if isinstance(other, Place):

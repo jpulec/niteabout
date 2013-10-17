@@ -2,5 +2,4 @@
 gunicorn==18.0
 django-storages==1.1.8
 boto==2.13.3
-psycopg2==2.5.1
 git+git://github.com/jpulec/PyQS.git

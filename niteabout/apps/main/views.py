@@ -4,10 +4,11 @@ from django.views.generic.edit import FormView
 from django.core.mail import send_mail
 
 from niteabout.apps.places.models import Place
-from niteabout.apps.main.forms import ContactForm
+from niteabout.apps.main.forms import ContactForm, GoForm
 
-class Home(TemplateView):
+class Home(FormView):
     template_name = "main/home.html"
+    form_class = GoForm
 
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)
@@ -44,3 +45,6 @@ class Place(DetailView):
 
 class Thanks(TemplateView):
     template_name = "main/thanks.html"
+
+class Profile(TemplateView):
+    template_name = "main/profile.html"
