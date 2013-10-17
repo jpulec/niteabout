@@ -12,6 +12,12 @@ NITE_TEMPLATES = {'me':
                     {'date':'Classic Date'},
                 }
 
+class Row(object):
+    def __init__(self, best, time, weird):
+        self.best = best
+        self.time = time
+        self.weird = weird
+
 class Plan(TemplateView):
     template_name = "plan/plan.html"
 
@@ -20,6 +26,7 @@ class Plan(TemplateView):
         template_name = NITE_TEMPLATES[self.request.GET['who']][self.request.GET['what']]
         template = NiteTemplate.objects.get(name__iexact=template_name)
         context['timespans'] = (slot.time for slot in sorted(template.slots.all(), key=lambda slot: slot.time))
+        timespans = context['timespans']
         best_events = []
         weird_events = []
         for slot in sorted(template.slots.all(), key=lambda slot: slot.time):
@@ -34,7 +41,8 @@ class Plan(TemplateView):
                 best_events.append(new_nite_place_event)
                 weird_events.append(new_nite_place_event)
         context['best_events'] = best_events
-        context['weird_events'] = weird_events
+        context['weird_events'] = weird_events 
+        context['rows'] = [Row(best_event, timespan, weird_event) for best_event, timespan, weird_event in zip(best_events, timespans, weird_events) ]
         return context
 
     def get(self, request, *args, **kwargs):
