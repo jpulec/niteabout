@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.gis.db import models as geomodels
 from geoposition.fields import GeopositionField
 
+from decimal import Decimal
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,19 +19,16 @@ class Tag(models.Model):
         unique_together = ('key', 'value',)
 
 class OSMPlace(models.Model):
-    osm_id = models.BigIntegerField()
-    tags = models.ManyToManyField('Tag')
-    lat = models.FloatField()
-    lon = models.FloatField()
+    osm_id = models.BigIntegerField(blank=True, null=True)
+    tags = models.ManyToManyField('Tag', null=True, blank=True)
     timestamp = models.DateTimeField(null=True)
     version = models.IntegerField(null=True)
 
     class Meta:
         abstract= True
-        unique_together = ('osm_id', 'lat', 'lon',)
 
     def __unicode__(self):
-        return str(self.osm_id) + ":" + str(self.lat) + "," + str(self.lon)
+        return str(self.osm_id)
 
 
 
@@ -46,41 +45,13 @@ class PlaceCategory(models.Model):
         return self.name
 
 class Place(OSMPlace):
-    PRICES = (
-            (1, "$"),
-            (2, "$$"),
-            (3, "$$$"),
-            (4, "$$$$"),
-            (5, "$$$$$"),
-            )
-    VOLUMES = (
-            (1, "Very Quiet"),
-            (2, "Quiet"),
-            (3, "Moderate"),
-            (4, "Loud"),
-            (5, "Very Loud"),
-            )
-    DANCINGS = (
-            (1, "It's Bomont"),
-            (2, "Stragglers"),
-            (3, "A Few Dancers"),
-            (4, "People Are on Their Feet"),
-            (5, "It's a Mob"),
-            )
-    ATTIRES = (
-            (1, "No Shirt, No Shoes, No Problem"),
-            (2, "Sweatpants Allowed"),
-            (3, "No Shorts Here"),
-            (4, "At Least Wear A Button Down"),
-            (5, "Suit Up"),
-            )
     name = models.CharField(max_length=256)
     geom = geomodels.PointField()
     categories = models.ManyToManyField('PlaceCategory')
-    price = models.PositiveSmallIntegerField(choices=PRICES, blank=True, null=True)
-    volume = models.PositiveSmallIntegerField(choices=VOLUMES, blank=True, null=True)
-    dancing = models.PositiveSmallIntegerField(choices=DANCINGS, blank=True, null=True)
-    attire = models.PositiveSmallIntegerField(choices=ATTIRES, blank=True, null=True)
+    price = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
+    volume = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
+    dancing = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
+    attire = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
     cuisines = models.ManyToManyField('Cuisine', blank=True, null=True)
     objects = geomodels.GeoManager() 
 
