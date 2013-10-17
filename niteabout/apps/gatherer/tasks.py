@@ -9,8 +9,10 @@ import xml.etree.ElementTree as ET
 from pyqs import task
 
 from django.contrib.gis.geos import Point
+from django.db.models.signals import post_save
 
 from niteabout.apps.places.models import Tag, Place, PlaceCategory
+from niteabout.apps.places.signals import create_place
 
 logger = logging.getLogger(__name__)
 
@@ -26,14 +28,15 @@ def update(new_place, entity):
 
 @task(queue='niteabout-staging')
 def parse_openstreetmap(file_name):
+    post_save.disconnect(receiver=create_place, sender=Place)
     for entity in osmread.parse_file(file_name):
         if isinstance(entity, osmread.Node) and "amenity" in entity.tags and "name" in entity.tags:
             amenity = entity.tags['amenity']
             if amenity in ['bar','pub','restaurant']:
                 try:
-                    new_place, created = Place.objects.get_or_create(osm_id=entity.id, lat=entity.lat, lon=entity.lon, defaults={'name': entity.tags['name'],
-                                                                                                                                 'version': entity.version,
-                                                                                                                                 'geom': Point(entity.lat, entity.lon)})
+                    new_place, created = Place.objects.get_or_create(osm_id=entity.id, defaults={'name': entity.tags['name'],
+                                                                                                 'version': entity.version,
+                                                                                                 'geom': Point(entity.lon, entity.lat)})
                     update(new_place, entity)
                     if created:
                         new_category, created = PlaceCategory.objects.get_or_create(name=amenity.capitalize())
@@ -41,6 +44,7 @@ def parse_openstreetmap(file_name):
                         new_place.save()
                 except Exception as e:
                     logger.exception(e)
+    post_save.connect(receiver=create_place, sender=Place)
 #
 #
 #@job

@@ -36,22 +36,17 @@ class Migration(SchemaMigration):
         # Adding model 'Place'
         db.create_table(u'places_place', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('osm_id', self.gf('django.db.models.fields.BigIntegerField')()),
-            ('lat', self.gf('django.db.models.fields.FloatField')()),
-            ('lon', self.gf('django.db.models.fields.FloatField')()),
+            ('osm_id', self.gf('django.db.models.fields.BigIntegerField')(null=True, blank=True)),
             ('timestamp', self.gf('django.db.models.fields.DateTimeField')(null=True)),
             ('version', self.gf('django.db.models.fields.IntegerField')(null=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=256)),
             ('geom', self.gf('django.contrib.gis.db.models.fields.PointField')()),
-            ('price', self.gf('django.db.models.fields.PositiveSmallIntegerField')(null=True, blank=True)),
-            ('volume', self.gf('django.db.models.fields.PositiveSmallIntegerField')(null=True, blank=True)),
-            ('dancing', self.gf('django.db.models.fields.PositiveSmallIntegerField')(null=True, blank=True)),
-            ('attire', self.gf('django.db.models.fields.PositiveSmallIntegerField')(null=True, blank=True)),
+            ('price', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=2, decimal_places=1, blank=True)),
+            ('volume', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=2, decimal_places=1, blank=True)),
+            ('dancing', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=2, decimal_places=1, blank=True)),
+            ('attire', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=2, decimal_places=1, blank=True)),
         ))
         db.send_create_signal(u'places', ['Place'])
-
-        # Adding unique constraint on 'Place', fields ['osm_id', 'lat', 'lon']
-        db.create_unique(u'places_place', ['osm_id', 'lat', 'lon'])
 
         # Adding M2M table for field tags on 'Place'
         m2m_table_name = db.shorten_name(u'places_place_tags')
@@ -103,9 +98,6 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        # Removing unique constraint on 'Place', fields ['osm_id', 'lat', 'lon']
-        db.delete_unique(u'places_place', ['osm_id', 'lat', 'lon'])
-
         # Removing unique constraint on 'Tag', fields ['key', 'value']
         db.delete_unique(u'places_tag', ['key', 'value'])
 
@@ -161,22 +153,20 @@ class Migration(SchemaMigration):
             'start_time': ('django.db.models.fields.TimeField', [], {})
         },
         u'places.place': {
-            'Meta': {'unique_together': "(('osm_id', 'lat', 'lon'),)", 'object_name': 'Place'},
-            'attire': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'Meta': {'object_name': 'Place'},
+            'attire': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '2', 'decimal_places': '1', 'blank': 'True'}),
             'categories': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.PlaceCategory']", 'symmetrical': 'False'}),
             'cuisines': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['places.Cuisine']", 'null': 'True', 'blank': 'True'}),
-            'dancing': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'dancing': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '2', 'decimal_places': '1', 'blank': 'True'}),
             'geom': ('django.contrib.gis.db.models.fields.PointField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'lat': ('django.db.models.fields.FloatField', [], {}),
-            'lon': ('django.db.models.fields.FloatField', [], {}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'osm_id': ('django.db.models.fields.BigIntegerField', [], {}),
-            'price': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.Tag']", 'symmetrical': 'False'}),
+            'osm_id': ('django.db.models.fields.BigIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'price': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '2', 'decimal_places': '1', 'blank': 'True'}),
+            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['places.Tag']", 'null': 'True', 'blank': 'True'}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'version': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
-            'volume': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'})
+            'volume': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '2', 'decimal_places': '1', 'blank': 'True'})
         },
         u'places.placecategory': {
             'Meta': {'object_name': 'PlaceCategory'},
