@@ -105,11 +105,13 @@ INSTALLED_APPS = (
     'django.contrib.gis',
     'south',
     'mathfilters',
+    'registration',
     'niteabout.apps.main',
     'niteabout.apps.plan',
     'niteabout.apps.gatherer',
     'niteabout.apps.places',
     'niteabout.apps.movies',
+    'niteabout.apps.business',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -174,3 +176,5 @@ LOGGING = {
 }
 
 TIME_INPUT_FORMATS = ['%H:%M', '%I:%M%p', '%I:%M %p']
+
+ACCOUNT_ACTIVATION_DAYS = 2

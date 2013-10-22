@@ -6,3 +6,5 @@ osmread==0.1
 feedparser==5.1.3
 python-dateutil==2.1
 psycopg2==2.5.1
+django-registration==1.0
+django-class-based-auth-views==0.2

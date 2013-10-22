@@ -2,6 +2,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
 
 from niteabout.apps.places.models import Place
 from niteabout.apps.main.forms import ContactForm, GoForm

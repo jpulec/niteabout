@@ -1,6 +1,10 @@
 from django.views.generic import TemplateView
+from django.views.generic.edit import FormMixin
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.contrib.auth.forms import AuthenticationForm
+from registration.forms import RegistrationForm
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -18,7 +22,7 @@ class Row(object):
         self.time = time
         self.weird = weird
 
-class Plan(TemplateView):
+class Plan(TemplateView, FormMixin):
     template_name = "plan/plan.html"
 
     def get_context_data(self, **kwargs):
@@ -43,7 +47,23 @@ class Plan(TemplateView):
         context['best_events'] = best_events
         context['weird_events'] = weird_events 
         context['rows'] = [Row(best_event, timespan, weird_event) for best_event, timespan, weird_event in zip(best_events, timespans, weird_events) ]
+        context['signup_form'] = RegistrationForm()
+        context['signin_form'] = AuthenticationForm()
         return context
+
+    def post(self, request, *args, **kwargs):
+        form_class = None
+        if 'signup' in request.POST:
+            form_class = RegistrationForm
+        elif 'signin' in request.POST:
+            form_class = AuthenticationForm
+        form = self.get_form(form_class)
+
+    def get_success_url(self):
+        if 'signup' in self.request.POST:
+            pass
+        elif 'signin' in self.request.POST:
+            return HttpResponse(reverse('finalize'))
 
     def get(self, request, *args, **kwargs):
         if not request.GET:
