@@ -7,6 +7,9 @@
 {% endblock header %}
 
 {% block body %}
+{% if user.businessprofile %}
+{{ user.businessprofile }}
+{% else %}
 <div class="jumbotron">
     <h1>NiteAbout</h1>
     <p class="lead">Give us the What, Who, and When, and we'll do the rest</p>
@@ -22,6 +25,7 @@
         </table>
     </form>
 </div>
+{% endif %}
 {% endblock body %}
 
 {% block script %}

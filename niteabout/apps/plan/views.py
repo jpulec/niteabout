@@ -5,7 +5,9 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.forms import AuthenticationForm
 from registration.forms import RegistrationForm
 
-import logging
+import boto.sns
+
+import logging, os
 logger = logging.getLogger(__name__)
 
 
@@ -25,12 +27,23 @@ class Row(object):
 class Plan(TemplateView, FormMixin):
     template_name = "plan/plan.html"
 
+    def publish_sns(self, template):
+        conn = boto.sns.SNSConnection(os.environ['AWS_ACCESS_KEY_ID'], os.environ['AWS_SECRET_ACCESS_KEY'])
+        for slot in template.slots.all():
+            if slot.event.activity.name == "Drinks":
+                message = self.request.user.username + " is looking for drinks"
+                conn.publish(topic=os.environ['AWS_SNS_ARN'], message=message)
+            elif slot.event.activity.name == "Dinner":
+                message = self.request.user.username + " is looking for dinner"
+                conn.publish(topic=os.environ['AWS_SNS_ARN'], message=message)
+
     def get_context_data(self, **kwargs):
         context = super(Plan, self).get_context_data(**kwargs)
         template_name = NITE_TEMPLATES[self.request.GET['who']][self.request.GET['what']]
         template = NiteTemplate.objects.get(name__iexact=template_name)
         context['timespans'] = (slot.time for slot in sorted(template.slots.all(), key=lambda slot: slot.time))
         timespans = context['timespans']
+        #self.publish_sns(template)
         best_events = []
         weird_events = []
         for slot in sorted(template.slots.all(), key=lambda slot: slot.time):

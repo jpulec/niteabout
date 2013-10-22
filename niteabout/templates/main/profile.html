@@ -3,8 +3,12 @@
 
 
 {% block body %}
+{% if user.businessprofile %}
+    {{ user.businessprofile }}
+{% elif user.userprofile %}
 <div class="jumbotron">
     <h1>{{ user.username }}</h1>
     <p class="lead"></p>
 </div>
+{% endif %}
 {% endblock body %}
