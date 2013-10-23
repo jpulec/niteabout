@@ -10,8 +10,9 @@ class BusinessView(FormView):
     success_url = "/"
 
     def form_valid(self, form):
-        form.save()
-        login(self.request, None)
+        form.instance.backend = 'django.contrib.auth.backends.ModelBackend'
+        self.object = form.save()
+        login(self.request, self.object)
         return super(BusinessView, self).form_valid(form)
 
 

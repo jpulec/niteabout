@@ -5,6 +5,7 @@
 {% block body %}
 <div class="jumbotron">
     <div class="container">
+        {% if template %}
         <span class="col-md-5">Best Matches</span>
         <span class="col-md-5 col-md-offset-2">Weird Matches</span>
     <div class="table-responsive">
@@ -67,6 +68,9 @@
             </div>
         </div>
     </div>
+    {% else %}
+    Looks like we couldn't find any matches for your criteria.
+    {% endif %}
     <div class="col-md-3 col-md-offset-6">
         <button type="submit" class="btn btn-success">Refine Further?</button>
     </div>
