@@ -49,3 +49,6 @@ class NiteTemplate(models.Model):
 
     def __unicode__(self):
         return self.name + ":" + self.description
+
+class NitePlan(models.Model):
+    pass

@@ -6,5 +6,10 @@
 <div class="jumbotron">
     <h1>Are you a business?</h1>
     <p class="lead">Looking to join NiteAbout? Let us help you get new customers.</p>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">Sign Up</button>
+    </form>
 </div>
 {% endblock body %}
