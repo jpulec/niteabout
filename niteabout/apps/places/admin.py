@@ -12,15 +12,24 @@ logger = logging.getLogger(__name__)
 
 class HoursInline(admin.TabularInline):
     model = Hours
-    extra = 7
-    max_num = 7
+    max_num = 1
 
 class FeaturesInline(admin.TabularInline):
     model = Feature
+    readonly_fields = ('feature_name', 'score',)
+    extra = 0
+    max_num = FeatureName.objects.all().count()
 
 class DealsInline(admin.TabularInline):
     model = Deal
     extra = 1
+
+class FeatureAdmin(admin.ModelAdmin):
+    fields = ['feature_name', 'place', 'score', 'get_votes']
+    readonly_fields = ('score', 'get_votes')
+
+    class Meta:
+        model = Feature
 
 class PlaceAdmin(OSMGeoAdmin):
     display_wkt = True
@@ -41,11 +50,25 @@ class PlaceAdmin(OSMGeoAdmin):
     class Meta:
         model = Place
 
+class VoteAdmin(admin.ModelAdmin):
+    class Meta:
+        model = Vote
+
+class HourSpanAdmin(admin.ModelAdmin):
+    class Meta:
+        model = HourSpan
+
+class HoursAdmin(admin.ModelAdmin):
+    class Meta:
+        model = Hours
+
 admin.site.register(Place, PlaceAdmin)
 admin.site.register(Tag)
 admin.site.register(Cuisine)
-admin.site.register(Hours)
+admin.site.register(Hours, HoursAdmin)
+admin.site.register(HourSpan, HourSpanAdmin)
 admin.site.register(PlaceCategory)
 admin.site.register(Deal)
 admin.site.register(FeatureName)
-admin.site.register(Feature)
+#admin.site.register(Feature, FeatureAdmin)
+admin.site.register(Vote, VoteAdmin)

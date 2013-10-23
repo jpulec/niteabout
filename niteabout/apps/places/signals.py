@@ -1,11 +1,14 @@
-from django.db.models.signals import m2m_changed, post_save
+from django.db.models.signals import m2m_changed, post_save, post_delete
 from django.dispatch import receiver
 import xml.etree.ElementTree as ET
 import requests, logging
 import datetime
 import os
 
-from niteabout.apps.places.models import Place, OSMPlace
+from decimal import Decimal
+
+from niteabout.apps.places.models import Place, OSMPlace, FeatureName, Feature, Vote
+from niteabout.apps.plan.models import NiteTemplate, NiteFeature
 
 
 logger = logging.getLogger(__name__)
@@ -25,8 +28,47 @@ def create_place(sender, **kwargs):
         instance.osm_id = response.text
         instance.save()
         logger.info(response)
+        for feature_name in FeatureName.objects.all():
+            new_feature = Feature.objects.create(place=place, feature_name=instance)
 
+@receiver(post_save, sender=Vote)
+def vote_changed(sender, **kwargs):
+    instance = kwargs.pop('instance', None)
+    logger.info(instance)
+    logger.info(instance.feature.score)
+    logger.info(instance.score)
+    instance.feature.score = ((instance.feature.score + Decimal(instance.score)) / Decimal(instance.feature.get_votes()))
+    instance.feature.save()
 
+@receiver(post_delete, sender=Vote)
+def vote_deleted(sender, **kwargs):
+    instance = kwargs.pop('instance', None)
+    if instance.feature.get_votes() == 0:
+        instance.feature.score = 0.0
+        instance.feature.save()
+    else:
+        instance.feature.score = ((instance.feature.score - Decimal(instance.score)) / Decimal(instance.feature.get_votes()))
+        instance.feature.save()
+
+@receiver(post_save, sender=FeatureName)
+def add_feature(sender, **kwargs):
+    created = kwargs.pop('created', False)
+    if created:
+        instance = kwargs.pop('instance', None)
+        logger.info("Creating feature %s for all places..." % instance.name)
+        for place in Place.objects.all():
+            new_feature = Feature.objects.create(place=place, feature_name=instance)
+        logger.info("Creating nitefeature %s for all templates..." % instance.name)
+        for template in NiteTemplate.objects.all():
+            new_feature = NiteFeature.objects.create(template=template, feature_name=instance)
+
+@receiver(post_save, sender=NiteTemplate)
+def add_template(sender, **kwargs):
+    created = kwargs.pop('created', False)
+    if created:
+        instance = kwargs.pop('instance', None)
+        for feature_name in FeatureName.objects.all():
+            new_feature = NiteFeature.objects.create(template=instance, feature_name=feature_name)
 
 
 #@receiver(m2m_changed, sender=Place)

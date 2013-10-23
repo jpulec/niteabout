@@ -2,8 +2,9 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
-from niteabout.apps.main.views import Home, About, Contact, Place, Thanks, Profile
+from niteabout.apps.main.views import Home, About, Contact, Thanks, Profile
 from niteabout.apps.plan.views import Plan
+from niteabout.apps.places.views import Place
 from niteabout.apps.business.views import BusinessView, BusinessPush
 
 urlpatterns = patterns('',

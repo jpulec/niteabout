@@ -39,11 +39,6 @@ class Contact(FormView):
         send_mail(form.cleaned_data['subject'], form.cleaned_data['message'], form.cleaned_data['sender'], recipients)
         return super(Contact, self).form_valid(form)
 
-class Place(DetailView):
-    model = Place
-    template_name = "main/place_view.html"
-    context_object_name = "place"
-
 class Thanks(TemplateView):
     template_name = "main/thanks.html"
 

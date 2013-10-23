@@ -5,7 +5,7 @@ var directionService = new google.maps.DirectionsService();
 
 function initialize() {
     var mapOptions = {
-    center: new google.maps.LatLng( {{ place.pos }} ),
+        center: new google.maps.LatLng( {{ place.geom.y }}, {{ place.geom.x }} ),
         zoom: 16,
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
@@ -40,7 +40,7 @@ function initialize() {
 
 function calcRoute(selectedMode) {
     var start = window.initialLocation;
-    var end = new google.maps.LatLng( {{ place.pos }} );
+    var end = new google.maps.LatLng( {{ place.geom.y }}, {{ place.geom.x }} );
     var request = {
 origin: start,
         destination: end,

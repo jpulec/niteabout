@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.gis.db import models as geomodels
+from django.contrib.auth.models import User
 from geoposition.fields import GeopositionField
+from djangoratings import RatingField
 
 from decimal import Decimal
 
@@ -50,25 +52,37 @@ class FeatureName(models.Model):
     def __unicode__(self):
         return self.name
 
-class Feature(models.Model):
-    feature = models.ForeignKey('FeatureName')
-    value = models.DecimalField(max_digits=2, decimal_places=1)
-    place = models.ForeignKey('Place')
+class Vote(models.Model):
+    CHOICES = ((x, x) for x in range(-5, 6))
+
+    user = models.ForeignKey(User)
+    score = models.IntegerField(choices=CHOICES)
+    feature = models.ForeignKey('Feature')
 
     class Meta:
-        unique_together = ('feature', 'place',)
+        unique_together = ('user', 'feature',)
 
     def __unicode__(self):
-        return unicode(self.feature) + ":" + unicode(self.value)
+        return unicode(self.user) + " voted %d on " % self.score + unicode(self.feature) 
+
+class Feature(models.Model):
+    feature_name = models.ForeignKey('FeatureName')
+    place = models.ForeignKey('Place')
+    score = models.DecimalField(max_digits=2, decimal_places=1, default=0.0)
+
+    class Meta:
+        unique_together = ('feature_name', 'place',)
+
+    def get_votes(self):
+        return Vote.objects.filter(feature=self).count()
+
+    def __unicode__(self):
+        return unicode(self.place) + ":" + unicode(self.feature_name) + ":" + unicode(self.score)
 
 class Place(OSMPlace):
     name = models.CharField(max_length=256)
     geom = geomodels.PointField()
     categories = models.ManyToManyField('PlaceCategory')
-    price = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
-    volume = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
-    dancing = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
-    attire = models.DecimalField(max_digits=2, decimal_places=1, blank=True, null=True)
     cuisines = models.ManyToManyField('Cuisine', blank=True, null=True)
     objects = geomodels.GeoManager() 
 
@@ -77,20 +91,7 @@ class Place(OSMPlace):
 
     def __sub__(self, other):
         if isinstance(other, Place):
-            return pow(
-                    pow(self.price - other.price, 2) + 
-                    pow(self.volume - other.volume, 2) + 
-                    pow(self.dancing - other.dancing, 2) +
-                    pow(self.attire - other.attire, 2),
-                    0.5)
-        elif isinstance(other, dict):
-            total = 0
-            for k,v in other.iteritems():
-                try:
-                    total += pow(getattr(self, k) - v, 2)
-                except Exception as e:
-                    logger.exception(e)
-            return pow(total, 0.5)
+            return 0
         else:
             raise TypeError
 
@@ -98,24 +99,35 @@ class Place(OSMPlace):
         return ', '.join([c.name for c in self.categories.all()])
     category_names.short_description = "Categories"
 
-DAYS_OF_WEEK = (
-        (0, "Sunday"),
-        (1, "Monday"),
-        (2, "Tuesday"),
-        (3, "Wednesday"),
-        (4, "Thursday"),
-        (5, "Friday"),
-        (6, "Saturday")
-        )
+class HourSpan(models.Model):
+    open = models.TimeField()
+    close = models.TimeField()
+
+    def __unicode__(self):
+        return unicode(self.open) + "-" + unicode(self.close)
 
 class Hours(models.Model):
     place = models.ForeignKey('Place')
-    day = models.IntegerField(choices=DAYS_OF_WEEK, unique=True)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    sunday = models.ForeignKey('HourSpan', related_name="sunday_hours", blank=True, null=True)
+    monday = models.ForeignKey('HourSpan', related_name="monday_hours", blank=True, null=True)
+    tuesday = models.ForeignKey('HourSpan', related_name="tuesday_hours", blank=True, null=True)
+    wednessday = models.ForeignKey('HourSpan', related_name="wednesday_hours", blank=True, null=True)
+    thursday = models.ForeignKey('HourSpan', related_name="thursday_hours", blank=True, null=True)
+    friday = models.ForeignKey('HourSpan', related_name="friday_hours", blank=True, null=True)
+    saturday = models.ForeignKey('HourSpan', related_name="saturday_hours", blank=True, null=True)
 
     def __unicode__(self):
-        return str(self.place) + " opens at " + str(self.start_time) + " and closes at " + str(self.end_time) + " on " + self.get_day_display()
+        return unicode(self.place) + " hours"
+
+DAYS_OF_WEEK = (
+        ('Su', 'Sunday'),
+        ('M', 'Monday'),
+        ('Tu', 'Tuesday'),
+        ('W', 'Wednesday'),
+        ('Th', 'Thursday'),
+        ('F', 'Friday'),
+        ('Sa', 'Saturday'),
+        )
 
 class Deal(models.Model):
     place = models.ForeignKey('Place')

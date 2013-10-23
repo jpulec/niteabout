@@ -35,7 +35,7 @@ class Plan(TemplateView, FormMixin):
     def get_context_data(self, **kwargs):
         context = super(Plan, self).get_context_data(**kwargs)
         template = NiteTemplate.objects.filter(who=self.request.GET['who'], what=self.request.GET['what']).order_by('?')[:1].get()
-        for activity in template.activities:
+        for activity in template.activities.all():
             pass
             #self.publish_sns(activity.name, self.request.GET['who'], self.request.GET['what'])
         context['template'] = template

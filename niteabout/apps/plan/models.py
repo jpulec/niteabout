@@ -1,6 +1,6 @@
 from django.db import models
 
-from niteabout.apps.places.models import Place
+from niteabout.apps.places.models import Place, FeatureName
 
 class NiteActivity(models.Model):
     name = models.CharField(max_length=128)
@@ -20,6 +20,7 @@ class NiteWhat(models.Model):
     def __unicode__(self):
         return self.what
 
+
 class NiteTemplate(models.Model):
     name = models.CharField(max_length=128)
     description = models.TextField()
@@ -29,6 +30,14 @@ class NiteTemplate(models.Model):
 
     def __unicode__(self):
         return self.name + ":" + self.description
+
+class NiteFeature(models.Model):
+    feature_name = models.ForeignKey(FeatureName)
+    score = models.DecimalField(max_digits=2, decimal_places=1, default=0.0)
+    template = models.ForeignKey('NiteTemplate')
+
+    def __unicode__(self):
+        return unicode(self.template) + ":" + unicode(self.feature_name) + ":" + unicode(self.score)
 
 class NitePlan(models.Model):
     pass
