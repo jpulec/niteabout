@@ -29,7 +29,7 @@ class Plan(TemplateView, FormMixin):
 
     def publish_sns(self, activity, who, what):
         conn = boto.sns.SNSConnection(os.environ['AWS_ACCESS_KEY_ID'], os.environ['AWS_SECRET_ACCESS_KEY'])
-        message = str(who) + " is looking to get " str(activity) " for " + str(what)
+        message = str(who) + " is looking to get "  + str(activity) + " for " + str(what)
         conn.publish(topic=os.environ['AWS_SNS_ARN'], message=message)
 
     def get_context_data(self, **kwargs):

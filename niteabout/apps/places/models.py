@@ -44,6 +44,23 @@ class PlaceCategory(models.Model):
     def __unicode__(self):
         return self.name
 
+class FeatureName(models.Model):
+    name = models.CharField(max_length=128)
+
+    def __unicode__(self):
+        return self.name
+
+class Feature(models.Model):
+    feature = models.ForeignKey('FeatureName')
+    value = models.DecimalField(max_digits=2, decimal_places=1)
+    place = models.ForeignKey('Place')
+
+    class Meta:
+        unique_together = ('feature', 'place',)
+
+    def __unicode__(self):
+        return unicode(self.feature) + ":" + unicode(self.value)
+
 class Place(OSMPlace):
     name = models.CharField(max_length=256)
     geom = geomodels.PointField()

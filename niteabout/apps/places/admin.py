@@ -15,6 +15,9 @@ class HoursInline(admin.TabularInline):
     extra = 7
     max_num = 7
 
+class FeaturesInline(admin.TabularInline):
+    model = Feature
+
 class DealsInline(admin.TabularInline):
     model = Deal
     extra = 1
@@ -22,15 +25,15 @@ class DealsInline(admin.TabularInline):
 class PlaceAdmin(OSMGeoAdmin):
     display_wkt = True
     inlines = [
+            FeaturesInline,
             HoursInline,
             DealsInline,
             ]
-    fields = ['name', 'geom', 'categories', 'price', 'volume', 'dancing', 'cuisines', 'attire',]
-    list_display = ('name', 'price', 'volume', 'dancing', 'attire', 'category_names',)
-    list_editable = ('price', 'volume', 'dancing', 'attire',)
+    fields = ['name', 'geom', 'categories', 'cuisines']
+    list_display = ('name', 'category_names',)
     filter_horizontal = ('cuisines', 'categories',)
 
-    list_filter = ('categories', 'cuisines', 'price', 'volume', 'dancing', 'attire',)
+    list_filter = ('categories', 'cuisines',)
     list_related = True
 
     search_fields = ['name']
@@ -44,3 +47,5 @@ admin.site.register(Cuisine)
 admin.site.register(Hours)
 admin.site.register(PlaceCategory)
 admin.site.register(Deal)
+admin.site.register(FeatureName)
+admin.site.register(Feature)
