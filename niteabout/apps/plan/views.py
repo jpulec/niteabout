@@ -14,10 +14,6 @@ logger = logging.getLogger(__name__)
 from niteabout.apps.plan.models import NiteTemplate
 from niteabout.apps.places.models import Place
 
-NITE_TEMPLATES = {'me':
-                    {'date':'Classic Date'},
-                }
-
 class Row(object):
     def __init__(self, best, time, weird):
         self.best = best

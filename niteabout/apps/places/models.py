@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.gis.db import models as geomodels
 from django.contrib.auth.models import User
-from geoposition.fields import GeopositionField
-from djangoratings import RatingField
 
 from decimal import Decimal
 
@@ -59,11 +57,25 @@ class Vote(models.Model):
     score = models.IntegerField(choices=CHOICES)
     feature = models.ForeignKey('Feature')
 
+    def __init__(self, *args, **kwargs):
+        super(Vote, self).__init__(*args, **kwargs)
+        self._old_score = self.score
+
     class Meta:
         unique_together = ('user', 'feature',)
 
     def __unicode__(self):
         return unicode(self.user) + " voted %d on " % self.score + unicode(self.feature) 
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            super(Vote, self).save(*args, **kwargs)
+            self.feature.score = ((self.feature.score + Decimal(str(self.score))) / self.feature.get_votes())
+            self.feature.save()
+        else:
+            super(Vote, self).save(*args, **kwargs)
+            self.feature.score = ((self.feature.score + Decimal(str(self.score)) - self._old_score ) / self.feature.get_votes())
+            self.feature.save()
 
 class Feature(models.Model):
     feature_name = models.ForeignKey('FeatureName')

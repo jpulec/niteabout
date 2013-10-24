@@ -1,18 +1,10 @@
 from django import forms
-from django.forms.models import BaseModelFormSet, modelformset_factory
 
 from niteabout.widgets import FeatureInput
 from niteabout.apps.places.models import FeatureName, Vote
 
-class VoteForm(forms.ModelForm):
-    class Meta:
-        model = Vote
-        excludes = ('user', 'feature',)
-        widgets = { 'score': FeatureInput() }
-
-class VoteFormSet(BaseModelFormSet):
+class FeatureForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        super(VoteFormSet, self).__init__(*args, **kwargs)
-        self.queryset = Vote.objects.all()
-
-VoteSet = modelformset_factory(Vote, formset=VoteFormSet, form=VoteForm,)
+        super(FeatureForm, self).__init__(*args, **kwargs)
+        for feature_name in FeatureName.objects.all():
+            self.fields['%s' % feature_name.name] = forms.IntegerField(widget=FeatureInput())

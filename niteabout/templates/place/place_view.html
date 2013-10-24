@@ -34,13 +34,10 @@
     {% if user.is_authenticated %}
     <form method="POST">
         {% csrf_token %}
-        {{ formset.management_form }}
         <table class="table">
-            {% for form in formset %}
-            {{ form }}
-        {% endfor %}
+            {{ form.as_table }}
         </table>
-    <button type="submit" class="btn btn-primary">PUSH</button>
+    <button type="submit" class="btn btn-primary">Rate</button>
     </form>
     {% endif %}
 </div>

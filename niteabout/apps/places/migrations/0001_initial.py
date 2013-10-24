@@ -33,6 +33,37 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'places', ['PlaceCategory'])
 
+        # Adding model 'FeatureName'
+        db.create_table(u'places_featurename', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=128)),
+        ))
+        db.send_create_signal(u'places', ['FeatureName'])
+
+        # Adding model 'Vote'
+        db.create_table(u'places_vote', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('score', self.gf('django.db.models.fields.IntegerField')()),
+            ('feature', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['places.Feature'])),
+        ))
+        db.send_create_signal(u'places', ['Vote'])
+
+        # Adding unique constraint on 'Vote', fields ['user', 'feature']
+        db.create_unique(u'places_vote', ['user_id', 'feature_id'])
+
+        # Adding model 'Feature'
+        db.create_table(u'places_feature', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('feature_name', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['places.FeatureName'])),
+            ('place', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['places.Place'])),
+            ('score', self.gf('django.db.models.fields.DecimalField')(default=0.0, max_digits=2, decimal_places=1)),
+        ))
+        db.send_create_signal(u'places', ['Feature'])
+
+        # Adding unique constraint on 'Feature', fields ['feature_name', 'place']
+        db.create_unique(u'places_feature', ['feature_name_id', 'place_id'])
+
         # Adding model 'Place'
         db.create_table(u'places_place', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -41,10 +72,6 @@ class Migration(SchemaMigration):
             ('version', self.gf('django.db.models.fields.IntegerField')(null=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=256)),
             ('geom', self.gf('django.contrib.gis.db.models.fields.PointField')()),
-            ('price', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=2, decimal_places=1, blank=True)),
-            ('volume', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=2, decimal_places=1, blank=True)),
-            ('dancing', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=2, decimal_places=1, blank=True)),
-            ('attire', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=2, decimal_places=1, blank=True)),
         ))
         db.send_create_signal(u'places', ['Place'])
 
@@ -75,13 +102,25 @@ class Migration(SchemaMigration):
         ))
         db.create_unique(m2m_table_name, ['place_id', 'cuisine_id'])
 
+        # Adding model 'HourSpan'
+        db.create_table(u'places_hourspan', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('open', self.gf('django.db.models.fields.TimeField')()),
+            ('close', self.gf('django.db.models.fields.TimeField')()),
+        ))
+        db.send_create_signal(u'places', ['HourSpan'])
+
         # Adding model 'Hours'
         db.create_table(u'places_hours', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('place', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['places.Place'])),
-            ('day', self.gf('django.db.models.fields.IntegerField')(unique=True)),
-            ('start_time', self.gf('django.db.models.fields.TimeField')()),
-            ('end_time', self.gf('django.db.models.fields.TimeField')()),
+            ('sunday', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='sunday_hours', null=True, to=orm['places.HourSpan'])),
+            ('monday', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='monday_hours', null=True, to=orm['places.HourSpan'])),
+            ('tuesday', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='tuesday_hours', null=True, to=orm['places.HourSpan'])),
+            ('wednessday', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='wednesday_hours', null=True, to=orm['places.HourSpan'])),
+            ('thursday', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='thursday_hours', null=True, to=orm['places.HourSpan'])),
+            ('friday', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='friday_hours', null=True, to=orm['places.HourSpan'])),
+            ('saturday', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='saturday_hours', null=True, to=orm['places.HourSpan'])),
         ))
         db.send_create_signal(u'places', ['Hours'])
 
@@ -98,6 +137,12 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
+        # Removing unique constraint on 'Feature', fields ['feature_name', 'place']
+        db.delete_unique(u'places_feature', ['feature_name_id', 'place_id'])
+
+        # Removing unique constraint on 'Vote', fields ['user', 'feature']
+        db.delete_unique(u'places_vote', ['user_id', 'feature_id'])
+
         # Removing unique constraint on 'Tag', fields ['key', 'value']
         db.delete_unique(u'places_tag', ['key', 'value'])
 
@@ -109,6 +154,15 @@ class Migration(SchemaMigration):
 
         # Deleting model 'PlaceCategory'
         db.delete_table(u'places_placecategory')
+
+        # Deleting model 'FeatureName'
+        db.delete_table(u'places_featurename')
+
+        # Deleting model 'Vote'
+        db.delete_table(u'places_vote')
+
+        # Deleting model 'Feature'
+        db.delete_table(u'places_feature')
 
         # Deleting model 'Place'
         db.delete_table(u'places_place')
@@ -122,6 +176,9 @@ class Migration(SchemaMigration):
         # Removing M2M table for field cuisines on 'Place'
         db.delete_table(db.shorten_name(u'places_place_cuisines'))
 
+        # Deleting model 'HourSpan'
+        db.delete_table(u'places_hourspan')
+
         # Deleting model 'Hours'
         db.delete_table(u'places_hours')
 
@@ -130,6 +187,42 @@ class Migration(SchemaMigration):
 
 
     models = {
+        u'auth.group': {
+            'Meta': {'object_name': 'Group'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
+            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
+        },
+        u'auth.permission': {
+            'Meta': {'ordering': "(u'content_type__app_label', u'content_type__model', u'codename')", 'unique_together': "((u'content_type', u'codename'),)", 'object_name': 'Permission'},
+            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
+        },
+        u'auth.user': {
+            'Meta': {'object_name': 'User'},
+            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
+            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
+            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
+            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
+            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
+            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
+        },
+        u'contenttypes.contenttype': {
+            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
+            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
         u'places.cuisine': {
             'Meta': {'object_name': 'Cuisine'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -144,29 +237,47 @@ class Migration(SchemaMigration):
             'place': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.Place']"}),
             'start_time': ('django.db.models.fields.TimeField', [], {'null': 'True', 'blank': 'True'})
         },
-        u'places.hours': {
-            'Meta': {'object_name': 'Hours'},
-            'day': ('django.db.models.fields.IntegerField', [], {'unique': 'True'}),
-            'end_time': ('django.db.models.fields.TimeField', [], {}),
+        u'places.feature': {
+            'Meta': {'unique_together': "(('feature_name', 'place'),)", 'object_name': 'Feature'},
+            'feature_name': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.FeatureName']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'place': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.Place']"}),
-            'start_time': ('django.db.models.fields.TimeField', [], {})
+            'score': ('django.db.models.fields.DecimalField', [], {'default': '0.0', 'max_digits': '2', 'decimal_places': '1'})
+        },
+        u'places.featurename': {
+            'Meta': {'object_name': 'FeatureName'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
+        },
+        u'places.hours': {
+            'Meta': {'object_name': 'Hours'},
+            'friday': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'friday_hours'", 'null': 'True', 'to': u"orm['places.HourSpan']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'monday': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'monday_hours'", 'null': 'True', 'to': u"orm['places.HourSpan']"}),
+            'place': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.Place']"}),
+            'saturday': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'saturday_hours'", 'null': 'True', 'to': u"orm['places.HourSpan']"}),
+            'sunday': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'sunday_hours'", 'null': 'True', 'to': u"orm['places.HourSpan']"}),
+            'thursday': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'thursday_hours'", 'null': 'True', 'to': u"orm['places.HourSpan']"}),
+            'tuesday': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'tuesday_hours'", 'null': 'True', 'to': u"orm['places.HourSpan']"}),
+            'wednessday': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'wednesday_hours'", 'null': 'True', 'to': u"orm['places.HourSpan']"})
+        },
+        u'places.hourspan': {
+            'Meta': {'object_name': 'HourSpan'},
+            'close': ('django.db.models.fields.TimeField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'open': ('django.db.models.fields.TimeField', [], {})
         },
         u'places.place': {
             'Meta': {'object_name': 'Place'},
-            'attire': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '2', 'decimal_places': '1', 'blank': 'True'}),
             'categories': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.PlaceCategory']", 'symmetrical': 'False'}),
             'cuisines': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['places.Cuisine']", 'null': 'True', 'blank': 'True'}),
-            'dancing': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '2', 'decimal_places': '1', 'blank': 'True'}),
             'geom': ('django.contrib.gis.db.models.fields.PointField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
             'osm_id': ('django.db.models.fields.BigIntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'price': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '2', 'decimal_places': '1', 'blank': 'True'}),
             'tags': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['places.Tag']", 'null': 'True', 'blank': 'True'}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'version': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
-            'volume': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '2', 'decimal_places': '1', 'blank': 'True'})
+            'version': ('django.db.models.fields.IntegerField', [], {'null': 'True'})
         },
         u'places.placecategory': {
             'Meta': {'object_name': 'PlaceCategory'},
@@ -178,6 +289,13 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'key': ('django.db.models.fields.CharField', [], {'max_length': "'128'"}),
             'value': ('django.db.models.fields.CharField', [], {'max_length': "'256'"})
+        },
+        u'places.vote': {
+            'Meta': {'unique_together': "(('user', 'feature'),)", 'object_name': 'Vote'},
+            'feature': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.Feature']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'score': ('django.db.models.fields.IntegerField', [], {}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"})
         }
     }
 

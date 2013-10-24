@@ -19,35 +19,27 @@ def create_place(sender, **kwargs):
     created = kwargs.pop('created', False)
     if created:
         instance = kwargs.pop('instance', None)
-        payload = """<?xml version='1.0' encoding='utf-8'?><osm><changeset></changeset></osm>"""
-        headers = {'content-type': 'application/xml' }
-        cs_num = requests.put("http://api.openstreetmap.org/api/0.6/changeset/create", auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']), data=payload, headers=headers)
-        logger.info(cs_num.text)
-        xml = '<osm><node changeset="' + cs_num.text + '" lat="' + str(instance.geom.y) + '" lon="' + str(instance.geom.x) + '"><tag k="name" v="' + instance.name + '"/></node></osm>'
-        response = requests.put("http://api.openstreetmap.org/api/0.6/node/create", data=xml, headers=headers, auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']))
-        instance.osm_id = response.text
-        instance.save()
-        logger.info(response)
+        #payload = """<?xml version='1.0' encoding='utf-8'?><osm><changeset></changeset></osm>"""
+        #headers = {'content-type': 'application/xml' }
+        #cs_num = requests.put("http://api.openstreetmap.org/api/0.6/changeset/create", auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']), data=payload, headers=headers)
+        #logger.info(cs_num.text)
+        #xml = '<osm><node changeset="' + cs_num.text + '" lat="' + str(instance.geom.y) + '" lon="' + str(instance.geom.x) + '"><tag k="name" v="' + instance.name + '"/></node></osm>'
+        #response = requests.put("http://api.openstreetmap.org/api/0.6/node/create", data=xml, headers=headers, auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']))
+        #instance.osm_id = response.text
+        #instance.save()
+        #logger.info(response)
         for feature_name in FeatureName.objects.all():
-            new_feature = Feature.objects.create(place=place, feature_name=instance)
-
-@receiver(post_save, sender=Vote)
-def vote_changed(sender, **kwargs):
-    instance = kwargs.pop('instance', None)
-    logger.info(instance)
-    logger.info(instance.feature.score)
-    logger.info(instance.score)
-    instance.feature.score = ((instance.feature.score + Decimal(instance.score)) / Decimal(instance.feature.get_votes()))
-    instance.feature.save()
+            new_feature = Feature.objects.create(place=instance, feature_name=feature_name)
 
 @receiver(post_delete, sender=Vote)
 def vote_deleted(sender, **kwargs):
     instance = kwargs.pop('instance', None)
-    if instance.feature.get_votes() == 0:
-        instance.feature.score = 0.0
+    if Vote.objects.filter(feature=instance.feature).count() == 0:
+        logger.info(Vote.objects.filter(feature=instance.feature).count())
+        instance.feature.score = Decimal("0.0")
         instance.feature.save()
     else:
-        instance.feature.score = ((instance.feature.score - Decimal(instance.score)) / Decimal(instance.feature.get_votes()))
+        instance.feature.score = ((instance.feature.score - Decimal(str(instance.score))) / Decimal(str(Vote.objects.filter(feature=instance.feature).count())))
         instance.feature.save()
 
 @receiver(post_save, sender=FeatureName)
