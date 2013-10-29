@@ -40,9 +40,10 @@ class Plan(TemplateView, FormMixin):
         weird_events = []
         for activity in template.activities.all():
             if activity.name == "drinks":
-                place = Place.objects.filter(categories__name__iexact="bar").order_by('?')[:1].get()
-                new_nite_event, created = NiteEvent.objects.get_or_create(place=place, activity=activity)
-                best_events.append(new_nite_event)
+                places = Place.objects.filter(categories__name__iexact="bar").order_by('?')[:10]
+                for place in places:
+                    new_nite_event, created = NiteEvent.objects.get_or_create(place=place, activity=activity)
+                    best_events.append(new_nite_event)
         context['best_events'] = best_events
         context['weird_events'] = weird_events
         return context
@@ -74,3 +75,5 @@ class Offers(ListView):
     def get_queryset(self):
         return Offer.objects.filter(to_user=self.request.user)
 
+class Finalize(TemplateView):
+    template_name = "plan/finalize.html"

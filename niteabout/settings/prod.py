@@ -22,10 +22,14 @@ MEDIA_ROOT = "media/"
 STATIC_URL = S3_URL + STATIC_ROOT
 MEDIA_URL = S3_URL + MEDIA_ROOT
 
-INSTALLED_APPS += ('gunicorn', 'storages','pyqs',)
+INSTALLED_APPS += ('gunicorn', 'storages','pyqs','raven.contrib.django.raven_compat',)
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = os.environ['EMAIL_HOST']
 EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
 EMAIL_HOST_PASSWORD = os.eniron['EMAIL_HOST_PASSWORD']
 EMAIL_PORT = 587
+
+RAVEN_CONFIG = {
+        'dsn': 'https://d8a3d26e38824c68830a8d446a8d733e:50431aff41ec44de87c28084684e614c@app.getsentry.com/15037',
+        }

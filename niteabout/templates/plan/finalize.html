@@ -16,9 +16,9 @@
                         <th class="col-md-4">Place</th>
                     </tr>
                 </thead>
-                <tbody class="draggable sortable">
+                <tbody>
                 {% for event in best_events %}
-                <tr>
+                <tr id="{{ event.id }}">
                     <td>{{ event.activity }}</td>
                     <td>{{ event.place }}</td>
                 </tr>
@@ -121,17 +121,12 @@
 {% endblock body %}
 
 {% block script %}
-<script src="{{ STATIC_URL }}jqueryui/js/jquery-ui-1.10.3.custom.min.js"></script>
 <script>
 $(function() {
-        $( ".sortable" ).sortable( {revert:true});
-
-        $( ".draggable" ).draggable({ connectToSortable: "#sortable", 
-                                           helper: "clone",
-                                           revert: "invalid",
-                                           } );
+        {% for event in rows %}
+        $( "#{{ row.id }}" ).draggable({ containment: "parent" } );
+        {% endfor %}
         });
-        $( "tbody" ).disableSelection();
 </script>
 {% if user.is_authenticated %}
 <script>
