@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Your NiteAbout{% endblock %}
 
+{% block header %}
+<link href="{{ STATIC_URL }}jqueryui/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet">
+{% endblock header %}
 
 {% block body %}
 <div class="jumbotron">
@@ -43,6 +46,7 @@
             </table>
         </div>
         <div class="table-responsive col-md-5">
+            <form action="{% url "finalize" %}" method="POST">
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -59,6 +63,7 @@
                 {% endfor %}
                 </tbody>
             </table>
+            </form>
         </div>
     </div>
     {% if user.is_authenticated %}

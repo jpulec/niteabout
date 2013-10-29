@@ -77,3 +77,7 @@ class Offers(ListView):
 
 class Finalize(TemplateView):
     template_name = "plan/finalize.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(Finalize, self).get_context_data(**kwargs)
+        return context
