@@ -128,5 +128,3 @@ class Deal(models.Model):
 
     def __unicode__(self):
         return str(self.place) + " has " + self.deal + " on " + self.get_day_display() + " starting at " + str(self.start_time) + " until " + str(self.end_time)
-
-from niteabout.apps.places import signals

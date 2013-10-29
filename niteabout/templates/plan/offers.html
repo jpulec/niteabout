@@ -1,0 +1,6 @@
+<h2>Offers</h2>
+<table class="table">
+    {% for offer in offers %}
+    <tr><td><a href="{% url "place" offer.owner.place.id %}">{{ offer.owner.name }}</a></td><td>{{ offer.text }}</td></tr>
+    {% endfor %}
+</table>

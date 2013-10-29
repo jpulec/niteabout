@@ -39,5 +39,9 @@ class NiteFeature(models.Model):
     def __unicode__(self):
         return unicode(self.template) + ":" + unicode(self.feature_name) + ":" + unicode(self.score)
 
+class NiteEvent(models.Model):
+    place = models.ForeignKey(Place)
+    activity = models.ForeignKey('NiteActivity')
+
 class NitePlan(models.Model):
     pass

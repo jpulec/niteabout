@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormMixin
+from django.views.generic.list import ListView
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.forms import AuthenticationForm
@@ -11,14 +12,9 @@ import logging, os
 logger = logging.getLogger(__name__)
 
 
-from niteabout.apps.plan.models import NiteTemplate
+from niteabout.apps.plan.models import NiteTemplate, NiteEvent
 from niteabout.apps.places.models import Place
-
-class Row(object):
-    def __init__(self, best, time, weird):
-        self.best = best
-        self.time = time
-        self.weird = weird
+from niteabout.apps.business.models import Offer
 
 class Plan(TemplateView, FormMixin):
     template_name = "plan/plan.html"
@@ -31,17 +27,24 @@ class Plan(TemplateView, FormMixin):
     def get_context_data(self, **kwargs):
         context = super(Plan, self).get_context_data(**kwargs)
         template = NiteTemplate.objects.filter(who=self.request.GET['who'], what=self.request.GET['what']).order_by('?')[:1].get()
-        for activity in template.activities.all():
-            pass
-            #self.publish_sns(activity.name, self.request.GET['who'], self.request.GET['what'])
+        if self.request.user.is_authenticated():
+            for activity in template.activities.all():
+                pass
+                #self.publish_sns(activity.name, self.request.GET['who'], self.request.GET['what'])
+            context['offers'] = Offer.objects.filter(to_user=self.request.user)
+        else:
+            context['signup_form'] = RegistrationForm()
+            context['signin_form'] = AuthenticationForm()
         context['template'] = template
-        #self.publish_sns(template)
         best_events = []
         weird_events = []
+        for activity in template.activities.all():
+            if activity.name == "drinks":
+                place = Place.objects.filter(categories__name__iexact="bar").order_by('?')[:1].get()
+                new_nite_event, created = NiteEvent.objects.get_or_create(place=place, activity=activity)
+                best_events.append(new_nite_event)
         context['best_events'] = best_events
-        context['weird_events'] = weird_events 
-        context['signup_form'] = RegistrationForm()
-        context['signin_form'] = AuthenticationForm()
+        context['weird_events'] = weird_events
         return context
 
     def post(self, request, *args, **kwargs):
@@ -63,3 +66,11 @@ class Plan(TemplateView, FormMixin):
             #no query parameters, what the hell are they doing here?
             return HttpResponseRedirect(reverse("home"))
         return super(Plan, self).get(request, *args, **kwargs)
+
+class Offers(ListView):
+    template_name = "plan/offers.html"
+    context_object_name = "offers"
+
+    def get_queryset(self):
+        return Offer.objects.filter(to_user=self.request.user)
+
