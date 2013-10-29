@@ -8,7 +8,9 @@
     <div class="container">
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        <table class="table">
+        {{ form.as_table }}
+    </table>
         <button class="btn btn-primary" type="submit">Send</button>
     </form>
 </div>
