@@ -1,7 +1,7 @@
 from django import forms
 
 from niteabout.widgets import FeatureInput
-from niteabout.apps.places.models import FeatureName, Vote
+from niteabout.apps.places.models import FeatureName
 
 class FeatureForm(forms.Form):
     def __init__(self, *args, **kwargs):

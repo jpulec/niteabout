@@ -6,7 +6,7 @@ from niteabout.apps.places.models import Place
 
 class UserProfile(models.Model):
     auth = models.OneToOneField(User)
-    past_plans = models.ManyToManyField(NitePlan)
+    past_plans = models.ManyToManyField(NitePlan, blank=True, null=True)
 
     def __unicode__(self):
         return str(self.auth)

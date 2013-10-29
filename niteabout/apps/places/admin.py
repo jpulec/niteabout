@@ -16,7 +16,7 @@ class HoursInline(admin.TabularInline):
 
 class FeaturesInline(admin.TabularInline):
     model = Feature
-    readonly_fields = ('feature_name', 'score',)
+    readonly_fields = ('feature_name', 'get_score',)
     extra = 0
     max_num = FeatureName.objects.all().count()
 
@@ -25,8 +25,8 @@ class DealsInline(admin.TabularInline):
     extra = 1
 
 class FeatureAdmin(admin.ModelAdmin):
-    fields = ['feature_name', 'place', 'score', 'get_votes']
-    readonly_fields = ('score', 'get_votes')
+    fields = ['feature_name', 'place', 'get_score', 'get_votes']
+    readonly_fields = ('get_score', 'get_votes')
 
     class Meta:
         model = Feature
@@ -50,10 +50,6 @@ class PlaceAdmin(OSMGeoAdmin):
     class Meta:
         model = Place
 
-class VoteAdmin(admin.ModelAdmin):
-    class Meta:
-        model = Vote
-
 class HourSpanAdmin(admin.ModelAdmin):
     class Meta:
         model = HourSpan
@@ -71,4 +67,3 @@ admin.site.register(PlaceCategory)
 admin.site.register(Deal)
 admin.site.register(FeatureName)
 #admin.site.register(Feature, FeatureAdmin)
-admin.site.register(Vote, VoteAdmin)

@@ -7,7 +7,7 @@ import os
 
 from decimal import Decimal
 
-from niteabout.apps.places.models import Place, OSMPlace, FeatureName, Feature, Vote
+from niteabout.apps.places.models import Place, OSMPlace, FeatureName, Feature
 from niteabout.apps.plan.models import NiteTemplate, NiteFeature
 
 
@@ -30,17 +30,6 @@ def create_place(sender, **kwargs):
         #logger.info(response)
         for feature_name in FeatureName.objects.all():
             new_feature = Feature.objects.create(place=instance, feature_name=feature_name)
-
-@receiver(post_delete, sender=Vote)
-def vote_deleted(sender, **kwargs):
-    instance = kwargs.pop('instance', None)
-    if Vote.objects.filter(feature=instance.feature).count() == 0:
-        logger.info(Vote.objects.filter(feature=instance.feature).count())
-        instance.feature.score = Decimal("0.0")
-        instance.feature.save()
-    else:
-        instance.feature.score = ((instance.feature.score - Decimal(str(instance.score))) / Decimal(str(Vote.objects.filter(feature=instance.feature).count())))
-        instance.feature.save()
 
 @receiver(post_save, sender=FeatureName)
 def add_feature(sender, **kwargs):

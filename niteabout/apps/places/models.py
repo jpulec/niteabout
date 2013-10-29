@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.gis.db import models as geomodels
 from django.contrib.auth.models import User
 
+from djangoratings.fields import RatingField
+
 from decimal import Decimal
 
 import logging
@@ -50,46 +52,22 @@ class FeatureName(models.Model):
     def __unicode__(self):
         return self.name
 
-class Vote(models.Model):
-    CHOICES = ((x, x) for x in range(-5, 6))
-
-    user = models.ForeignKey(User)
-    score = models.IntegerField(choices=CHOICES)
-    feature = models.ForeignKey('Feature')
-
-    def __init__(self, *args, **kwargs):
-        super(Vote, self).__init__(*args, **kwargs)
-        self._old_score = self.score
-
-    class Meta:
-        unique_together = ('user', 'feature',)
-
-    def __unicode__(self):
-        return unicode(self.user) + " voted %d on " % self.score + unicode(self.feature) 
-
-    def save(self, *args, **kwargs):
-        if self.pk is None:
-            super(Vote, self).save(*args, **kwargs)
-            self.feature.score = ((self.feature.score + Decimal(str(self.score))) / self.feature.get_votes())
-            self.feature.save()
-        else:
-            super(Vote, self).save(*args, **kwargs)
-            self.feature.score = ((self.feature.score + Decimal(str(self.score)) - self._old_score ) / self.feature.get_votes())
-            self.feature.save()
-
 class Feature(models.Model):
     feature_name = models.ForeignKey('FeatureName')
     place = models.ForeignKey('Place')
-    score = models.DecimalField(max_digits=2, decimal_places=1, default=0.0)
+    rating = RatingField(range=range(-5,6), can_change_vote=True, weight=10)
 
     class Meta:
         unique_together = ('feature_name', 'place',)
 
-    def get_votes(self):
-        return Vote.objects.filter(feature=self).count()
+    def get_score(self):
+        return self.rating.get_rating()
 
+    def get_votes(self):
+        return self.rating.votes
+    
     def __unicode__(self):
-        return unicode(self.place) + ":" + unicode(self.feature_name) + ":" + unicode(self.score)
+        return unicode(self.place) + ":" + unicode(self.feature_name) + ":" + unicode(self.rating)
 
 class Place(OSMPlace):
     name = models.CharField(max_length=256)
