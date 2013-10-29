@@ -21,7 +21,7 @@
             </thead>
             <tbody>
             {% for row in rows %}
-            <tr>
+            <tr id="{{ row.id }}">
                 <td>{{ row.best.activity }}</td>
                 <td>{{ row.best.place }}</td>
                 <td class="success">{{ row.time }}</td>
@@ -77,3 +77,13 @@
 </div>
 </div>
 {% endblock body %}
+
+{% block script %}
+<script>
+$(function() {
+{% for row in rows %}
+    $( "#{{ row.id }}" ).draggable({ containment: "parent" } );
+{% endfor %}
+});
+</script>
+{% endblock script %}
