@@ -168,7 +168,7 @@ $(function() {
                                   function() {
                                       return {
                                                   activity:$(".activity", this).text(),
-                                                  place: $(".place", this).val()
+                                                  place: $(".place", this).attr('value')
                                               };
                                   }).get();
                 console.log(arr);

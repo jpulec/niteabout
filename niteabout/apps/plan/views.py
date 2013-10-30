@@ -8,11 +8,11 @@ from registration.forms import RegistrationForm
 
 import boto.sns
 
-import logging, os
+import logging, os, json
 logger = logging.getLogger(__name__)
 
 
-from niteabout.apps.plan.models import NiteTemplate, NiteEvent
+from niteabout.apps.plan.models import NiteTemplate, NiteEvent, NiteEventOrdered, NitePlan, NiteActivity
 from niteabout.apps.places.models import Place
 from niteabout.apps.business.models import Offer
 
@@ -85,7 +85,10 @@ class Finalize(TemplateView):
 class Update(View):
 
     def post(self, request, *args, **kwargs):
-        new_nite_plan = NitePlan.objects.create(
-        self.request.session['plan'] = self.request.POST['plan']
-        logger.info(self.request)
+        new_nite_plan = NitePlan.objects.create()
+        json_obj = json.loads(self.request.POST['plan'])
+        for order, event in enumerate(json_obj):
+            new_nite_event_ordered, created = NiteEventOrdered.objects.get_or_create(activity=NiteActivity.objects.get(name=event['activity']), place=Place.objects.get(id=event['place']), order=order)
+            new_nite_plan.events.add(new_nite_event_ordered)
+        self.request.session['plan'] = new_nite_plan
         return HttpResponse('')

@@ -43,5 +43,16 @@ class NiteEvent(models.Model):
     place = models.ForeignKey(Place)
     activity = models.ForeignKey('NiteActivity')
 
+class NiteEventOrdered(models.Model):
+    place = models.ForeignKey(Place)
+    activity = models.ForeignKey('NiteActivity')
+    order = models.IntegerField()
+
+    def __unicode__(self):
+        return unicode(self.order) + ":" + unicode(self.activity) + ":" + unicode(self.place)
+
 class NitePlan(models.Model):
-    pass
+    events = models.ManyToManyField('NiteEventOrdered')
+
+    def __unicode__(self):
+        return unicode(self.events)

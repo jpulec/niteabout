@@ -29,9 +29,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for event in request.session.plan %}
+                {% for event in request.session.plan.events.all %}
                 <tr>
-                    {{ event }}
                     <td>{{ event.activity }}</td>
                     <td>{{ event.place }}</td>
                 </tr>
