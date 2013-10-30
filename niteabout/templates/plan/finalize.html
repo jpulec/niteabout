@@ -29,8 +29,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for event in session.best_events %}
-                <tr id="{{ event.id }}">
+                {% for event in request.session.plan %}
+                <tr>
+                    {{ event }}
                     <td>{{ event.activity }}</td>
                     <td>{{ event.place }}</td>
                 </tr>

@@ -3,13 +3,14 @@ from django.contrib import admin
 admin.autodiscover()
 
 from niteabout.apps.main.views import Home, About, Contact, Thanks, Profile
-from niteabout.apps.plan.views import Plan, Offers, Finalize
+from niteabout.apps.plan.views import Plan, Offers, Finalize, Update
 from niteabout.apps.places.views import Place
 from niteabout.apps.business.views import BusinessView, BusinessPush
 
 urlpatterns = patterns('',
     url(r'^$', Home.as_view(), name="home"),
     url(r'^plan/$', Plan.as_view(), name="plan"),
+    url(r'^plan/update/$', Update.as_view(), name="update"),
     url(r'^plan/finalize/$', Finalize.as_view(), name="finalize"),
     url(r'^offers/$', Offers.as_view(), name="offers"),
     #url(r'^planit/results/$', Results.as_view(), name="results"),

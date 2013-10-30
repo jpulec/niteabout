@@ -1,7 +1,7 @@
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 from django.views.generic.edit import FormMixin
 from django.views.generic.list import ListView
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.forms import AuthenticationForm
 from registration.forms import RegistrationForm
@@ -81,3 +81,11 @@ class Finalize(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(Finalize, self).get_context_data(**kwargs)
         return context
+
+class Update(View):
+
+    def post(self, request, *args, **kwargs):
+        new_nite_plan = NitePlan.objects.create(
+        self.request.session['plan'] = self.request.POST['plan']
+        logger.info(self.request)
+        return HttpResponse('')

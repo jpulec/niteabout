@@ -12,7 +12,7 @@
         <span class="col-md-5">Best Matches</span>
         <span class="col-md-5 col-md-offset-2">Weird Matches</span>
         <div class="table-responsive col-md-5">
-            <table class="table table-bordered">
+            <table id="bestevents" class="table table-bordered">
                 <thead>
                     <tr>
                         <th class="col-md-1">Activity</th>
@@ -22,8 +22,8 @@
                 <tbody class="draggable sortable">
                 {% for event in best_events %}
                 <tr>
-                    <td>{{ event.activity }}</td>
-                    <td>{{ event.place }}</td>
+                    <td class="activity">{{ event.activity }}</td>
+                    <td class="place" value="{{ event.id }}">{{ event.place }}</td>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -128,15 +128,66 @@
 {% block script %}
 <script src="{{ STATIC_URL }}jqueryui/js/jquery-ui-1.10.3.custom.min.js"></script>
 <script>
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+
+var csrftoken = getCookie('csrftoken');
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+    crossDomain: false, // obviates need for sameOrigin test
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type)) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
 $(function() {
-        $( ".sortable" ).sortable( {revert:true});
+        $( ".sortable" ).sortable( { 
+            revert:true,
+            update: function( event, ui) {
+                var arr =  $("#bestevents tbody tr").map( 
+                                  function() {
+                                      return {
+                                                  activity:$(".activity", this).text(),
+                                                  place: $(".place", this).val()
+                                              };
+                                  }).get();
+                console.log(arr);
+                $.ajax({
+                    data: {plan: JSON.stringify(arr)},
+                    url: "update/",
+                    type: "POST",
+                    success: function(data) {
+                        }
+                    });
+            },
+         });
 
         $( ".draggable" ).draggable({ connectToSortable: "#sortable", 
-                                           helper: "clone",
-                                           revert: "invalid",
-                                           } );
-        });
+            helper: "clone",
+            revert: "invalid",
+            } );
         $( "tbody" ).disableSelection();
+});
 </script>
 {% if user.is_authenticated %}
 <script>
