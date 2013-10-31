@@ -82,6 +82,15 @@ class Place(OSMPlace):
     def __sub__(self, other):
         if isinstance(other, Place):
             return 0
+        elif isinstance(other, template):
+            return pow(
+                    reduce(
+                        lambda x, y: x+y, map(
+                            lambda feature: pow(
+                                feature.get_score() - template.nitefeature_set.get(feature_name=feature.feature_name).get_score(), 2),
+                            self.feature_set)
+                        )
+                    , 0.5)
         else:
             raise TypeError
 

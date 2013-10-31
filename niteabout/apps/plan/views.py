@@ -40,10 +40,10 @@ class Plan(TemplateView, FormMixin):
         weird_events = []
         nite_plan = NitePlan.objects.create()
         for activity in template.activities.all():
-            logger.info(activity)
             categories = [cat.name for cat in activity.activity_name.categories.all()]
-            place = Place.objects.filter(categories__name__in=categories).order_by('?')[:1].get()
-            new_nite_event, created = NiteEvent.objects.get_or_create(place=place, activity=activity)
+            places = Place.objects.filter(categories__name__in=categories).order_by('id')
+            dists = sorted(map(lambda place: place - template, places), cmp=lambda x,y: cmp(x[0], y[0]))
+            new_nite_event, created = NiteEvent.objects.get_or_create(place=dists[0], activity=activity)
             best_events.append(new_nite_event)
             nite_plan.events.add(new_nite_event)
         self.request.session['plan'] = nite_plan
