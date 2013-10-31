@@ -4,7 +4,10 @@ from django.contrib.auth.models import User
 
 from djangoratings.fields import RatingField
 
+
 from decimal import Decimal
+
+import math
 
 import logging
 
@@ -81,16 +84,23 @@ class Place(OSMPlace):
 
     def __sub__(self, other):
         if isinstance(other, Place):
-            return 0
-        elif isinstance(other, template):
-            return pow(
-                    reduce(
-                        lambda x, y: x+y, map(
-                            lambda feature: pow(
-                                feature.get_score() - template.nitefeature_set.get(feature_name=feature.feature_name).get_score(), 2),
-                            self.feature_set)
-                        )
-                    , 0.5)
+            # TODO: do this faster and less naively
+            total = 0
+            for feature in self.feature_set.all():
+                for ofeature in other.feature_set.all():
+                    if ofeature.feature_name == feature.feature_name:
+                        total += pow(feature.get_score() - ofeature.get_score(), 2)
+                        break
+            return math.sqrt(total)
+        elif isinstance(other, NiteTemplate):
+            # TODO: do this faster and less naively
+            total = 0
+            for feature in self.feature_set.all():
+                for nitefeature in other.nitefeature_set.all():
+                    if nitefeature.feature_name == feature.feature_name:
+                        total += pow(feature.get_score() - float(nitefeature.score), 2)
+                        break
+            return math.sqrt(total)
         else:
             raise TypeError
 
@@ -137,3 +147,5 @@ class Deal(models.Model):
 
     def __unicode__(self):
         return str(self.place) + " has " + self.deal + " on " + self.get_day_display() + " starting at " + str(self.start_time) + " until " + str(self.end_time)
+
+from niteabout.apps.plan.models import NiteTemplate

@@ -3,6 +3,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 from django.core.mail import send_mail
+from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 
 from niteabout.apps.places.models import Place
@@ -17,6 +18,13 @@ class Home(FormView):
         context = super(Home, self).get_context_data(**kwargs)
         context['selected'] = "home"
         return context
+
+    def form_valid(self, form):
+        self.request.session['query'] = form.cleaned_data
+        return super(Home, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('plan')
 
 class About(TemplateView):
     template_name = "main/about.html"

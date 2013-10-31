@@ -3,6 +3,8 @@ from django.views.generic.edit import FormMixin, FormView, ProcessFormView
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
+from djangoratings.models import Vote
+
 from niteabout.apps.places.models import Place, Feature
 from niteabout.apps.places.forms import FeatureForm
 
@@ -29,11 +31,22 @@ class Place(DetailView, FormView):
         return super(Place, self).post(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        self.object = self.get_object()
         context = self.get_context_data(object=self.object, form=form)
         return self.render_to_response(context)
+
+    def get_initial(self):
+        initial = super(Place, self).get_initial()
+        if self.request.user.is_authenticated():
+            for feature in Feature.objects.filter(place=self.object):
+                try:
+                    prev_vote = feature.rating.get_ratings().get(user=self.request.user)
+                    initial[feature.feature_name.name] = prev_vote.score
+                except Vote.DoesNotExist:
+                    pass
+        return initial
 
     def get_success_url(self):
         return reverse('profile')
@@ -42,5 +55,4 @@ class Place(DetailView, FormView):
         for feature_name, feature_value in form.cleaned_data.iteritems():
             feature, created = Feature.objects.get_or_create(feature_name__name=feature_name, place=self.object)
             feature.rating.add(score=feature_value, user=self.request.user, ip_address=self.request.META['REMOTE_ADDR'])
-
         return HttpResponseRedirect(self.get_success_url())

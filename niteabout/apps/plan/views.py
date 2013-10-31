@@ -25,8 +25,9 @@ class Plan(TemplateView, FormMixin):
         conn.publish(topic=os.environ['AWS_SNS_ARN'], message=message)
 
     def get_context_data(self, **kwargs):
+        #TODO: clean this the fuck up
         context = super(Plan, self).get_context_data(**kwargs)
-        template = NiteTemplate.objects.filter(who=self.request.GET['who'], what=self.request.GET['what']).order_by('?')[:1].get()
+        template = NiteTemplate.objects.filter(who=self.request.session['query']['who'], what=self.request.session['query']['what']).order_by('?')[:1].get()
         if self.request.user.is_authenticated():
             for activity in template.activities.all():
                 pass
@@ -42,14 +43,24 @@ class Plan(TemplateView, FormMixin):
         for activity in template.activities.all():
             categories = [cat.name for cat in activity.activity_name.categories.all()]
             places = Place.objects.filter(categories__name__in=categories).order_by('id')
-            dists = sorted(map(lambda place: place - template, places), cmp=lambda x,y: cmp(x[0], y[0]))
-            new_nite_event, created = NiteEvent.objects.get_or_create(place=dists[0], activity=activity)
-            best_events.append(new_nite_event)
-            nite_plan.events.add(new_nite_event)
+            logger.info(places)
+            dists = sorted(map(self.template_sub(template), places), cmp=lambda x,y: cmp(x[1], y[1]))
+            logger.info(dists)
+            for place in dists:
+                if place[0].id not in [event.place.id for event in best_events]:
+                    new_nite_event, created = NiteEvent.objects.get_or_create(place=place[0], activity=activity)
+                    best_events.append(new_nite_event)
+                    nite_plan.events.add(new_nite_event)
+                    break
         self.request.session['plan'] = nite_plan
         context['best_events'] = best_events
         context['weird_events'] = weird_events
         return context
+
+    def template_sub(self, template):
+        def proxy(place):
+            return place, place - template
+        return proxy
 
     def post(self, request, *args, **kwargs):
         form_class = None
@@ -66,9 +77,6 @@ class Plan(TemplateView, FormMixin):
             return HttpResponse(reverse('finalize'))
 
     def get(self, request, *args, **kwargs):
-        if not request.GET:
-            #no query parameters, what the hell are they doing here?
-            return HttpResponseRedirect(reverse("home"))
         return super(Plan, self).get(request, *args, **kwargs)
 
 class Offers(ListView):
