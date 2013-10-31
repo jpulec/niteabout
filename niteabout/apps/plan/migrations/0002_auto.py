@@ -8,27 +8,19 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Deleting field 'NiteEventOrdered.acivity'
-        db.delete_column(u'plan_niteeventordered', 'acivity_id')
-
-        # Adding field 'NiteEventOrdered.activity'
-        db.add_column(u'plan_niteeventordered', 'activity',
-                      self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['plan.NiteActivity']),
-                      keep_default=False)
+        # Adding M2M table for field categories on 'NiteActivityName'
+        m2m_table_name = db.shorten_name(u'plan_niteactivityname_categories')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('niteactivityname', models.ForeignKey(orm[u'plan.niteactivityname'], null=False)),
+            ('placecategory', models.ForeignKey(orm[u'places.placecategory'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['niteactivityname_id', 'placecategory_id'])
 
 
     def backwards(self, orm):
-
-        # User chose to not deal with backwards NULL issues for 'NiteEventOrdered.acivity'
-        raise RuntimeError("Cannot reverse this migration. 'NiteEventOrdered.acivity' and its values cannot be restored.")
-        
-        # The following code is provided here to aid in writing a correct migration        # Adding field 'NiteEventOrdered.acivity'
-        db.add_column(u'plan_niteeventordered', 'acivity',
-                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['plan.NiteActivity']),
-                      keep_default=False)
-
-        # Deleting field 'NiteEventOrdered.activity'
-        db.delete_column(u'plan_niteeventordered', 'activity_id')
+        # Removing M2M table for field categories on 'NiteActivityName'
+        db.delete_table(db.shorten_name(u'plan_niteactivityname_categories'))
 
 
     models = {
@@ -67,6 +59,13 @@ class Migration(SchemaMigration):
         },
         u'plan.niteactivity': {
             'Meta': {'object_name': 'NiteActivity'},
+            'activity_name': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['plan.NiteActivityName']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.IntegerField', [], {})
+        },
+        u'plan.niteactivityname': {
+            'Meta': {'object_name': 'NiteActivityName'},
+            'categories': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.PlaceCategory']", 'symmetrical': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
@@ -74,13 +73,6 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'NiteEvent'},
             'activity': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['plan.NiteActivity']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'place': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.Place']"})
-        },
-        u'plan.niteeventordered': {
-            'Meta': {'object_name': 'NiteEventOrdered'},
-            'activity': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['plan.NiteActivity']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'order': ('django.db.models.fields.IntegerField', [], {}),
             'place': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.Place']"})
         },
         u'plan.nitefeature': {
@@ -92,7 +84,7 @@ class Migration(SchemaMigration):
         },
         u'plan.niteplan': {
             'Meta': {'object_name': 'NitePlan'},
-            'events': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['plan.NiteEventOrdered']", 'symmetrical': 'False'}),
+            'events': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['plan.NiteEvent']", 'symmetrical': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
         u'plan.nitetemplate': {

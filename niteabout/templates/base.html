@@ -50,7 +50,7 @@
                 <ul class="dropdown-menu">
                     {% if user.userprofile %}
                     <li><a href="{% url "profile" %}">Review Places</a></li>
-                  <li><a href="{% url "profile" %}">Previous Plans</a></li>
+                  <li><a href="{% url "pastplans" %}">Previous Plans</a></li>
                   <li><a href="{% url "profile" %}">Account</a></li>
                   <li><a href="{% url "auth_logout" %}">Log Out</a></li>
                   {% elif user.businessprofile %}

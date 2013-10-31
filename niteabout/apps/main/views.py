@@ -1,11 +1,13 @@
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
+from django.views.generic.list import ListView
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 
 from niteabout.apps.places.models import Place
 from niteabout.apps.main.forms import ContactForm, GoForm
+from niteabout.apps.plan.models import NitePlan
 
 class Home(FormView):
     template_name = "main/home.html"
@@ -44,3 +46,10 @@ class Thanks(TemplateView):
 
 class Profile(TemplateView):
     template_name = "main/profile.html"
+
+class PastPlans(ListView):
+    template_name = "main/pastplans.html"
+    context_object_name = "past_plans"
+
+    def get_queryset(self):
+        return NitePlan.objects.filter(userprofile=self.request.user.userprofile)

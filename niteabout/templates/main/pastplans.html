@@ -1,9 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Your NiteAbout{% endblock %}
+{% block title %}Past Plans{% endblock %}
+
 
 {% block body %}
+{% if user.businessprofile %}
+    {{ user.businessprofile }}
+{% elif user.userprofile %}
 <div class="jumbotron">
+    <h1>Past Plans</h1>
     <div class="container">
+    {% for plan in past_plans.all %}
         <div class="table-responsive col-md-3">
             <table class="table table-bordered">
                 <thead>
@@ -29,7 +35,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for event in final_events %}
+                {% for event in plan.events.all %}
                 <tr>
                     <td>{{ event.activity.activity_name.name|capfirst }}</td>
                     <td>{{ event.place }}</td>
@@ -38,6 +44,8 @@
                 </tbody>
             </table>
         </div>
-    </div>
+    {% endfor %}
 </div>
+</div>
+{% endif %}
 {% endblock body %}

@@ -1,12 +1,30 @@
 from django.db import models
 
-from niteabout.apps.places.models import Place, FeatureName
+from niteabout.apps.places.models import Place, PlaceCategory, FeatureName
 
-class NiteActivity(models.Model):
+class NiteActivityName(models.Model):
     name = models.CharField(max_length=128)
+    categories = models.ManyToManyField(PlaceCategory)
 
     def __unicode__(self):
-        return self.name
+        return unicode(self.name) + ":" + unicode(",".join([cat.name for cat in self.categories.all()]))
+
+class NiteActivity(models.Model):
+    activity_name = models.ForeignKey('NiteActivityName')
+    order = models.IntegerField()
+
+    class Meta:
+        ordering = ('order',)
+
+    def __unicode__(self):
+        return unicode(self.order) + ":" + unicode(self.activity_name)
+
+class NiteEvent(models.Model):
+    activity = models.ForeignKey('NiteActivity')
+    place = models.ForeignKey(Place)
+
+    def __unicode__(self):
+        return unicode(self.activity) + ":" + unicode(self.place)
 
 class NiteWho(models.Model):
     who = models.CharField(max_length=16)
@@ -39,20 +57,9 @@ class NiteFeature(models.Model):
     def __unicode__(self):
         return unicode(self.template) + ":" + unicode(self.feature_name) + ":" + unicode(self.score)
 
-class NiteEvent(models.Model):
-    place = models.ForeignKey(Place)
-    activity = models.ForeignKey('NiteActivity')
-
-class NiteEventOrdered(models.Model):
-    place = models.ForeignKey(Place)
-    activity = models.ForeignKey('NiteActivity')
-    order = models.IntegerField()
-
-    def __unicode__(self):
-        return unicode(self.order) + ":" + unicode(self.activity) + ":" + unicode(self.place)
 
 class NitePlan(models.Model):
-    events = models.ManyToManyField('NiteEventOrdered')
+    events = models.ManyToManyField('NiteEvent')
 
     def __unicode__(self):
         return unicode(self.events)

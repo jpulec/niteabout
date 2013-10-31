@@ -22,8 +22,8 @@
                 <tbody class="draggable sortable">
                 {% for event in best_events %}
                 <tr>
-                    <td class="activity">{{ event.activity }}</td>
-                    <td class="place" value="{{ event.id }}">{{ event.place }}</td>
+                    <td class="activity">{{ event.activity.activity_name.name }}</td>
+                    <td class="place" value="{{ event.place.id }}">{{ event.place }}</td>
                 </tr>
                 {% endfor %}
                 </tbody>

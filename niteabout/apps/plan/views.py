@@ -12,7 +12,7 @@ import logging, os, json
 logger = logging.getLogger(__name__)
 
 
-from niteabout.apps.plan.models import NiteTemplate, NiteEvent, NiteEventOrdered, NitePlan, NiteActivity
+from niteabout.apps.plan.models import NiteTemplate, NiteEvent, NitePlan, NiteActivity, NiteActivityName
 from niteabout.apps.places.models import Place
 from niteabout.apps.business.models import Offer
 
@@ -38,12 +38,15 @@ class Plan(TemplateView, FormMixin):
         context['template'] = template
         best_events = []
         weird_events = []
+        nite_plan = NitePlan.objects.create()
         for activity in template.activities.all():
-            if activity.name == "drinks":
-                places = Place.objects.filter(categories__name__iexact="bar").order_by('?')[:10]
-                for place in places:
-                    new_nite_event, created = NiteEvent.objects.get_or_create(place=place, activity=activity)
-                    best_events.append(new_nite_event)
+            logger.info(activity)
+            categories = [cat.name for cat in activity.activity_name.categories.all()]
+            place = Place.objects.filter(categories__name__in=categories).order_by('?')[:1].get()
+            new_nite_event, created = NiteEvent.objects.get_or_create(place=place, activity=activity)
+            best_events.append(new_nite_event)
+            nite_plan.events.add(new_nite_event)
+        self.request.session['plan'] = nite_plan
         context['best_events'] = best_events
         context['weird_events'] = weird_events
         return context
@@ -78,8 +81,14 @@ class Offers(ListView):
 class Finalize(TemplateView):
     template_name = "plan/finalize.html"
 
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated():
+            self.request.user.userprofile.past_plans.add(self.request.session['plan'])
+        return super(Finalize, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(Finalize, self).get_context_data(**kwargs)
+        context['final_events'] = self.request.session['plan'].events.order_by('activity')
         return context
 
 class Update(View):
@@ -88,7 +97,8 @@ class Update(View):
         new_nite_plan = NitePlan.objects.create()
         json_obj = json.loads(self.request.POST['plan'])
         for order, event in enumerate(json_obj):
-            new_nite_event_ordered, created = NiteEventOrdered.objects.get_or_create(activity=NiteActivity.objects.get(name=event['activity']), place=Place.objects.get(id=event['place']), order=order)
-            new_nite_plan.events.add(new_nite_event_ordered)
+            new_nite_activity, created = NiteActivity.objects.get_or_create(activity_name=NiteActivityName.objects.get(name=event['activity']), order=order)
+            new_nite_event, created = NiteEvent.objects.get_or_create(activity=new_nite_activity, place=Place.objects.get(id=event['place']))
+            new_nite_plan.events.add(new_nite_event)
         self.request.session['plan'] = new_nite_plan
         return HttpResponse('')
