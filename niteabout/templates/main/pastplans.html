@@ -9,7 +9,8 @@
 <div class="jumbotron">
     <h1>Past Plans</h1>
     <div class="container">
-    {% for plan in past_plans.all %}
+    {% for plan in past_plans.all|dictsortreversed:"dt" %}
+        <h3>{{ plan.dt }}</h3>
         <div class="table-responsive col-md-3">
             <table class="table table-bordered">
                 <thead>
@@ -35,10 +36,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for event in plan.events.all %}
+                {% for event in plan.events.all|dictsort:"activity.order" %}
                 <tr>
                     <td>{{ event.activity.activity_name.name|capfirst }}</td>
-                    <td>{{ event.place }}</td>
+                    <td><a href="{% url "place" event.place.id %}">{{ event.place }}</a></td>
                 </tr>
                 {% endfor %}
                 </tbody>

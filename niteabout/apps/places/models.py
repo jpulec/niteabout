@@ -38,19 +38,19 @@ class Cuisine(models.Model):
     name = models.CharField(max_length=128)
 
     def __unicode__(self):
-        return self.name
+        return self.name.capitalize()
 
 class PlaceCategory(models.Model):
     name = models.CharField(max_length=128)
 
     def __unicode__(self):
-        return self.name
+        return self.name.capitalize()
 
 class FeatureName(models.Model):
     name = models.CharField(max_length=128)
 
     def __unicode__(self):
-        return self.name
+        return self.name.capitalize()
 
 class Feature(models.Model):
     feature_name = models.ForeignKey('FeatureName')

@@ -88,7 +88,6 @@ class Finalize(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(Finalize, self).get_context_data(**kwargs)
-        context['final_events'] = self.request.session['plan'].events.order_by('activity')
         return context
 
 class Update(View):
@@ -97,7 +96,7 @@ class Update(View):
         new_nite_plan = NitePlan.objects.create()
         json_obj = json.loads(self.request.POST['plan'])
         for order, event in enumerate(json_obj):
-            new_nite_activity, created = NiteActivity.objects.get_or_create(activity_name=NiteActivityName.objects.get(name=event['activity']), order=order)
+            new_nite_activity, created = NiteActivity.objects.get_or_create(activity_name=NiteActivityName.objects.get(name__iexact=event['activity']), order=order)
             new_nite_event, created = NiteEvent.objects.get_or_create(activity=new_nite_activity, place=Place.objects.get(id=event['place']))
             new_nite_plan.events.add(new_nite_event)
         self.request.session['plan'] = new_nite_plan
