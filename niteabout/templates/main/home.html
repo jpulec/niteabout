@@ -8,7 +8,6 @@
 
 {% block body %}
 {% if user.businessprofile %}
-{{ user.businessprofile }}
 <div class="well">
     <h3>{{ user.businessprofile.place.name }}</h3>
     {{ user.businessprofile.place.pos }}
@@ -23,7 +22,7 @@
     <table class="table">
         <tbody>
     {% for feature in user.businessprofile.place.feature_set.all %}
-    <tr>{{ feature.feature_name.name }} : {{ feature.rating.get_score }}</tr>
+    <tr><td>{{ feature.feature_name.name|capfirst }}</td><td>{{ feature.rating.get_score }}</td></tr>
     {% endfor %}
     </tbody>
     </table>

@@ -16,6 +16,8 @@ class Home(FormView):
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)
         context['selected'] = "home"
+        if self.request.user.businessprofile:
+            context['place'] = self.request.user.businessprofile.place
         return context
 
 class About(TemplateView):
