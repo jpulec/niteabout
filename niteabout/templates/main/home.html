@@ -3,32 +3,9 @@
 
 {% block header %}
 <link href="{{ STATIC_URL }}jqueryui/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet">
-
 {% endblock header %}
 
 {% block body %}
-{% if user.businessprofile %}
-{{ user.businessprofile }}
-<div class="well">
-    <h3>{{ user.businessprofile.place.name }}</h3>
-    {{ user.businessprofile.place.pos }}
-    <div id="map-container">
-        <div id="map-canvas" style="width:100%;height:400px">
-        </div>
-    </div>
-    <p>
-    <div id="place-details-container">
-    </div>
-    </p>
-    <table class="table">
-        <tbody>
-    {% for feature in user.businessprofile.place.feature_set.all %}
-    <tr>{{ feature.feature_name.name }} : {{ feature.rating.get_score }}</tr>
-    {% endfor %}
-    </tbody>
-    </table>
-</div>
-{% else %}
 <div class="jumbotron">
     <h1>NiteAbout</h1>
     <p class="lead">Give us the What, Who, and When, and we'll do the rest</p>
@@ -45,13 +22,10 @@
         </table>
     </form>
 </div>
-{% endif %}
 {% endblock body %}
 
 {% block script %}
 <script src="{{ STATIC_URL }}jqueryui/js/jquery-ui-1.10.3.custom.min.js"></script>
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBaLOIWJwRzsQWsWBrfdRA4C5XRnzenh5s&sensor=true"></script>
-{% include "place/place_view_js.html" %}
 <script>
 $(function() {
         $("#datepicker").datepicker({

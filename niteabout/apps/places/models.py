@@ -33,9 +33,7 @@ class OSMPlace(models.Model):
         abstract= True
 
     def __unicode__(self):
-        return str(self.osm_id)
-
-
+        return unicode(self.osm_id)
 
 class Cuisine(models.Model):
     name = models.CharField(max_length=128)
@@ -51,9 +49,18 @@ class PlaceCategory(models.Model):
 
 class FeatureName(models.Model):
     name = models.CharField(max_length=128)
+    categories = models.ManyToManyField('PlaceCategory')
 
     def __unicode__(self):
         return self.name.capitalize()
+
+class FeatureLabel(models.Model):
+    feature_name = models.ForeignKey('FeatureName')
+    value = models.IntegerField()
+    label = models.CharField(max_length=256)
+
+    def __unicode__(self):
+        return unicode(self.feature_name) + ":" + unicode(self.value) + ":" + self.label
 
 class Feature(models.Model):
     feature_name = models.ForeignKey('FeatureName')
@@ -63,12 +70,19 @@ class Feature(models.Model):
     class Meta:
         unique_together = ('feature_name', 'place',)
 
+    def get_label(self):
+        try:
+            label = FeatureLabel.objects.get(feature_name=self.feature_name, value=round(self.rating.get_rating()))
+            return label.label
+        except FeatureLabel.DoesNotExist as e:
+            return ""
+
     def get_score(self):
         return self.rating.get_rating()
 
     def get_votes(self):
         return self.rating.votes
-    
+
     def __unicode__(self):
         return unicode(self.place) + ":" + unicode(self.feature_name) + ":" + unicode(self.rating)
 
@@ -77,10 +91,10 @@ class Place(OSMPlace):
     geom = geomodels.PointField()
     categories = models.ManyToManyField('PlaceCategory')
     cuisines = models.ManyToManyField('Cuisine', blank=True, null=True)
-    objects = geomodels.GeoManager() 
+    objects = geomodels.GeoManager()
 
     def __unicode__(self):
-        return str(self.name)
+        return unicode(self.name)
 
     def __sub__(self, other):
         if isinstance(other, Place):
@@ -146,6 +160,6 @@ class Deal(models.Model):
     deal = models.TextField()
 
     def __unicode__(self):
-        return str(self.place) + " has " + self.deal + " on " + self.get_day_display() + " starting at " + str(self.start_time) + " until " + str(self.end_time)
+        return unicode(self.place) + " has " + self.deal + " on " + self.get_day_display() + " starting at " + unicode(self.start_time) + " until " + unicode(self.end_time)
 
 from niteabout.apps.plan.models import NiteTemplate

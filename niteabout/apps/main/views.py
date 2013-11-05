@@ -6,9 +6,12 @@ from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 
+from organizations.models import OrganizationUser, Organization
+
 from niteabout.apps.places.models import Place
 from niteabout.apps.main.forms import ContactForm, GoForm
 from niteabout.apps.plan.models import NitePlan
+from niteabout.apps.business.models import Business
 
 class Home(FormView):
     template_name = "main/home.html"

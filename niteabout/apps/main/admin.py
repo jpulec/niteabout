@@ -8,4 +8,3 @@ class UserProfileAdmin(admin.ModelAdmin):
         model = UserProfile
 
 admin.site.register(UserProfile, UserProfileAdmin)
-admin.site.register(BusinessProfile)

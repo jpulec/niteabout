@@ -18,17 +18,14 @@ class Place(DetailView, FormView):
     context_object_name = "place"
     form_class = FeatureForm
 
-    #def get_context_data(self, **kwargs):
-    #    context = super(Place, self).get_context_data(**kwargs)
-    #    if self.request.POST:
-    #        context['formset'] = VoteSet(self.request.POST)
-    #    else:
-    #        context['formset'] = VoteSet()
-    #    return context
-
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         return super(Place, self).post(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super(Place, self).get_form_kwargs()
+        kwargs.update({'instance': self.object})
+        return kwargs
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()

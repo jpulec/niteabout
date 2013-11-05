@@ -11,7 +11,7 @@
         </div>
     </div>
     <p>
-    <div id="place-details-container">
+    <div id="place-details-container" class="text-center">
         <div id="travelMode" class="btn-group" name="travel-group" data-toggle="buttons">
             <label class="btn btn-primary active">
                 <input type="radio" onchange="calcRoute($(this).val())" value="WALKING">Walking
@@ -46,4 +46,24 @@
 {% block script %}
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBaLOIWJwRzsQWsWBrfdRA4C5XRnzenh5s&sensor=true"></script>
 {% include "place/place_view_js.html" %}
+<script>
+        {% for feature_name in form.fields %}
+$(document).ready(function() {
+        $('#id_{{ feature_name }}').parent().after('<td id="id_{{ feature_name }}_feature_label"></td>');
+        var currentLabel = $('#id_{{ feature_name }}_feature_label');
+         var descriptions = {};
+         {% for feature in place.feature_set.all %}
+         {% if feature.feature_name.name == feature_name %}
+         {% for label in feature.feature_name.featurelabel_set.all %}
+            descriptions[{{ label.value }}] = "{{ label.label }}";
+            {% endfor %}
+            {% endif %}
+            {% endfor %}
+         $( '#id_{{ feature_name }}' ).change(function() {
+             currentLabel.html(descriptions[this.value]);
+             });
+         currentLabel.html(descriptions[$('#id_{{ feature_name }}').val()]);
+         });
+        {% endfor %}
+</script>
 {% endblock script %}

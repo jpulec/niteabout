@@ -58,6 +58,15 @@ class HoursAdmin(admin.ModelAdmin):
     class Meta:
         model = Hours
 
+class FeatureNameAdmin(admin.ModelAdmin):
+    filter_horizontal = ('categories',)
+    class Meta:
+        model = FeatureName
+
+class FeatureLabelAdmin(admin.ModelAdmin):
+    class Meta:
+        model = FeatureLabel
+
 admin.site.register(Place, PlaceAdmin)
 admin.site.register(Tag)
 admin.site.register(Cuisine)
@@ -65,5 +74,6 @@ admin.site.register(Hours, HoursAdmin)
 admin.site.register(HourSpan, HourSpanAdmin)
 admin.site.register(PlaceCategory)
 admin.site.register(Deal)
-admin.site.register(FeatureName)
+admin.site.register(FeatureName, FeatureNameAdmin)
+admin.site.register(FeatureLabel, FeatureLabelAdmin)
 #admin.site.register(Feature, FeatureAdmin)

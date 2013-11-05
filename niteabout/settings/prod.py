@@ -31,5 +31,5 @@ EMAIL_HOST_PASSWORD = os.eniron['EMAIL_HOST_PASSWORD']
 EMAIL_PORT = 587
 
 RAVEN_CONFIG = {
-        'dsn': 'https://d8a3d26e38824c68830a8d446a8d733e:50431aff41ec44de87c28084684e614c@app.getsentry.com/15037',
+        'dsn': os.environ['DSN'],
         }
