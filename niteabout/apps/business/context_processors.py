@@ -1,6 +1,8 @@
-from niteabout.apps.business.models import Business 
+from niteabout.apps.business.models import Business
 
 
 def add_business(request):
-    return {'business': Business.objects.get(organization_users__user=request.user)}
+    if request.user.is_authenticated():
+        return {'businesses': Business.objects.filter(organization_users__user=request.user)}
+    return {}
 

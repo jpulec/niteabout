@@ -11,6 +11,11 @@ class BusinessView(FormView):
     form_class = BusinessSignupForm
     success_url = "/"
 
+    def get_context_data(self, **kwargs):
+        context = super(BusinessView, self).get_context_data(**kwargs)
+        context['selected'] = "business"
+        return context
+
     def form_valid(self, form):
         form.instance.backend = 'django.contrib.auth.backends.ModelBackend'
         self.object = form.save()

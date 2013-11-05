@@ -6,27 +6,6 @@
 {% endblock header %}
 
 {% block body %}
-{% if business %}
-<div class="well">
-    <h3>{{ business.place.name }}</h3>
-    {{ business.place.pos }}
-    <div id="map-container">
-        <div id="map-canvas" style="width:100%;height:400px">
-        </div>
-    </div>
-    <p>
-    <div id="place-details-container">
-    </div>
-    </p>
-    <table class="table">
-        <tbody>
-    {% for feature in business.place.feature_set.all %}
-    <tr><td>{{ feature.feature_name.name|capfirst }}</td><td>{{ feature.rating.get_rating }}</td><td>{{ feature.get_label }}</td></tr>
-    {% endfor %}
-    </tbody>
-    </table>
-</div>
-{% else %}
 <div class="jumbotron">
     <h1>NiteAbout</h1>
     <p class="lead">Give us the What, Who, and When, and we'll do the rest</p>
@@ -42,15 +21,10 @@
         </table>
     </form>
 </div>
-{% endif %}
 {% endblock body %}
 
 {% block script %}
 <script src="{{ STATIC_URL }}jqueryui/js/jquery-ui-1.10.3.custom.min.js"></script>
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBaLOIWJwRzsQWsWBrfdRA4C5XRnzenh5s&sensor=true"></script>
-{% with business.place as place %}
-{% include "place/place_view_js.html" %}
-{% endwith %}
 <script>
 $(function() {
         $("#datepicker").datepicker({
