@@ -4,7 +4,7 @@ admin.autodiscover()
 
 from organizations.backends import invitation_backend
 
-from niteabout.apps.main.views import Home, About, Contact, Thanks, Profile, PastPlans, Review
+from niteabout.apps.main.views import Home, About, Contact, Thanks, Profile, PastPlans, Review, Register
 from niteabout.apps.plan.views import Plan, Offers, Finalize, Update
 from niteabout.apps.places.views import Place
 from niteabout.apps.business.views import BusinessView, BusinessPush, BusinessProfile
@@ -21,6 +21,7 @@ urlpatterns = patterns('',
     url(r'^thanks/$', Thanks.as_view(), name="thanks"),
     url(r'^accounts/', include('organizations.urls')),
     url(r'^invitations/', include(invitation_backend().get_urls())),
+    url(r'^accounts/register/$', Register.as_view(), name="register"),
     url(r'^accounts/', include('registration.backends.simple.urls')),
     url(r'^accounts/profile/$', Profile.as_view(), name="profile"),
     url(r'^accounts/profile/past/$', PastPlans.as_view(), name="pastplans"),
