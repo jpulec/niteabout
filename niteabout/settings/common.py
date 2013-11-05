@@ -110,9 +110,9 @@ INSTALLED_APPS = (
     'registration',
     'organizations',
     'niteabout.apps.main',
-    'niteabout.apps.plan',
     'niteabout.apps.events',
     'niteabout.apps.gatherer',
+    'niteabout.apps.plan',
     'niteabout.apps.places',
     'niteabout.apps.movies',
     'niteabout.apps.business',
@@ -147,15 +147,25 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': "logging.StreamHandler",
-            'formatter': 'simple'
+            'formatter': 'verbose'
             },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
+        'sentry': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'raven.contrib.django.handlers.SentryHandler',
+            },
     },
     'loggers': {
+        '': {
+            'handlers': ['console', 'sentry'],
+            'level': 'DEBUG',
+            'propagate': False,
+            },
         'django': {
             'handlers': ['null'],
             'propagate': True,
@@ -173,7 +183,7 @@ LOGGING = {
             },
         'niteabout': {
             'handlers': ['console'],
-            "level": 'DEBUG',
+            "level": 'INFO',
             "propagate": True
             },
     }

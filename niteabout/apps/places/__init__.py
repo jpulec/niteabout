@@ -1,1 +1,1 @@
-import signals
+from niteabout.apps.places import signals

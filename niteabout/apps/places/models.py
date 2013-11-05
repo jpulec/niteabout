@@ -1,15 +1,9 @@
+import logging, math
 from django.db import models
 from django.contrib.gis.db import models as geomodels
 from django.contrib.auth.models import User
 
 from djangoratings.fields import RatingField
-
-
-from decimal import Decimal
-
-import math
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -96,27 +90,6 @@ class Place(OSMPlace):
     def __unicode__(self):
         return unicode(self.name)
 
-    def __sub__(self, other):
-        if isinstance(other, Place):
-            # TODO: do this faster and less naively
-            total = 0
-            for feature in self.feature_set.all():
-                for ofeature in other.feature_set.all():
-                    if ofeature.feature_name == feature.feature_name:
-                        total += pow(feature.get_score() - ofeature.get_score(), 2)
-                        break
-            return math.sqrt(total)
-        elif isinstance(other, NiteTemplate):
-            # TODO: do this faster and less naively
-            total = 0
-            for feature in self.feature_set.all():
-                for nitefeature in other.nitefeature_set.all():
-                    if nitefeature.feature_name == feature.feature_name:
-                        total += pow(feature.get_score() - float(nitefeature.score), 2)
-                        break
-            return math.sqrt(total)
-        else:
-            raise TypeError
 
     def category_names(self):
         return ', '.join([c.name for c in self.categories.all()])
@@ -161,5 +134,3 @@ class Deal(models.Model):
 
     def __unicode__(self):
         return unicode(self.place) + " has " + self.deal + " on " + self.get_day_display() + " starting at " + unicode(self.start_time) + " until " + unicode(self.end_time)
-
-from niteabout.apps.plan.models import NiteTemplate

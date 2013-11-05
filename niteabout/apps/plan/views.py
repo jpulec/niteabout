@@ -1,20 +1,21 @@
+import logging, os, json, math
+
 from django.views.generic import TemplateView, View
 from django.views.generic.edit import FormMixin
 from django.views.generic.list import ListView
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.forms import AuthenticationForm
+
 from registration.forms import RegistrationForm
 
 import boto.sns
 
-import logging, os, json
-logger = logging.getLogger(__name__)
-
-
 from niteabout.apps.plan.models import NiteTemplate, NiteEvent, NitePlan, NiteActivity, NiteActivityName
 from niteabout.apps.places.models import Place
 from niteabout.apps.business.models import Offer
+
+logger = logging.getLogger(__name__)
 
 class Plan(TemplateView, FormMixin):
     template_name = "plan/plan.html"
@@ -27,37 +28,48 @@ class Plan(TemplateView, FormMixin):
     def get_context_data(self, **kwargs):
         #TODO: clean this the fuck up
         context = super(Plan, self).get_context_data(**kwargs)
-        template = NiteTemplate.objects.filter(who=self.request.session['query']['who'], what=self.request.session['query']['what']).order_by('?')[:1].get()
-        if self.request.user.is_authenticated():
+        templates = NiteTemplate.objects.filter(who=self.request.session['query']['who'], what=self.request.session['query']['what']).order_by('?')
+        if templates:
+            template = templates[0]
+            if self.request.user.is_authenticated():
+                for activity in template.activities.all():
+                    pass
+                    #self.publish_sns(activity.name, self.request.GET['who'], self.request.GET['what'])
+                context['offers'] = Offer.objects.filter(to_user=self.request.user)
+            else:
+                context['signup_form'] = RegistrationForm()
+                context['signin_form'] = AuthenticationForm()
+            context['template'] = template
+            best_events = []
+            weird_events = []
+            nite_plan = NitePlan.objects.create()
             for activity in template.activities.all():
-                pass
-                #self.publish_sns(activity.name, self.request.GET['who'], self.request.GET['what'])
-            context['offers'] = Offer.objects.filter(to_user=self.request.user)
-        else:
-            context['signup_form'] = RegistrationForm()
-            context['signin_form'] = AuthenticationForm()
-        context['template'] = template
-        best_events = []
-        weird_events = []
-        nite_plan = NitePlan.objects.create()
-        for activity in template.activities.all():
-            categories = [cat.name for cat in activity.activity_name.categories.all()]
-            places = Place.objects.filter(categories__name__in=categories).order_by('id')
-            dists = sorted(map(self.template_sub(template), places), cmp=lambda x,y: cmp(x[1], y[1]))
-            for place in dists:
-                if place[0].id not in [event.place.id for event in best_events]:
-                    new_nite_event, created = NiteEvent.objects.get_or_create(place=place[0], activity=activity)
-                    best_events.append(new_nite_event)
-                    nite_plan.events.add(new_nite_event)
-                    break
-        self.request.session['plan'] = nite_plan
-        context['best_events'] = best_events
-        context['weird_events'] = weird_events
+                categories = [cat.name for cat in activity.activity_name.categories.all()]
+                places = Place.objects.filter(categories__name__in=categories).order_by('id')
+                dists = sorted(map(self.template_sub(template), places), cmp=lambda x,y: cmp(x[1], y[1]))
+                for place in dists:
+                    if place[0].id not in [event.place.id for event in best_events]:
+                        new_nite_event, created = NiteEvent.objects.get_or_create(place=place[0], activity=activity)
+                        best_events.append(new_nite_event)
+                        nite_plan.events.add(new_nite_event)
+                        break
+            self.request.session['plan'] = nite_plan
+            context['best_events'] = best_events
+            context['weird_events'] = weird_events
         return context
+
+    def place_template_diff(self, place, template):
+        total = 0
+        for feature in place.feature_set.all():
+            for nitefeature in template.nitefeature_set.all():
+                if nitefeature.feature_name == feature.feature_name:
+                    total += pow(feature.get_score() - float(nitefeature.score), 2)
+                    break
+        return math.sqrt(total)
 
     def template_sub(self, template):
         def proxy(place):
-            return place, place - template
+            return place, self.place_template_diff(place, template)
         return proxy
 
     def post(self, request, *args, **kwargs):

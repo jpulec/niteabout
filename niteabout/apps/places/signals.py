@@ -5,14 +5,10 @@ import requests, logging
 import datetime
 import os
 
-from decimal import Decimal
-
-from niteabout.apps.places.models import Place, OSMPlace, FeatureName, Feature
+from niteabout.apps.places.models import Place, OSMPlace, FeatureName, Feature, PlaceCategory
 from niteabout.apps.plan.models import NiteTemplate, NiteFeature
 
-
 logger = logging.getLogger(__name__)
-
 
 @receiver(post_save, sender=Place)
 def create_place(sender, **kwargs):
@@ -31,17 +27,18 @@ def create_place(sender, **kwargs):
         for feature_name in FeatureName.objects.all():
             new_feature = Feature.objects.create(place=instance, feature_name=feature_name)
 
-@receiver(post_save, sender=FeatureName)
-def add_feature(sender, **kwargs):
-    created = kwargs.pop('created', False)
-    if created:
-        instance = kwargs.pop('instance', None)
-        logger.info("Creating feature %s for all places with categories:%s ..." % (instance.name, unicode(instance.categories.all())))
-        for place in Place.objects.filter(categories__in=instance.categories.all()):
-            new_feature = Feature.objects.create(place=place, feature_name=instance)
+@receiver(m2m_changed, sender=FeatureName.categories)
+def feature_changed(sender, **kwargs):
+    instance = kwargs.pop('instance', None)
+    action = kwargs.pop('action', None)
+    model = kwargs.pop('model', None)
+    if action == "post_add":
+        logger.info("Creating feature %s for all places with category:%s ..." % (instance.name, unicode(model)))
+        for place in Place.objects.filter(categories=model):
+            new_feature, created  = Feature.objects.get_or_create(place=place, feature_name=instance)
         logger.info("Creating nitefeature %s for all templates..." % instance.name)
         for template in NiteTemplate.objects.all():
-            new_feature = NiteFeature.objects.create(template=template, feature_name=instance)
+            new_feature, created = NiteFeature.objects.get_or_create(template=template, feature_name=instance)
 
 @receiver(post_save, sender=NiteTemplate)
 def add_template(sender, **kwargs):
