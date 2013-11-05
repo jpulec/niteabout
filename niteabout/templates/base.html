@@ -42,7 +42,6 @@
             <li{% if selected == "home" %} class="active"{% endif %}><a href="{% url "home" %}">Home</a></li>
             <li{% if selected == "about" %} class="active"{% endif %}><a href="{% url "about" %}">About</a></li>
             <li{% if selected == "contact" %} class="active"{% endif %}><a href="{% url "contact" %}">Contact</a></li>
-            {% if not businesses %}<li{% if selected == "business" %} class="active"{% endif %}><a href="{% url "business" %}">Business?</a></li>{% endif %}
           </ul>
           <ul class="nav navbar-nav navbar-right">
               {% if user.is_authenticated %}
