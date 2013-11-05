@@ -40,24 +40,31 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'places', ['FeatureName'])
 
-        # Adding model 'Vote'
-        db.create_table(u'places_vote', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('score', self.gf('django.db.models.fields.IntegerField')()),
-            ('feature', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['places.Feature'])),
+        # Adding M2M table for field categories on 'FeatureName'
+        m2m_table_name = db.shorten_name(u'places_featurename_categories')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('featurename', models.ForeignKey(orm[u'places.featurename'], null=False)),
+            ('placecategory', models.ForeignKey(orm[u'places.placecategory'], null=False))
         ))
-        db.send_create_signal(u'places', ['Vote'])
+        db.create_unique(m2m_table_name, ['featurename_id', 'placecategory_id'])
 
-        # Adding unique constraint on 'Vote', fields ['user', 'feature']
-        db.create_unique(u'places_vote', ['user_id', 'feature_id'])
+        # Adding model 'FeatureLabel'
+        db.create_table(u'places_featurelabel', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('feature_name', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['places.FeatureName'])),
+            ('value', self.gf('django.db.models.fields.IntegerField')()),
+            ('label', self.gf('django.db.models.fields.CharField')(max_length=256)),
+        ))
+        db.send_create_signal(u'places', ['FeatureLabel'])
 
         # Adding model 'Feature'
         db.create_table(u'places_feature', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('feature_name', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['places.FeatureName'])),
             ('place', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['places.Place'])),
-            ('score', self.gf('django.db.models.fields.DecimalField')(default=0.0, max_digits=2, decimal_places=1)),
+            ('rating_votes', self.gf('django.db.models.fields.PositiveIntegerField')(default=0, blank=True)),
+            ('rating_score', self.gf('django.db.models.fields.IntegerField')(default=0, blank=True)),
         ))
         db.send_create_signal(u'places', ['Feature'])
 
@@ -140,9 +147,6 @@ class Migration(SchemaMigration):
         # Removing unique constraint on 'Feature', fields ['feature_name', 'place']
         db.delete_unique(u'places_feature', ['feature_name_id', 'place_id'])
 
-        # Removing unique constraint on 'Vote', fields ['user', 'feature']
-        db.delete_unique(u'places_vote', ['user_id', 'feature_id'])
-
         # Removing unique constraint on 'Tag', fields ['key', 'value']
         db.delete_unique(u'places_tag', ['key', 'value'])
 
@@ -158,8 +162,11 @@ class Migration(SchemaMigration):
         # Deleting model 'FeatureName'
         db.delete_table(u'places_featurename')
 
-        # Deleting model 'Vote'
-        db.delete_table(u'places_vote')
+        # Removing M2M table for field categories on 'FeatureName'
+        db.delete_table(db.shorten_name(u'places_featurename_categories'))
+
+        # Deleting model 'FeatureLabel'
+        db.delete_table(u'places_featurelabel')
 
         # Deleting model 'Feature'
         db.delete_table(u'places_feature')
@@ -187,42 +194,6 @@ class Migration(SchemaMigration):
 
 
     models = {
-        u'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        u'auth.permission': {
-            'Meta': {'ordering': "(u'content_type__app_label', u'content_type__model', u'codename')", 'unique_together': "((u'content_type', u'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contenttypes.ContentType']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        u'auth.user': {
-            'Meta': {'object_name': 'User'},
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
-        },
-        u'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
         u'places.cuisine': {
             'Meta': {'object_name': 'Cuisine'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -242,10 +213,19 @@ class Migration(SchemaMigration):
             'feature_name': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.FeatureName']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'place': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.Place']"}),
-            'score': ('django.db.models.fields.DecimalField', [], {'default': '0.0', 'max_digits': '2', 'decimal_places': '1'})
+            'rating_score': ('django.db.models.fields.IntegerField', [], {'default': '0', 'blank': 'True'}),
+            'rating_votes': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0', 'blank': 'True'})
+        },
+        u'places.featurelabel': {
+            'Meta': {'object_name': 'FeatureLabel'},
+            'feature_name': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.FeatureName']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'label': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
+            'value': ('django.db.models.fields.IntegerField', [], {})
         },
         u'places.featurename': {
             'Meta': {'object_name': 'FeatureName'},
+            'categories': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.PlaceCategory']", 'symmetrical': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
@@ -289,13 +269,6 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'key': ('django.db.models.fields.CharField', [], {'max_length': "'128'"}),
             'value': ('django.db.models.fields.CharField', [], {'max_length': "'256'"})
-        },
-        u'places.vote': {
-            'Meta': {'unique_together': "(('user', 'feature'),)", 'object_name': 'Vote'},
-            'feature': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.Feature']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'score': ('django.db.models.fields.IntegerField', [], {}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"})
         }
     }
 

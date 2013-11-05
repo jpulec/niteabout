@@ -15,6 +15,15 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'plan', ['NiteActivityName'])
 
+        # Adding M2M table for field categories on 'NiteActivityName'
+        m2m_table_name = db.shorten_name(u'plan_niteactivityname_categories')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('niteactivityname', models.ForeignKey(orm[u'plan.niteactivityname'], null=False)),
+            ('placecategory', models.ForeignKey(orm[u'places.placecategory'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['niteactivityname_id', 'placecategory_id'])
+
         # Adding model 'NiteActivity'
         db.create_table(u'plan_niteactivity', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -92,6 +101,7 @@ class Migration(SchemaMigration):
         # Adding model 'NitePlan'
         db.create_table(u'plan_niteplan', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('dt', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
         db.send_create_signal(u'plan', ['NitePlan'])
 
@@ -108,6 +118,9 @@ class Migration(SchemaMigration):
     def backwards(self, orm):
         # Deleting model 'NiteActivityName'
         db.delete_table(u'plan_niteactivityname')
+
+        # Removing M2M table for field categories on 'NiteActivityName'
+        db.delete_table(db.shorten_name(u'plan_niteactivityname_categories'))
 
         # Deleting model 'NiteActivity'
         db.delete_table(u'plan_niteactivity')
@@ -151,6 +164,7 @@ class Migration(SchemaMigration):
         },
         u'places.featurename': {
             'Meta': {'object_name': 'FeatureName'},
+            'categories': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.PlaceCategory']", 'symmetrical': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
@@ -178,13 +192,14 @@ class Migration(SchemaMigration):
             'value': ('django.db.models.fields.CharField', [], {'max_length': "'256'"})
         },
         u'plan.niteactivity': {
-            'Meta': {'object_name': 'NiteActivity'},
+            'Meta': {'ordering': "('order',)", 'object_name': 'NiteActivity'},
             'activity_name': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['plan.NiteActivityName']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'order': ('django.db.models.fields.IntegerField', [], {})
         },
         u'plan.niteactivityname': {
             'Meta': {'object_name': 'NiteActivityName'},
+            'categories': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.PlaceCategory']", 'symmetrical': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
@@ -203,6 +218,7 @@ class Migration(SchemaMigration):
         },
         u'plan.niteplan': {
             'Meta': {'object_name': 'NitePlan'},
+            'dt': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'events': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['plan.NiteEvent']", 'symmetrical': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },

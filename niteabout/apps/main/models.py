@@ -9,3 +9,5 @@ class UserProfile(models.Model):
 
     def __unicode__(self):
         return unicode(self.auth)
+
+from niteabout.apps.main import signals

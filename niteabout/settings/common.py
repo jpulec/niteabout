@@ -115,7 +115,7 @@ INSTALLED_APPS = (
     'niteabout.apps.gatherer',
     'niteabout.apps.places',
     'niteabout.apps.movies',
-    #'niteabout.apps.business',
+    'niteabout.apps.business',
 )
 
 # A sample logging configuration. The only tangible logging

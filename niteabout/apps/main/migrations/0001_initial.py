@@ -24,15 +24,6 @@ class Migration(SchemaMigration):
         ))
         db.create_unique(m2m_table_name, ['userprofile_id', 'niteplan_id'])
 
-        # Adding model 'BusinessProfile'
-        db.create_table(u'main_businessprofile', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('auth', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True)),
-            ('place', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['places.Place'], unique=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=128)),
-        ))
-        db.send_create_signal(u'main', ['BusinessProfile'])
-
 
     def backwards(self, orm):
         # Deleting model 'UserProfile'
@@ -40,9 +31,6 @@ class Migration(SchemaMigration):
 
         # Removing M2M table for field past_plans on 'UserProfile'
         db.delete_table(db.shorten_name(u'main_userprofile_past_plans'))
-
-        # Deleting model 'BusinessProfile'
-        db.delete_table(u'main_businessprofile')
 
 
     models = {
@@ -82,18 +70,11 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        u'main.businessprofile': {
-            'Meta': {'object_name': 'BusinessProfile'},
-            'auth': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'place': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['places.Place']", 'unique': 'True'})
-        },
         u'main.userprofile': {
             'Meta': {'object_name': 'UserProfile'},
             'auth': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'past_plans': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['plan.NitePlan']", 'symmetrical': 'False'})
+            'past_plans': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['plan.NitePlan']", 'null': 'True', 'blank': 'True'})
         },
         u'places.cuisine': {
             'Meta': {'object_name': 'Cuisine'},
@@ -123,8 +104,28 @@ class Migration(SchemaMigration):
             'key': ('django.db.models.fields.CharField', [], {'max_length': "'128'"}),
             'value': ('django.db.models.fields.CharField', [], {'max_length': "'256'"})
         },
+        u'plan.niteactivity': {
+            'Meta': {'ordering': "('order',)", 'object_name': 'NiteActivity'},
+            'activity_name': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['plan.NiteActivityName']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.IntegerField', [], {})
+        },
+        u'plan.niteactivityname': {
+            'Meta': {'object_name': 'NiteActivityName'},
+            'categories': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.PlaceCategory']", 'symmetrical': 'False'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
+        },
+        u'plan.niteevent': {
+            'Meta': {'object_name': 'NiteEvent'},
+            'activity': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['plan.NiteActivity']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'place': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.Place']"})
+        },
         u'plan.niteplan': {
             'Meta': {'object_name': 'NitePlan'},
+            'dt': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'events': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['plan.NiteEvent']", 'symmetrical': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         }
     }
