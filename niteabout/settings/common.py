@@ -72,7 +72,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.tz',
     'django.core.context_processors.i18n',
     'django.contrib.messages.context_processors.messages',
-    'niteabout.apps.business.context_processors.add_business',
+    #'niteabout.apps.business.context_processors.add_business',
     )
 
 MIDDLEWARE_CLASSES = (
@@ -115,7 +115,7 @@ INSTALLED_APPS = (
     'niteabout.apps.gatherer',
     'niteabout.apps.places',
     'niteabout.apps.movies',
-    'niteabout.apps.business',
+    #'niteabout.apps.business',
 )
 
 # A sample logging configuration. The only tangible logging
