@@ -57,7 +57,7 @@ class FeatureLabel(models.Model):
     label = models.CharField(max_length=256)
 
     def __unicode__(self):
-        return self.label
+        return unicode(self.feature_name) + ":" + unicode(self.value) + ":" + self.label
 
 class Feature(models.Model):
     feature_name = models.ForeignKey('FeatureName')
@@ -66,6 +66,13 @@ class Feature(models.Model):
 
     class Meta:
         unique_together = ('feature_name', 'place',)
+
+    def get_label(self):
+        try:
+            label = FeatureLabel.objects.get(feature_name=self.feature_name, value=round(self.rating.get_rating()))
+            return label.label
+        except FeatureLabel.DoesNotExist as e:
+            return ""
 
     def get_score(self):
         return self.rating.get_rating()

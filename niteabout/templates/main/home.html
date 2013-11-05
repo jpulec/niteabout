@@ -21,7 +21,7 @@
     <table class="table">
         <tbody>
     {% for feature in business.place.feature_set.all %}
-    <tr><td>{{ feature.feature_name.name|capfirst }}</td><td>{{ feature.rating.get_rating }}</td></tr>
+    <tr><td>{{ feature.feature_name.name|capfirst }}</td><td>{{ feature.rating.get_rating }}</td><td>{{ feature.get_label }}</td></tr>
     {% endfor %}
     </tbody>
     </table>
