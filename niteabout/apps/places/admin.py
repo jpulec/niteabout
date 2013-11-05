@@ -63,6 +63,10 @@ class FeatureNameAdmin(admin.ModelAdmin):
     class Meta:
         model = FeatureName
 
+class FeatureLabelAdmin(admin.ModelAdmin):
+    class Meta:
+        model = FeatureLabel
+
 admin.site.register(Place, PlaceAdmin)
 admin.site.register(Tag)
 admin.site.register(Cuisine)
@@ -71,4 +75,5 @@ admin.site.register(HourSpan, HourSpanAdmin)
 admin.site.register(PlaceCategory)
 admin.site.register(Deal)
 admin.site.register(FeatureName, FeatureNameAdmin)
+admin.site.register(FeatureLabel, FeatureLabelAdmin)
 #admin.site.register(Feature, FeatureAdmin)

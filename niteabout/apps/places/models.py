@@ -51,6 +51,14 @@ class FeatureName(models.Model):
     def __unicode__(self):
         return self.name.capitalize()
 
+class FeatureLabel(models.Model):
+    feature_name = models.ForeignKey('FeatureName')
+    value = models.IntegerField()
+    label = models.CharField(max_length=256)
+
+    def __unicode__(self):
+        return self.label
+
 class Feature(models.Model):
     feature_name = models.ForeignKey('FeatureName')
     place = models.ForeignKey('Place')

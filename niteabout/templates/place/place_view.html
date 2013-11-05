@@ -46,4 +46,22 @@
 {% block script %}
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBaLOIWJwRzsQWsWBrfdRA4C5XRnzenh5s&sensor=true"></script>
 {% include "place/place_view_js.html" %}
+<script>
+        {% for feature_name in form.fields %}
+$(document).ready(function() {
+         var currentLabel = $('label[for=id_{{ feature_name }}]');
+         var descriptions = {};
+         {% for feature in place.feature_set.all %}
+         {% if feature.feature_name.name == feature_name %}
+         {% for label in feature.feature_name.featurelabel_set.all %}
+            descriptions[{{ label.value }}] = "{{ label.label }}";
+            {% endfor %}
+            {% endif %}
+            {% endfor %}
+         $( '#id_{{ feature_name }}' ).change(function() {
+             currentLabel.html(descriptions[this.value]);
+             });
+         });
+        {% endfor %}
+</script>
 {% endblock script %}
