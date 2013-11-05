@@ -9,6 +9,8 @@ from django.contrib.auth.forms import PasswordChangeForm
 
 from organizations.models import OrganizationUser, Organization
 
+from registration.backends.simple.views import RegistrationView
+
 from niteabout.apps.places.models import Place
 from niteabout.apps.main.forms import ContactForm, GoForm
 from niteabout.apps.plan.models import NitePlan
@@ -85,3 +87,6 @@ class Review(ListView):
                         past_places.add(event.place)
         return past_places
 
+class Register(RegistrationView):
+    def get_success_url(self, request, user):
+        return reverse('profile')
