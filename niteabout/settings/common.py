@@ -72,6 +72,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.tz',
     'django.core.context_processors.i18n',
     'django.contrib.messages.context_processors.messages',
+    'niteabout.apps.business.context_processors.add_business',
     )
 
 MIDDLEWARE_CLASSES = (
@@ -110,6 +111,7 @@ INSTALLED_APPS = (
     'organizations',
     'niteabout.apps.main',
     'niteabout.apps.plan',
+    'niteabout.apps.events',
     'niteabout.apps.gatherer',
     'niteabout.apps.places',
     'niteabout.apps.movies',

@@ -5,6 +5,7 @@ from niteabout.apps.places.models import FeatureName
 
 class FeatureForm(forms.Form):
     def __init__(self, *args, **kwargs):
+        instance = kwargs.pop('instance', None)
         super(FeatureForm, self).__init__(*args, **kwargs)
-        for feature_name in FeatureName.objects.all():
+        for feature_name in FeatureName.objects.filter(categories__in=instance.categories.all()):
             self.fields['%s' % feature_name.name] = forms.IntegerField(widget=FeatureInput())

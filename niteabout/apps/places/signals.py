@@ -36,8 +36,8 @@ def add_feature(sender, **kwargs):
     created = kwargs.pop('created', False)
     if created:
         instance = kwargs.pop('instance', None)
-        logger.info("Creating feature %s for all places..." % instance.name)
-        for place in Place.objects.all():
+        logger.info("Creating feature %s for all places with categories:%s ..." % (instance.name, unicode(instance.categories.all())))
+        for place in Place.objects.filter(categories__in=instance.categories.all()):
             new_feature = Feature.objects.create(place=place, feature_name=instance)
         logger.info("Creating nitefeature %s for all templates..." % instance.name)
         for template in NiteTemplate.objects.all():
@@ -50,7 +50,6 @@ def add_template(sender, **kwargs):
         instance = kwargs.pop('instance', None)
         for feature_name in FeatureName.objects.all():
             new_feature = NiteFeature.objects.create(template=instance, feature_name=feature_name)
-
 
 #@receiver(m2m_changed, sender=Place)
 def update_osm(sender, **kwargs):

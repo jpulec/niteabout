@@ -19,13 +19,6 @@ class Home(FormView):
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)
         context['selected'] = "home"
-        if self.request.user.is_authenticated():
-            try:
-                org = Business.objects.get(organization_users__user=self.request.user)
-                context['place'] = org.place
-                context['business'] = org
-            except Business.DoesNotExist:
-                pass
         return context
 
 class About(TemplateView):
