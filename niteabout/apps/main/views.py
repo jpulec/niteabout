@@ -5,9 +5,12 @@ from django.views.generic.list import ListView
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 
+from organizations.models import OrganizationUser, Organization
+
 from niteabout.apps.places.models import Place
 from niteabout.apps.main.forms import ContactForm, GoForm
 from niteabout.apps.plan.models import NitePlan
+from niteabout.apps.business.models import Business
 
 class Home(FormView):
     template_name = "main/home.html"
@@ -16,8 +19,13 @@ class Home(FormView):
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)
         context['selected'] = "home"
-        if self.request.user.businessprofile:
-            context['place'] = self.request.user.businessprofile.place
+        if self.request.user.is_authenticated():
+            try:
+                org = Business.objects.get(organization_users__user=self.request.user)
+                context['place'] = org.place
+                context['business'] = org
+            except Business.DoesNotExist:
+                pass
         return context
 
 class About(TemplateView):

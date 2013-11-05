@@ -107,6 +107,7 @@ INSTALLED_APPS = (
     'south',
     'mathfilters',
     'registration',
+    'organizations',
     'niteabout.apps.main',
     'niteabout.apps.plan',
     'niteabout.apps.gatherer',

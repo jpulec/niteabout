@@ -3,14 +3,13 @@
 
 {% block header %}
 <link href="{{ STATIC_URL }}jqueryui/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet">
-
 {% endblock header %}
 
 {% block body %}
-{% if user.businessprofile %}
+{% if place %}
 <div class="well">
-    <h3>{{ user.businessprofile.place.name }}</h3>
-    {{ user.businessprofile.place.pos }}
+    <h3>{{ place.name }}</h3>
+    {{ place.pos }}
     <div id="map-container">
         <div id="map-canvas" style="width:100%;height:400px">
         </div>
@@ -21,8 +20,8 @@
     </p>
     <table class="table">
         <tbody>
-    {% for feature in user.businessprofile.place.feature_set.all %}
-    <tr><td>{{ feature.feature_name.name|capfirst }}</td><td>{{ feature.rating.get_score }}</td></tr>
+    {% for feature in place.feature_set.all %}
+    <tr><td>{{ feature.feature_name.name|capfirst }}</td><td>{{ feature.rating.get_rating }}</td></tr>
     {% endfor %}
     </tbody>
     </table>
