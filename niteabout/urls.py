@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
-from niteabout.apps.main.views import Home, About, Contact, Thanks, Profile, PastPlans
+from niteabout.apps.main.views import Home, About, Contact, Thanks, Profile, PastPlans, Review
 from niteabout.apps.plan.views import Plan, Offers, Finalize, Update
 from niteabout.apps.places.views import Place
 from niteabout.apps.business.views import BusinessView, BusinessPush
@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     url(r'^accounts/', include('registration.backends.simple.urls')),
     url(r'^accounts/profile/$', Profile.as_view(), name="profile"),
     url(r'^accounts/profile/past/$', PastPlans.as_view(), name="pastplans"),
+    url(r'^accounts/profile/review/$', Review.as_view(), name="reviewplaces"),
     url(r'^business/$', BusinessView.as_view(), name="business"),
     url(r'^business/push/$', BusinessPush.as_view(), name="business_push"),
     url(r'^admin/', include(admin.site.urls)),

@@ -61,3 +61,12 @@ class PastPlans(ListView):
 
     def get_queryset(self):
         return NitePlan.objects.filter(userprofile=self.request.user.userprofile).order_by('dt')
+
+class Review(ListView):
+    template_name = "main/reviewplaces.html"
+    context_object_name = "past_places"
+
+    def get_queryset(self):
+        return NitePlan.objects.filter(userprofile=self.request.user.userprofile)
+
+

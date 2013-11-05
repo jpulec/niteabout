@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Review Places{% endblock %}
+
+
+{% block body %}
+<div class="jumbotron">
+    <h1>Places You've Been and Haven't Reviewed</h1>
+    <div class="container">
+        <div class="table-responsive col-md-9">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="col-md-6">Place</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for place in past_places %}
+                <tr>
+                    <td><a href="{% url "place" event.place.id %}">{{ place }}</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock body %}

@@ -41,11 +41,9 @@ class Place(DetailView, FormView):
         initial = super(Place, self).get_initial()
         if self.request.user.is_authenticated():
             for feature in Feature.objects.filter(place=self.object):
-                try:
-                    prev_vote = feature.rating.get_ratings().get(user=self.request.user)
-                    initial[feature.feature_name.name] = prev_vote.score
-                except Vote.DoesNotExist:
-                    pass
+                prev_vote = feature.rating.get_rating_for_user(user=self.request.user)
+                if prev_vote:
+                    initial[feature.feature_name.name] = prev_vote
         return initial
 
     def get_success_url(self):
