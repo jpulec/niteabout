@@ -4,6 +4,7 @@
 
 {% block body %}
 <div class="jumbotron">
+    {% if past_places %}
     <h1>Places You've Been and Haven't Reviewed</h1>
     <div class="container">
         <div class="table-responsive col-md-9">
@@ -16,12 +17,15 @@
                 <tbody>
                 {% for place in past_places %}
                 <tr>
-                    <td><a href="{% url "place" event.place.id %}">{{ place }}</a></td>
+                    <td><a href="{% url "place" place.id %}">{{ place }}</a></td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+    {% else %}
+    <h2>Looks like you've reviewed every place you've been to</h2>
+    {% endif %}
 </div>
 {% endblock body %}

@@ -5,6 +5,7 @@ from django.views.generic.list import ListView
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
+from django.contrib.auth.forms import PasswordChangeForm
 
 from organizations.models import OrganizationUser, Organization
 
@@ -55,8 +56,14 @@ class Contact(FormView):
 class Thanks(TemplateView):
     template_name = "main/thanks.html"
 
-class Profile(TemplateView):
+class Profile(FormView):
     template_name = "main/profile.html"
+    form_class = PasswordChangeForm
+
+    def get_form_kwargs(self):
+        kwargs = super(Profile, self).get_form_kwargs()
+        kwargs.update({'user':self.request.user})
+        return kwargs
 
 class PastPlans(ListView):
     template_name = "main/pastplans.html"
@@ -70,6 +77,11 @@ class Review(ListView):
     context_object_name = "past_places"
 
     def get_queryset(self):
-        return NitePlan.objects.filter(userprofile=self.request.user.userprofile)
-
+        past_places = set()
+        for plan in NitePlan.objects.filter(userprofile=self.request.user.userprofile):
+            for event in plan.events.all():
+                for feature in event.place.feature_set.all():
+                    if feature.rating.get_rating_for_user(self.request.user) == None:
+                        past_places.add(event.place)
+        return past_places
 

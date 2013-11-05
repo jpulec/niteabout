@@ -43,9 +43,7 @@ class Plan(TemplateView, FormMixin):
         for activity in template.activities.all():
             categories = [cat.name for cat in activity.activity_name.categories.all()]
             places = Place.objects.filter(categories__name__in=categories).order_by('id')
-            logger.info(places)
             dists = sorted(map(self.template_sub(template), places), cmp=lambda x,y: cmp(x[1], y[1]))
-            logger.info(dists)
             for place in dists:
                 if place[0].id not in [event.place.id for event in best_events]:
                     new_nite_event, created = NiteEvent.objects.get_or_create(place=place[0], activity=activity)

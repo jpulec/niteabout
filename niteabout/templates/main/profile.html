@@ -2,15 +2,14 @@
 {% block title %}Profile{% endblock %}
 
 {% block body %}
-{% if user.businessprofile %}
 <div class="jumbotron">
     <h1>{{ user.username }}</h1>
     <p class="lead"></p>
+    <form method="POST">
+        <table class="table">
+        {{ form.as_table }}
+    </table>
+    <button type="submit" class="btn btn-primary">Change Password</button>
+    </form>
 </div>
-{% elif user.userprofile %}
-<div class="jumbotron">
-    <h1>{{ user.username }}</h1>
-    <p class="lead"></p>
-</div>
-{% endif %}
 {% endblock body %}
