@@ -37,7 +37,7 @@
         <table class="table">
             {{ form.as_table }}
         </table>
-    <button type="submit" class="btn btn-primary">Rate</button>
+    <button type="submit" class="btn btn-primary text">Rate</button>
     </form>
     {% endif %}
 </div>
@@ -49,7 +49,7 @@
 <script>
         {% for feature_name in form.fields %}
 $(document).ready(function() {
-        $('#id_{{ feature_name }}').parent().after('<td id="id_{{ feature_name }}_feature_label"></td>');
+        $('#id_{{ feature_name }}').parent().after('<td class="col-lg-6" id="id_{{ feature_name }}_feature_label"></td>');
         var currentLabel = $('#id_{{ feature_name }}_feature_label');
          var descriptions = {};
          {% for feature in place.feature_set.all %}

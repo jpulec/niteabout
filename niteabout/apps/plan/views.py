@@ -1,7 +1,7 @@
 import logging, os, json, math
 
 from django.views.generic import TemplateView, View
-from django.views.generic.edit import FormMixin
+from django.views.generic.edit import FormMixin, FormView
 from django.views.generic.list import ListView
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
@@ -11,8 +11,9 @@ from registration.forms import RegistrationForm
 
 import boto.sns
 
-from niteabout.apps.plan.models import NiteTemplate, NiteEvent, NitePlan, NiteActivity, NiteActivityName
-from niteabout.apps.places.models import Place, Feature
+from niteabout.apps.plan.models import NiteTemplate, NiteEvent, NitePlan, NiteActivity, NiteActivityName, NiteFeature
+from niteabout.apps.plan.forms import RefineForm
+from niteabout.apps.places.models import Place, Feature, FeatureName
 from niteabout.apps.business.models import Offer
 
 logger = logging.getLogger(__name__)
@@ -122,3 +123,28 @@ class Update(View):
             new_nite_plan.events.add(new_nite_event)
         self.request.session['plan'] = new_nite_plan
         return HttpResponse('')
+
+class Refine(FormView):
+    template_name = "plan/refine.html"
+    form_class = RefineForm
+
+    def form_valid(self, form):
+        new_template, created = NiteTemplate.objects.get_or_create(name="autogen", description=unicode(form.cleaned_data))
+        new_template.who.add(self.request.session['query']['who'])
+        new_template.what.add(self.request.session['query']['what'])
+        for i, activity_name in enumerate(form.cleaned_data['activities']):
+            new_activity, created = NiteActivity.objects.get_or_create(activity_name=activity_name, order=i)
+            new_template.activities.add(new_activity)
+        for feature_name, value in form.cleaned_data.iteritems():
+            if feature_name == 'activities':
+                continue
+            try:
+                new_feature, created = NiteFeature.objects.get_or_create(feature_name=FeatureName.objects.get(name=feature_name), template=new_template)
+                new_feature.score = value
+                new_feature.save()
+            except FeatureName.DoesNotExist as e:
+                logger.exception(e)
+        return super(Refine, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('plan')

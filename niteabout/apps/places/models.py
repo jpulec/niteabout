@@ -50,7 +50,7 @@ class FeatureName(models.Model):
 
 class FeatureLabel(models.Model):
     feature_name = models.ForeignKey('FeatureName')
-    value = models.IntegerField()
+    value = models.IntegerField(choices=((n,n) for n in range(-2,3)))
     label = models.CharField(max_length=256)
 
     def __unicode__(self):
@@ -59,7 +59,7 @@ class FeatureLabel(models.Model):
 class Feature(models.Model):
     feature_name = models.ForeignKey('FeatureName')
     place = models.ForeignKey('Place')
-    rating = RatingField(range=range(-5,6), can_change_vote=True, weight=10)
+    rating = RatingField(range=range(-2,3), can_change_vote=True, weight=5)
 
     class Meta:
         unique_together = ('feature_name', 'place',)

@@ -8,5 +8,5 @@ class FeatureInput(RangeInput):
         super(FeatureInput, self).__init__(*args, **kwargs)
         self.attrs.update({
             'step': 1,
-            'min': -5,
-            'max': 5,})
+            'min': -2,
+            'max': 2,})

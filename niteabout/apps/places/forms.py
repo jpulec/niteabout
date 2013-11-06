@@ -12,4 +12,4 @@ class FeatureForm(forms.Form):
         instance = kwargs.pop('instance', None)
         super(FeatureForm, self).__init__(*args, **kwargs)
         for feature_name in FeatureName.objects.filter(categories__in=instance.categories.all()):
-            self.fields['%s' % feature_name.name] = forms.IntegerField(widget=FeatureInput())
+            self.fields['%s' % feature_name.name] = forms.IntegerField(widget=FeatureInput(attrs={'class':'col-lg-6'}))
