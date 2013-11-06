@@ -147,7 +147,16 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': "logging.StreamHandler",
-            'formatter': 'verbose'
+            'formatter': 'simple'
+            },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'verbose',
+            'filename': '/webapps/niteabout/logs/django.log',
+            'mode': 'a',
+            'maxBytes': '10485760',
+            'backupCount': 5,
             },
         'mail_admins': {
             'level': 'ERROR',
@@ -161,29 +170,14 @@ LOGGING = {
             },
     },
     'loggers': {
-        '': {
-            'handlers': ['console', 'sentry'],
-            'level': 'DEBUG',
-            'propagate': False,
-            },
         'django': {
-            'handlers': ['null'],
+            'handlers': ['file', 'sentry'],
             'propagate': True,
-            'level' : 'INFO',
-            },
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'pyqs': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
+            'level' : 'DEBUG',
             },
         'niteabout': {
-            'handlers': ['console'],
-            "level": 'INFO',
+            'handlers': ['file', 'sentry'],
+            "level": 'DEBUG',
             "propagate": True
             },
     }
