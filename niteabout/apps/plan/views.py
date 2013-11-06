@@ -1,5 +1,7 @@
 import logging, os, json, math
 
+from random import choice
+
 from django.views.generic import TemplateView, View
 from django.views.generic.edit import FormMixin, FormView
 from django.views.generic.list import ListView
@@ -32,6 +34,7 @@ class Plan(TemplateView, FormMixin):
         templates = NiteTemplate.objects.filter(who=self.request.session['query']['who'], what=self.request.session['query']['what']).order_by('?')
         if templates:
             template = templates[0]
+            self.request.session['template'] = template
             logger.info("Template:%s chosen" % template)
             if self.request.user.is_authenticated():
                 for activity in template.activities.all():
@@ -106,6 +109,9 @@ class Finalize(TemplateView):
     def get(self, request, *args, **kwargs):
         if self.request.user.is_authenticated():
             self.request.user.userprofile.past_plans.add(self.request.session['plan'])
+        activities = [event.activity for event in self.request.session['plan'].events.all()]
+        #for feature in self.request.session['template'].feature_set.all():
+        #    new_feature, created = NiteFeature.objects.get_or_create(feature_name=feature.feature_name, template=new_template, score=feature.score)
         return super(Finalize, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -132,11 +138,12 @@ class Refine(FormView):
         new_template, created = NiteTemplate.objects.get_or_create(name="autogen", description=unicode(form.cleaned_data))
         new_template.who.add(self.request.session['query']['who'])
         new_template.what.add(self.request.session['query']['what'])
-        for i, activity_name in enumerate(form.cleaned_data['activities']):
-            new_activity, created = NiteActivity.objects.get_or_create(activity_name=activity_name, order=i)
+        for count in range(form.cleaned_data['num_places']):
+            activity_name = choice(form.cleaned_data['activities'])
+            new_activity, created = NiteActivity.objects.get_or_create(activity_name=activity_name, order=count)
             new_template.activities.add(new_activity)
         for feature_name, value in form.cleaned_data.iteritems():
-            if feature_name == 'activities':
+            if feature_name == 'activities' or feature_name == 'num_places':
                 continue
             try:
                 new_feature, created = NiteFeature.objects.get_or_create(feature_name=FeatureName.objects.get(name=feature_name), template=new_template)
