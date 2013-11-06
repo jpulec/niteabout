@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from django.views.generic import TemplateView
 admin.autodiscover()
 
 from organizations.backends import invitation_backend
@@ -11,6 +12,7 @@ from niteabout.apps.business.views import BusinessView, BusinessPush, BusinessPr
 
 urlpatterns = patterns('',
     url(r'^$', Home.as_view(), name="home"),
+    url(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
     url(r'^plan/$', Plan.as_view(), name="plan"),
     url(r'^plan/update/$', Update.as_view(), name="update"),
     url(r'^plan/finalize/$', Finalize.as_view(), name="finalize"),

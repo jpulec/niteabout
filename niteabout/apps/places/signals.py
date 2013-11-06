@@ -27,18 +27,21 @@ def create_place(sender, **kwargs):
         for feature_name in FeatureName.objects.all():
             new_feature = Feature.objects.create(place=instance, feature_name=feature_name)
 
-@receiver(m2m_changed, sender=FeatureName.categories)
+@receiver(m2m_changed, sender=FeatureName.categories.through)
 def feature_changed(sender, **kwargs):
     instance = kwargs.pop('instance', None)
     action = kwargs.pop('action', None)
     model = kwargs.pop('model', None)
+    pk_set = kwargs.pop('pk_set', None)
     if action == "post_add":
         logger.info("Creating feature %s for all places with category:%s ..." % (instance.name, unicode(model)))
-        for place in Place.objects.filter(categories=model):
+        for place in Place.objects.filter(categories__pk=pk_set):
             new_feature, created  = Feature.objects.get_or_create(place=place, feature_name=instance)
         logger.info("Creating nitefeature %s for all templates..." % instance.name)
         for template in NiteTemplate.objects.all():
             new_feature, created = NiteFeature.objects.get_or_create(template=template, feature_name=instance)
+    elif action == "post_remove":
+        Feature.objects.filter(place__categories__pk=pk_set).delete()
 
 @receiver(post_save, sender=NiteTemplate)
 def add_template(sender, **kwargs):
