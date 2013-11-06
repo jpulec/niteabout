@@ -12,7 +12,7 @@ from registration.forms import RegistrationForm
 import boto.sns
 
 from niteabout.apps.plan.models import NiteTemplate, NiteEvent, NitePlan, NiteActivity, NiteActivityName
-from niteabout.apps.places.models import Place
+from niteabout.apps.places.models import Place, Feature
 from niteabout.apps.business.models import Offer
 
 logger = logging.getLogger(__name__)
@@ -31,6 +31,7 @@ class Plan(TemplateView, FormMixin):
         templates = NiteTemplate.objects.filter(who=self.request.session['query']['who'], what=self.request.session['query']['what']).order_by('?')
         if templates:
             template = templates[0]
+            logger.info("Template:%s chosen" % template)
             if self.request.user.is_authenticated():
                 for activity in template.activities.all():
                     pass
@@ -47,6 +48,7 @@ class Plan(TemplateView, FormMixin):
                 categories = [cat.name for cat in activity.activity_name.categories.all()]
                 places = Place.objects.filter(categories__name__in=categories).order_by('id')
                 dists = sorted(map(self.template_sub(template), places), cmp=lambda x,y: cmp(x[1], y[1]))
+                logger.info(dists)
                 for place in dists:
                     if place[0].id not in [event.place.id for event in best_events]:
                         new_nite_event, created = NiteEvent.objects.get_or_create(place=place[0], activity=activity)
@@ -60,11 +62,12 @@ class Plan(TemplateView, FormMixin):
 
     def place_template_diff(self, place, template):
         total = 0
-        for feature in place.feature_set.all():
-            for nitefeature in template.nitefeature_set.all():
-                if nitefeature.feature_name == feature.feature_name:
-                    total += pow(feature.get_score() - float(nitefeature.score), 2)
-                    break
+        for nitefeature in template.nitefeature_set.all():
+            try:
+                feature = place.feature_set.get(feature_name=nitefeature.feature_name)
+                total += pow(feature.get_score() - float(nitefeature.score), 2)
+            except Feature.DoesNotExist as e:
+                total += pow(0 - float(nitefeature.score), 2)
         return math.sqrt(total)
 
     def template_sub(self, template):
