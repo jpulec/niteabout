@@ -6,8 +6,8 @@ from niteabout.apps.plan.models import NiteActivityName
 from niteabout.widgets import FeatureInput
 
 class RefineForm(forms.Form):
-    num_places = forms.IntegerField(min_value=1, max_value=10)
-    activities = forms.ModelMultipleChoiceField(queryset=NiteActivityName.objects.all(), widget=CheckboxSelectMultiple())
+    num_places = forms.IntegerField(min_value=1, max_value=10, widget=forms.TextInput(attrs={'class':'form-control'}))
+    activities = forms.ModelMultipleChoiceField(queryset=NiteActivityName.objects.all(), widget=CheckboxSelectMultiple(attrs={'class':'checkbox'}))
 
     def __init__(self, *args, **kwargs):
         super(RefineForm, self).__init__(*args, **kwargs)
