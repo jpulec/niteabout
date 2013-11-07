@@ -58,6 +58,29 @@ def add_template(sender, **kwargs):
         for feature_name in FeatureName.objects.all():
             new_feature = NiteFeature.objects.create(template=instance, feature_name=feature_name)
 
+@receiver(pre_save, sender=Place)
+def place_pre_save(sender, instance, **kwargs):
+    if instance.pk:
+        instance._old_m2m = set(list(instance.categories.values_list('pk', flat=True)))
+    else:
+        instance._old_m2m = set(list())
+
+@receiver(m2m_changed, sender=Place.categories.through)
+def place_update_categories(sender, **kwargs):
+    instance = kwargs.pop('instance', None)
+    action = kwargs.pop('action', None)
+    if action == "post_add":
+        pk_set = kwargs.pop('pk_set', None)
+        logger.info("Creating features:%s for %s" % (unicode(pk_set), instance.name))
+        for feature_name in FeatureName.objects.filter(categories__pk__in=pk_set):
+            logger.info(feature_name)
+            new_feature, created  = Feature.objects.get_or_create(place=instance, feature_name=feature_name)
+    elif action == "post_clear":
+        #TODO: get this working
+        pass
+        #logger.info("Removing feature:%s for %s" % (instance._old_m2m, instance.name))
+        #Feature.objects.filter(place=instance, feature_name__categories__pk__in=instance._old_m2m).delete()
+
 #@receiver(m2m_changed, sender=Place)
 def update_osm(sender, **kwargs):
     action = kwargs.pop('action', None)

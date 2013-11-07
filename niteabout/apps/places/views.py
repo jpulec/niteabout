@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 
 from djangoratings.models import Vote
 
-from niteabout.apps.places.models import Place, Feature
+from niteabout.apps.places.models import Place, Feature, FeatureName
 from niteabout.apps.places.forms import FeatureForm
 
 import logging
@@ -48,6 +48,6 @@ class Place(DetailView, FormView):
 
     def form_valid(self, form):
         for feature_name, feature_value in form.cleaned_data.iteritems():
-            feature, created = Feature.objects.get_or_create(feature_name__name=feature_name, place=self.object)
+            feature, created = Feature.objects.get_or_create(feature_name=FeatureName.objects.get(name=feature_name), place=self.object)
             feature.rating.add(score=feature_value, user=self.request.user, ip_address=self.request.META['REMOTE_ADDR'])
         return HttpResponseRedirect(self.get_success_url())

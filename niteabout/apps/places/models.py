@@ -92,7 +92,7 @@ class Place(OSMPlace):
 
 
     def category_names(self):
-        return ', '.join([c.name for c in self.categories.all()])
+        return ', '.join([unicode(c) for c in self.categories.all()])
     category_names.short_description = "Categories"
 
 class HourSpan(models.Model):
