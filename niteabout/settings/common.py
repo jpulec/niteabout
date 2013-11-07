@@ -153,7 +153,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'verbose',
-            'filename': '/webapps/niteabout/logs/django.log',
+            'filename': os.path.join(BASE_DIR,'../../logs/django.log'),
             'mode': 'a',
             'maxBytes': '10485760',
             'backupCount': 5,

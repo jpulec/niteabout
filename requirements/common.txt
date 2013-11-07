@@ -11,3 +11,4 @@ boto==2.13.3
 git+git://github.com/jpulec/PyQS.git
 git+git://github.com/jpulec/django-ratings.git
 django-organizations==0.1.8
+raven==3.5.1

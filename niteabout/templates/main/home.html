@@ -2,7 +2,7 @@
 {% block title %}Home{% endblock %}
 
 {% block header %}
-<link href="{{ STATIC_URL }}jqueryui/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet">
+<link href="{{ STATIC_URL }}css/bootstrap-datepicker.css" rel="stylesheet">
 {% endblock header %}
 
 {% block body %}
@@ -12,10 +12,12 @@
     <form method="POST">
         {% csrf_token %}
         <table>
+            <div class="input-group">
         {{ form.as_table }}
         <tr>
             <td></td>
             <td>
+            </div>
             <button class="btn btn-lg btn-primary" type="submit">Let's Go!</button>
         </td>
     </tr>
@@ -25,12 +27,10 @@
 {% endblock body %}
 
 {% block script %}
-<script src="{{ STATIC_URL }}jqueryui/js/jquery-ui-1.10.3.custom.min.js"></script>
+<script src="{{ STATIC_URL }}js/bootstrap-datepicker.js"></script>
 <script>
-$(function() {
-        $("#datepicker").datepicker({
-            changeMonth:true,
-          });
+$(document).ready(function() {
+        $(".datepicker").datepicker();
         });
 </script>
 {% endblock script %}

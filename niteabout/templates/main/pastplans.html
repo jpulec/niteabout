@@ -3,10 +3,8 @@
 
 
 {% block body %}
-{% if user.businessprofile %}
-    {{ user.businessprofile }}
-{% elif user.userprofile %}
-<div class="jumbotron">
+{% if user.userprofile %}
+<div class="well">
     <h1>Past Plans</h1>
     <div class="container">
     {% for plan in past_plans.all|dictsortreversed:"dt" %}

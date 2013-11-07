@@ -3,9 +3,12 @@
 
 
 {% block body %}
-<div class="jumbotron">
+<div class="panel panel-default">
+    <div class="panel-heading">
     {% if past_places %}
-    <h1>Places You've Been and Haven't Reviewed</h1>
+    <h2 class="panel-title">Places You've Been and Haven't Reviewed</h2>
+</div>
+    <div class="panel-body">
     <div class="container">
         <div class="table-responsive col-md-9">
             <table class="table table-bordered">
@@ -24,8 +27,10 @@
             </table>
         </div>
     </div>
+</div>
     {% else %}
     <h2>Looks like you've reviewed every place you've been to</h2>
     {% endif %}
+</div>
 </div>
 {% endblock body %}

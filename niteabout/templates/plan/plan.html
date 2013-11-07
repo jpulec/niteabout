@@ -6,127 +6,127 @@
 {% endblock header %}
 
 {% block body %}
-<div class="jumbotron">
+<div class="well">
     <div class="container">
         {% if template %}
-        <span class="col-md-5">Best Matches</span>
-        <span class="col-md-5 col-md-offset-2">Weird Matches</span>
-        <div class="table-responsive col-md-5">
-            <table id="bestevents" class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th class="col-md-1">Activity</th>
-                        <th class="col-md-4">Place</th>
-                    </tr>
-                </thead>
-                <tbody class="draggable sortable">
-                {% for event in best_events %}
-                <tr>
-                    <td class="activity">{{ event.activity.activity_name.name|capfirst }}</td>
-                    <td class="place" value="{{ event.place.id }}">{{ event.place }}</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div class="table-responsive col-md-2 hidden-xs">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th class="col-md-2 success">Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for row in rows %}
-                <tr id="{{ row.id }}">
-                    <td class="success">{{ row.time }}</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div class="table-responsive col-md-5">
-            <form action="{% url "finalize" %}" method="POST">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th class="col-md-1">Activity</th>
-                        <th class="col-md-4">Place</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for event in weird_events %}
-                <tr id="{{ event.id }}">
-                    <td>{{ event.activity }}</td>
-                    <td>{{ event.place }}</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            </form>
-        </div>
-    </div>
-    {% if user.is_authenticated %}
-    <div class="container">
-        <div id="offers" class="col-md-12">
-            {% include "plan/offers.html" %}        
-        </div>
-    </div>
-    {% endif %}
-    <div class="container">
-        <div class="col-md-3">
-            {% if user.is_authenticated %}
-            <a href="{% url "finalize" %}" class="btn btn-success">Finalize?</a>
-            {% else %}
-            <a data-toggle="modal" href="#signup" class="btn btn-success">Finalize?</a>
-            <div class="modal fade" id="signup" tabindex="-1" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <div class="container">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                <h4 class="modal-title">Don't Lose Your Plans!</h3>
-                            </div>
-                        </div>
-                        <div class="modal=body">
-                            <div class="container">
-                                Sign in to make sure you keep track of your plans.
-                                <div id="signin" class="col-md-6">
-                                    <form method="POST" id="signin_form" action="{% url 'django.contrib.auth.views.login' %}">
-                                        {% csrf_token %}
-                                        {{ signin_form.as_p }}
-                                        <button class="btn" name="signin" type="submit">Sign In</button>
-                                    </form>    
-                                </div>
-                                <div id="signup" class="col-md-6">
-                                    <form method="POST" id="signup" action="{% url "registration_register" %}">
-                                        {% csrf_token %}
-                                        {{ signup_form.as_p }}
-                                        <button class="btn" name="signup" type="submit">Sign Up</button>
-                                    </form>    
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                        </div>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="panel-title">Best Matches</h2>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table id="bestevents" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-1">Activity</th>
+                                    <th class="col-md-4">Place</th>
+                                </tr>
+                            </thead>
+                            <tbody class="draggable sortable">
+                            {% for event in best_events %}
+                            <tr>
+                                <td class="activity">{{ event.activity.activity_name.name|capfirst }}</td>
+                                <td class="place" value="{{ event.place.id }}">{{ event.place }}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            {% endif %}
         </div>
-        {% else %}
-        Looks like we couldn't find any matches for your criteria.
-        {% endif %}
-        <div class="col-md-3 col-md-offset-6">
-            <a href="{% url "refine" %}" class="btn btn-success">Refine Further?</a>
+        <div class="col-md-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="panel-title">Weird Matches</h2>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <form action="{% url "finalize" %}" method="POST">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-1">Activity</th>
+                                        <th class="col-md-4">Place</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for event in weird_events %}
+                                <tr id="{{ event.id }}">
+                                    <td>{{ event.activity }}</td>
+                                    <td>{{ event.place }}</td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+        {% if user.is_authenticated %}
+        <div class="container">
+            <div id="offers" class="col-md-12">
+                {% include "plan/offers.html" %}        
+            </div>
+        </div>
+        {% endif %}
+        <div class="container">
+            <div class="col-md-3">
+                {% if user.is_authenticated %}
+                <a href="{% url "finalize" %}" class="btn btn-success">Finalize?</a>
+                {% else %}
+                <a data-toggle="modal" href="#signup" class="btn btn-success">Finalize?</a>
+                <div class="modal fade" id="signup" tabindex="-1" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div class="container">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                    <h4 class="modal-title">Don't Lose Your Plans!</h3>
+                                </div>
+                            </div>
+                            <div class="modal=body">
+                                <div class="container">
+                                    Sign in to make sure you keep track of your plans.
+                                    <div id="signin" class="col-md-6">
+                                        <form method="POST" id="signin_form" action="{% url 'django.contrib.auth.views.login' %}">
+                                            {% csrf_token %}
+                                            {{ signin_form.as_p }}
+                                            <button class="btn" name="signin" type="submit">Sign In</button>
+                                        </form>    
+                                    </div>
+                                    <div id="signup" class="col-md-6">
+                                        <form method="POST" id="signup" action="{% url "registration_register" %}">
+                                            {% csrf_token %}
+                                            {{ signup_form.as_p }}
+                                            <button class="btn" name="signup" type="submit">Sign Up</button>
+                                        </form>    
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            Looks like we couldn't find any matches for your criteria.
+            {% endif %}
+            <div class="col-md-3 col-md-offset-6">
+                <a href="{% url "refine" %}" class="btn btn-success">Refine Further?</a>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock body %}
 
 {% block script %}
-<script src="{{ STATIC_URL }}jqueryui/js/jquery-ui-1.10.3.custom.min.js"></script>
+<script src="{{ STATIC_URL }}/js/jquery.tablednd.js"></script>
 <script>
 function getCookie(name) {
     var cookieValue = null;
@@ -154,40 +154,32 @@ function csrfSafeMethod(method) {
 $.ajaxSetup({
     crossDomain: false, // obviates need for sameOrigin test
     beforeSend: function(xhr, settings) {
-        if (!csrfSafeMethod(settings.type)) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
+    if (!csrfSafeMethod(settings.type)) {
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
     }
+}
 });
 
-$(function() {
-        $( ".sortable" ).sortable( { 
-            revert:true,
-            update: function( event, ui) {
+$(document).ready(function() {
+        $('#bestevents').tableDnD({
+            onDrop: function( event, ui) {
                 var arr =  $("#bestevents tbody tr").map( 
-                                  function() {
-                                      return {
-                                                  activity:$(".activity", this).text(),
-                                                  place: $(".place", this).attr('value')
-                                              };
-                                  }).get();
-                console.log(arr);
+                    function() {
+                        return {
+                            activity:$(".activity", this).text(),
+                            place: $(".place", this).attr('value')
+                        };
+                    }).get();
                 $.ajax({
                     data: {plan: JSON.stringify(arr)},
                     url: "update/",
                     type: "POST",
                     success: function(data) {
                         }
-                    });
+                });
             },
-         });
-
-        $( ".draggable" ).draggable({ connectToSortable: "#sortable", 
-            helper: "clone",
-            revert: "invalid",
-            } );
-        $( "tbody" ).disableSelection();
-});
+        });
+        });
 </script>
 {% if user.is_authenticated %}
 <script>
