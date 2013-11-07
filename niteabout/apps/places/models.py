@@ -39,7 +39,7 @@ class PlaceCategory(models.Model):
     name = models.CharField(max_length=128)
 
     def __unicode__(self):
-        return self.name.capitalize()
+        return unicode(unicode.replace(self.name, "_", " ").title())
 
 class FeatureName(models.Model):
     name = models.CharField(max_length=128)

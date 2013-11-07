@@ -39,7 +39,7 @@ def parse_openstreetmap(file_name):
                                                                                                  'geom': Point(entity.lon, entity.lat)})
                     update(new_place, entity)
                     if created:
-                        new_category, created = PlaceCategory.objects.get_or_create(name=amenity.capitalize())
+                        new_category, created = PlaceCategory.objects.get_or_create(name=amenity)
                         new_place.categories.add(new_category)
                         new_place.save()
                 except Exception as e:
