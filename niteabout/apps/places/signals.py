@@ -46,9 +46,9 @@ def feature_changed(sender, **kwargs):
         logger.info("Creating nitefeature %s for all templates..." % instance.name)
         for template in NiteTemplate.objects.all():
             new_feature, created = NiteFeature.objects.get_or_create(template=template, feature_name=instance)
-    elif action == "post_clear":
-        logger.info("Removing feature %s for places not in categories:%s" % (instance.name, instance._old_m2m))
-        Feature.objects.filter(place__categories__pk__in=instance._old_m2m).delete()
+    #elif action == "post_clear":
+    #    logger.info("Removing feature %s for places not in categories:%s" % (instance.name, instance._old_m2m))
+    #    Feature.objects.filter(place__categories__pk__in=instance._old_m2m).delete()
 
 @receiver(post_save, sender=NiteTemplate)
 def add_template(sender, **kwargs):

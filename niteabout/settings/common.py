@@ -173,7 +173,7 @@ LOGGING = {
         'django': {
             'handlers': ['file', 'sentry'],
             'propagate': True,
-            'level' : 'DEBUG',
+            'level' : 'INFO',
             },
         'niteabout': {
             'handlers': ['file', 'sentry'],
