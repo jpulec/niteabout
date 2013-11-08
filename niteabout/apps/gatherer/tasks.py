@@ -32,7 +32,7 @@ def parse_openstreetmap(file_name):
     for entity in osmread.parse_file(file_name):
         if isinstance(entity, osmread.Node) and "amenity" in entity.tags and "name" in entity.tags:
             amenity = entity.tags['amenity']
-            if amenity in ['bar','pub','restaurant']:
+            if amenity in ['bar','pub','restaurant', 'cafe', 'nightclub',]:
                 try:
                     new_place, created = Place.objects.get_or_create(osm_id=entity.id, defaults={'name': entity.tags['name'],
                                                                                                  'version': entity.version,
