@@ -12,6 +12,8 @@ from niteabout.apps.plan.models import NiteTemplate, NiteFeature
 
 logger = logging.getLogger(__name__)
 
+osm_api_url = "http://api.openstreetmap.org/api/0.6/"
+
 @receiver(post_save, sender=Place)
 def create_place(sender, **kwargs):
     created = False #kwargs.pop('created', False)
@@ -19,11 +21,22 @@ def create_place(sender, **kwargs):
         instance = kwargs.pop('instance', None)
         payload = """<?xml version='1.0' encoding='utf-8'?><osm><changeset></changeset></osm>"""
         headers = {'content-type': 'application/xml' }
-        changeset_id
-        if "osm_changeset_id" in settings:
-            changeset_id = settings['osm_changeset_id']
-        else:
+        changeset_id = None
+        if not 'osm_changeset_id' in settings:
+            changeset_root = ET.Element('osm')
+            changeset_node = ET.SubElement(changeset_root, "changeset")
+            changeset_created_by = ET.SubElement(changeset_node, "tag", attrib={'k':"created_by", 'v':'NiteAbout'})
             changeset_id = settings['osm_changeset_id'] = requests.put("http://api.openstreetmap.org/api/0.6/changeset/create", auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']), data=payload, headers=headers)
+        else:
+            changeset_id = settings['osm_changeset_id']
+            response = requests.get(osm_api_url + "changeset/%s" % changeset_id)
+            tree = ET.fromstring(response.text)
+            changeset = tree.find('changeset')
+            if not changeset.attrib['open'] == 'true':
+                changeset_root = ET.Element('osm')
+                changeset_node = ET.SubElement(changeset_root, "changeset")
+                changeset_created_by = ET.SubElement(changeset_node, "tag", attrib={'k':"created_by", 'v':'NiteAbout'})
+                changeset_id = settings['osm_changeset_id'] = requests.put("http://api.openstreetmap.org/api/0.6/changeset/create", auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']), data=payload, headers=headers)
         logger.info(changeset_id.text)
         root = ET.Element('osm')
         node = ET.SubElement(root, "node", attrib={'changeset':changeset_id.text,
