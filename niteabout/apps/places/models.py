@@ -39,7 +39,7 @@ class PlaceCategory(models.Model):
     name = models.CharField(max_length=128)
 
     def __unicode__(self):
-        return self.name.capitalize()
+        return unicode(unicode.replace(self.name, "_", " ").title())
 
 class FeatureName(models.Model):
     name = models.CharField(max_length=128)
@@ -92,7 +92,7 @@ class Place(OSMPlace):
 
 
     def category_names(self):
-        return ', '.join([c.name for c in self.categories.all()])
+        return ', '.join([unicode(c) for c in self.categories.all()])
     category_names.short_description = "Categories"
 
 class HourSpan(models.Model):
