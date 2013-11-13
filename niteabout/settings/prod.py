@@ -2,7 +2,7 @@ from common import *
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-ALLOWED_HOSTS = ['admin.niteabout.com', 'niteabout.com']
+ALLOWED_HOSTS = ['.niteabout.com']
 
 
 STATICFILES_STORAGE = 'niteabout.storage.MyBoto'
