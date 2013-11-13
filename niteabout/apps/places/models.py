@@ -129,7 +129,7 @@ class Deal(models.Model):
     place = models.ForeignKey('Place')
     start_time = models.TimeField(blank=True, null=True)
     end_time = models.TimeField(blank=True, null=True)
-    day = models.IntegerField(max_length=2, choices=DAYS_OF_WEEK, blank=True, null=True)
+    day = models.CharField(max_length=2, choices=DAYS_OF_WEEK, blank=True, null=True)
     deal = models.TextField()
 
     def __unicode__(self):

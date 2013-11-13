@@ -48,7 +48,7 @@ def check_for_updates(sender, **kwargs):
             instance.version = int(node.attrib['version'])
             instance.timestamp = datetime.datetime.utcfromtimestamp(node.attrib['timestamp'])
             for tag in prev_tags:
-                new_tag, created = Tag.objects.get_or_create(key=tag.attrib['k'], value=tag.attrib['v')
+                new_tag, created = Tag.objects.get_or_create(key=tag.attrib['k'], value=tag.attrib['v'])
                 new_place.tags.add(new_tag)
 
 
@@ -156,7 +156,7 @@ def update_cusines(sender, **kwargs):
     model = kwargs.pop('model', None)
     if action == "post_add":
         pk_set = kwargs.pop('pk_set', None)
-        new_tag, created = Tag.objects.get_or_create(key="cuisine", value=";".join([cuisine.name for cuisine in Cuisine.objects.filter(pk__in=pk_set)])
+        new_tag, created = Tag.objects.get_or_create(key="cuisine", value=";".join([cuisine.name for cuisine in Cuisine.objects.filter(pk__in=pk_set)]))
         instance.tags.add(new_tag)
     #    changed = False
     #    for tag in instance.string_tags.all():
