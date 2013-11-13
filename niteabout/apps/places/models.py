@@ -33,7 +33,7 @@ class Cuisine(models.Model):
     name = models.CharField(max_length=128)
 
     def __unicode__(self):
-        return self.name.capitalize()
+        return self.name.title()
 
 class PlaceCategory(models.Model):
     name = models.CharField(max_length=128)
@@ -46,7 +46,7 @@ class FeatureName(models.Model):
     categories = models.ManyToManyField('PlaceCategory')
 
     def __unicode__(self):
-        return self.name.capitalize()
+        return self.name.title()
 
 class FeatureLabel(models.Model):
     feature_name = models.ForeignKey('FeatureName')
@@ -129,7 +129,7 @@ class Deal(models.Model):
     place = models.ForeignKey('Place')
     start_time = models.TimeField(blank=True, null=True)
     end_time = models.TimeField(blank=True, null=True)
-    day = models.IntegerField(max_length=1, choices=DAYS_OF_WEEK, blank=True, null=True)
+    day = models.IntegerField(max_length=2, choices=DAYS_OF_WEEK, blank=True, null=True)
     deal = models.TextField()
 
     def __unicode__(self):

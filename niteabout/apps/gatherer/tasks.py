@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 
 def update(new_place, entity):
-    #if new_place.version < int(entity.version):
     new_place.version = int(entity.version)
     new_place.timestamp = datetime.datetime.utcfromtimestamp(entity.timestamp)
     new_place.save()
@@ -26,7 +25,7 @@ def update(new_place, entity):
         new_tag, created = Tag.objects.get_or_create(key=k, value=v)
         new_place.tags.add(new_tag)
 
-@task(queue='niteabout-staging')
+@task(queue='niteabout')
 def parse_openstreetmap(file_name):
     post_save.disconnect(receiver=create_place, sender=Place)
     for entity in osmread.parse_file(file_name):
@@ -37,11 +36,14 @@ def parse_openstreetmap(file_name):
                     new_place, created = Place.objects.get_or_create(osm_id=entity.id, defaults={'name': entity.tags['name'],
                                                                                                  'version': entity.version,
                                                                                                  'geom': Point(entity.lon, entity.lat)})
-                    update(new_place, entity)
                     if created:
                         new_category, created = PlaceCategory.objects.get_or_create(name=amenity)
                         new_place.categories.add(new_category)
                         new_place.save()
+                        update(new_place, entity)
+                    else:
+                        if new_place.version < int(entity.version):
+                            update(new_place, entity)
                 except Exception as e:
                     logger.exception(e)
     post_save.connect(receiver=create_place, sender=Place)

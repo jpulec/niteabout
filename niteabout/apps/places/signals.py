@@ -14,42 +14,87 @@ logger = logging.getLogger(__name__)
 
 osm_api_url = "http://api.openstreetmap.org/api/0.6/"
 
-@receiver(post_save, sender=Place)
+
+def get_changeset_id():
+    changeset_id = None
+    if not 'osm_changeset_id' in settings:
+        changeset_root = ET.Element('osm')
+        changeset_node = ET.SubElement(changeset_root, "changeset")
+        changeset_created_by = ET.SubElement(changeset_node, "tag", attrib={'k':"created_by", 'v':'NiteAbout'})
+        changeset_id = settings['osm_changeset_id'] = requests.put(osm_api_url + "changeset/create", auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']), data=ET.tostring(changeset_root, encoding='UTF-8'), headers=headers).text
+    else:
+        changeset_id = settings['osm_changeset_id']
+        response = requests.get(osm_api_url + "changeset/%s" % changeset_id)
+        tree = ET.fromstring(response.text)
+        changeset = tree.find('changeset')
+        if not changeset.attrib['open'] == 'true':
+            changeset_root = ET.Element('osm')
+            changeset_node = ET.SubElement(changeset_root, "changeset")
+            changeset_created_by = ET.SubElement(changeset_node, "tag", attrib={'k':"created_by", 'v':'NiteAbout'})
+            changeset_id = settings['osm_changeset_id'] = requests.put(osm_api_url + "changeset/create", auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']), data=ET.tostring(changeset_root, encoding='UTF-8'), headers=headers).text
+    return changeset_id
+
+#@receiver(pre_save, sender=Place)
+def check_for_updates(sender, **kwargs):
+    created = False #kwargs.pop('created', False)
+    instance = kwargs.pop('instance', None)
+    response = requests.get(osm_api_url + "node/%s" % instance.id, auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']))
+    if response.status_code == 200:
+        tree = ET.fromstring(response.text)
+        node = tree.find("node")
+        prev_tags = node.findall("tag")
+        if instance.version < int(node.attrib['version']):
+            # OSM has newer version
+            instance.version = int(node.attrib['version'])
+            instance.timestamp = datetime.datetime.utcfromtimestamp(node.attrib['timestamp'])
+            for tag in prev_tags:
+                new_tag, created = Tag.objects.get_or_create(key=tag.attrib['k'], value=tag.attrib['v')
+                new_place.tags.add(new_tag)
+
+
+#@receiver(post_save, sender=Place)
 def create_place(sender, **kwargs):
     created = False #kwargs.pop('created', False)
+    changeset_id = get_changeset_id()
     if created:
         instance = kwargs.pop('instance', None)
         payload = """<?xml version='1.0' encoding='utf-8'?><osm><changeset></changeset></osm>"""
         headers = {'content-type': 'application/xml' }
-        changeset_id = None
-        if not 'osm_changeset_id' in settings:
-            changeset_root = ET.Element('osm')
-            changeset_node = ET.SubElement(changeset_root, "changeset")
-            changeset_created_by = ET.SubElement(changeset_node, "tag", attrib={'k':"created_by", 'v':'NiteAbout'})
-            changeset_id = settings['osm_changeset_id'] = requests.put("http://api.openstreetmap.org/api/0.6/changeset/create", auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']), data=payload, headers=headers)
-        else:
-            changeset_id = settings['osm_changeset_id']
-            response = requests.get(osm_api_url + "changeset/%s" % changeset_id)
-            tree = ET.fromstring(response.text)
-            changeset = tree.find('changeset')
-            if not changeset.attrib['open'] == 'true':
-                changeset_root = ET.Element('osm')
-                changeset_node = ET.SubElement(changeset_root, "changeset")
-                changeset_created_by = ET.SubElement(changeset_node, "tag", attrib={'k':"created_by", 'v':'NiteAbout'})
-                changeset_id = settings['osm_changeset_id'] = requests.put("http://api.openstreetmap.org/api/0.6/changeset/create", auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']), data=payload, headers=headers)
-        logger.info(changeset_id.text)
+        # Grab changeset or open new one
+        changeset_id = get_changeset_id()
         root = ET.Element('osm')
-        node = ET.SubElement(root, "node", attrib={'changeset':changeset_id.text,
+        node = ET.SubElement(root, "node", attrib={'changeset':changeset_id,
                                                    'lat': unicode(instance.geom.y),
                                                    'lon': unicode(instance.geom.x)})
+        # set all tags
         for tag in instance.tags:
             tag_node = ET.SubElement(node, 'tag', attrib={'k':tag.key, 'v':tag.value})
-        response = requests.put("http://api.openstreetmap.org/api/0.6/node/create", data=root, headers=headers, auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']))
+        response = requests.put(osm_api_url + "node/create", data=root, headers=headers, auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']))
         instance.osm_id = response.text
         instance.save()
         logger.info(response)
         for feature_name in FeatureName.objects.all():
             new_feature = Feature.objects.create(place=instance, feature_name=feature_name)
+    else:
+        response = requests.get(osm_api_url + "node/%s" % instance.id, auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']))
+        if response.status_code == 200:
+            tree = ET.fromstring(response.text)
+            node = tree.find("node")
+            prev_tags = node.findall("tag")
+            if instance.version < int(node.attrib['version']):
+                # OSM has newer version
+                update(instance, node)
+                for tag in prev_tags:
+                    new_tag, created = Tag.objects.get_or_create(key=tag.attrib['k'], value=tag.attrib['v'])
+        root = ET.Element('osm')
+        node = ET.SubElement(root, "node", attrib={'changeset':changeset_id,
+                                                   'lat': unicode(instance.geom.y),
+                                                   'lon': unicode(instance.geom.x)})
+        # set all tags
+        for tag in instance.tags:
+            tag_node = ET.SubElement(node, 'tag', attrib={'k':tag.key, 'v':tag.value})
+        response = requests.put(osm_api_url + "node/create", data=root, headers=headers, auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']))
+
 
 #@receiver(pre_save, sender=FeatureName)
 def feature_pre_save(sender, instance, **kwargs):
@@ -97,7 +142,6 @@ def place_update_categories(sender, **kwargs):
         pk_set = kwargs.pop('pk_set', None)
         logger.info("Creating features:%s for %s" % (unicode(pk_set), instance.name))
         for feature_name in FeatureName.objects.filter(categories__pk__in=pk_set):
-            logger.info(feature_name)
             new_feature, created  = Feature.objects.get_or_create(place=instance, feature_name=feature_name)
     elif action == "post_clear":
         #TODO: get this working
@@ -106,22 +150,14 @@ def place_update_categories(sender, **kwargs):
         #Feature.objects.filter(place=instance, feature_name__categories__pk__in=instance._old_m2m).delete()
 
 @receiver(m2m_changed, sender=Place.cuisines.through)
-def update_osm(sender, **kwargs):
+def update_cusines(sender, **kwargs):
     action = kwargs.pop('action', None)
     instance = kwargs.pop('instance', None)
-    pk_set = kwargs.pop('pk_set', None)
     model = kwargs.pop('model', None)
-    #if action == "post_add":
-    #    payload = """<?xml version='1.0' encoding='utf-8'?><osm><changeset></changeset></osm>"""
-    #    headers = {'content-type': 'application/xml' }
-    #    cs_num = requests.put("http://api.openstreetmap.org/api/0.6/changeset/create", auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']), data=payload, headers=headers)
-    #    logger.info(cs_num.text)
-    #    prev_item = requests.get("http://api.openstreetmap.org/api/0.6/node/%s" % instance.id, auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']))
-    #    logger.info("http://api.openstreetmap.org/api/0.6/node/%s" % instance.id)
-    #    logger.info(prev_item)
-    #    tree = ET.fromstring(prev_item.text)
-    #    node = tree.find("node")
-    #    prev_tags = node.findall("tag")
+    if action == "post_add":
+        pk_set = kwargs.pop('pk_set', None)
+        new_tag, created = Tag.objects.get_or_create(key="cuisine", value=";".join([cuisine.name for cuisine in Cuisine.objects.filter(pk__in=pk_set)])
+        instance.tags.add(new_tag)
     #    changed = False
     #    for tag in instance.string_tags.all():
     #        if tag.key in ["opening_hours", "cusine"]:
