@@ -7,7 +7,7 @@ class NiteActivityName(models.Model):
     categories = models.ManyToManyField(PlaceCategory)
 
     def __unicode__(self):
-        return unicode(self.name.capitalize()) + ":" + unicode(",".join([unicode(cat) for cat in self.categories.all()]))
+        return unicode(self.name.title()) + ":" + unicode(",".join([unicode(cat) for cat in self.categories.all()]))
 
 class NiteActivity(models.Model):
     activity_name = models.ForeignKey('NiteActivityName')
@@ -30,13 +30,13 @@ class NiteWho(models.Model):
     who = models.CharField(max_length=16)
 
     def __unicode__(self):
-        return self.who.capitalize()
+        return self.who.title()
 
 class NiteWhat(models.Model):
     what = models.CharField(max_length=256)
 
     def __unicode__(self):
-        return self.what.capitalize()
+        return self.what.title()
 
 
 class NiteTemplate(models.Model):
