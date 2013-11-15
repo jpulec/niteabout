@@ -8,6 +8,8 @@ import feedparser
 import xml.etree.ElementTree as ET
 from pyqs import task
 
+from imposm.parser import OSMParser
+
 from django.contrib.gis.geos import Point
 from django.db.models.signals import post_save
 
@@ -16,14 +18,39 @@ from niteabout.apps.places.signals import create_place
 
 logger = logging.getLogger(__name__)
 
+class PlaceFetcher(object):
 
-def update(new_place, entity):
-    new_place.version = int(entity.version)
-    new_place.timestamp = datetime.datetime.utcfromtimestamp(entity.timestamp)
-    new_place.save()
-    for k, v in entity.tags.iteritems():
-        new_tag, created = Tag.objects.get_or_create(key=k, value=v)
-        new_place.tags.add(new_tag)
+    def places(self, nodes):
+        for node in nodes:
+            tags = node[1]
+            if "amenity" in tags and "name" in tags:
+                amenity = tags['amenity']
+                if amenity in ['bar','pub','restaurant', 'cafe', 'nightclub',]:
+                    try:
+                        new_place, created = Place.objects.get_or_create(osm_id=node[0], defaults={'name': tags['name'],
+                                                                                                     'version': node[3].version,
+                                                                                                     'timestamp': node[3].timestamp,
+                                                                                                     'geom': Point(node[2][0], node[2][1])})
+                        if created:
+                            new_category, created = PlaceCategory.objects.get_or_create(name=amenity)
+                            new_place.categories.add(new_category)
+                            for k, v in tags.iteritems():
+                                new_tag, created = Tag.objects.get_or_create(key=k, value=v)
+                                new_place.tags.add(new_tag)
+                        elif new_place.version < int(node[3].version):
+                            new_place.version = int(node[3].version)
+                            new_place.timestamp = datetime.datetime.utcfromtimestamp(node[3].timestamp)
+                            new_place.save()
+                            for k, v in tags.iteritems():
+                                new_tag, created = Tag.objects.get_or_create(key=k, value=v)
+                                new_place.tags.add(new_tag)
+                    except Exception as e:
+                        logger.exception(e)
+
+def new_parse(file_name):
+    parser = PlaceFetcher()
+    p = OSMParser(nodes_callback=parser.places, with_metadata=True)
+    p.parse(file_name)
 
 @task(queue='niteabout')
 def parse_openstreetmap(file_name):

@@ -5,6 +5,15 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ALLOWED_HOSTS = ['.niteabout.com']
 
 
+DATABASES['rds'] = {
+                'ENGINE': 'django.contrib.gis.db.backends.postgis',
+                'NAME': os.environ['RDS_POSTGRESQL_NAME'],
+                'USER': os.environ['RDS_POSTGRESQL_USERNAME'],
+                'PASSWORD': os.environ['RDS_POSTGRESQL_PASSWORD'],
+                'HOST': os.environ['RDS_POSTGRESQL_HOST'],
+                'PORT': os.environ['RDS_POSTGRESQL_PORT'],
+        }
+
 STATICFILES_STORAGE = 'niteabout.storage.MyBoto'
 DEFAULT_FILE_STORAGE = 'niteabout.storage.MyBoto'
 
