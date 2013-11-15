@@ -38,11 +38,12 @@ class PlaceAdmin(OSMGeoAdmin):
             HoursInline,
             DealsInline,
             ]
-    fields = ['name', 'geom', 'categories', 'cuisines']
+    fields = ['name', 'geom', 'categories', 'cuisines', 'osm_id', 'version', 'timestamp']
+    readonly_fields = ['osm_id', 'version', 'timestamp']
     list_display = ('name', 'category_names',)
     filter_horizontal = ('cuisines', 'categories',)
 
-    list_filter = ('categories', 'cuisines',)
+    list_filter = ('categories', 'cuisines', 'timestamp')
     list_related = True
 
     search_fields = ['name']
