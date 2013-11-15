@@ -94,6 +94,8 @@ def create_place(sender, **kwargs):
         for tag in instance.tags:
             tag_node = ET.SubElement(node, 'tag', attrib={'k':tag.key, 'v':tag.value})
         response = requests.put(osm_api_url + "node/create", data=root, headers=headers, auth=(os.environ['OSM_USERNAME'], os.environ['OSM_PASSWORD']))
+        if response.status_code != 200:
+            logging.error(response)
 
 
 #@receiver(pre_save, sender=FeatureName)

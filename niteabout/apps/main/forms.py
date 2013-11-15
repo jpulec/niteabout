@@ -13,8 +13,8 @@ class GoForm(forms.Form):
             ('madison', 'Madison'),
             )
 
-    where = forms.ChoiceField(choices=WHERE_CHOICES, label="Where are you?", widget=forms.Select(attrs={'class':'selectpicker'}))
+    who = forms.ModelChoiceField(queryset=NiteWho.objects.all(), label="For whom?", widget=forms.Select(attrs={'class':'selectpicker'}))
     what = forms.ModelChoiceField(queryset=NiteWhat.objects.all(), label="What do you need?", widget=forms.Select(attrs={'class':'selectpicker',
                                                                                                                         'data-live-search':'true'}))
-    who = forms.ModelChoiceField(queryset=NiteWho.objects.all(), label="For whom?", widget=forms.Select(attrs={'class':'selectpicker'}))
+    where = forms.ChoiceField(choices=WHERE_CHOICES, label="Where are you?", widget=forms.Select(attrs={'class':'selectpicker'}))
     when = forms.DateField(label="What day?", widget=forms.TextInput(attrs={'class':'form-control datepicker'}))
