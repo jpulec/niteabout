@@ -24,7 +24,7 @@ class PlaceFetcher(object):
         for node in nodes:
             tags = node[1]
             if "amenity" in tags and "name" in tags:
-                amenity = tags['amenity']
+                amenity = tags['amenity'].lower()
                 if amenity in ['bar','pub','restaurant', 'cafe', 'nightclub',]:
                     try:
                         new_place, created = Place.objects.get_or_create(osm_id=node[0], defaults={'name': tags['name'],
