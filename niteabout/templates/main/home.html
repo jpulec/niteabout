@@ -7,9 +7,12 @@
 
 {% block body %}
 <div class="jumbotron">
-    <h1>NiteAbout</h1>
-    <p class="lead">Give us the What, Who, and When, and we'll do the rest</p>
-    <form method="POST">
+    <div class="container">
+    <div class="col-md-6">
+        <h1>NiteAbout</h1>
+        <div class="col-md-offset-2 tag">Stop Planning, Start Doing.</div>
+    </div>
+    <form id="goform" class="col-md-6" method="POST">
         {% csrf_token %}
         <table>
             <div class="input-group">
@@ -18,11 +21,14 @@
             <td></td>
             <td>
             </div>
-            <button class="btn btn-lg btn-primary" type="submit">Let's Go!</button>
         </td>
     </tr>
         </table>
     </form>
+    <div style="text-align:center">
+    <button id="gobutton" class="btn btn-lg btn-primary" type="button">Let's Go!</button>
+</div>
+</div>
 </div>
 {% endblock body %}
 
@@ -32,5 +38,8 @@
 $(document).ready(function() {
         $(".datepicker").datepicker();
         });
+$("#gobutton").click( function() {
+   $("#goform").submit();
+   });
 </script>
 {% endblock script %}

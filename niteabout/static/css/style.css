@@ -1,3 +1,22 @@
+.jumbotron {
+	min-height: 400px;
+}
+
+.jumbotron .container {
+	padding-top: 50px;
+	padding-bottom: 50px;
+}
+
+.jumbotron h1 {
+	font-family: 'century gothic',sans-serif;
+	font-size: 90px;
+	margin-bottom: 0;
+}
+
+.jumbotron .tag {
+	padding: 10px 10px 10px 10px;
+}	
+
 body {
 	overflow-y:scroll;
 }
