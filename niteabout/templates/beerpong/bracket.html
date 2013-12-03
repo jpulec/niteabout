@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Bracket{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/jquery.bracket.min.css">
+{% endblock header %}
+
+{% block body %}
+<div class="well">
+    <h1>{{ tournament.name }}</h1>
+    <div class="container">
+        <div id="minimal">
+            <div class="demo">
+            </div>
+        </div>    
+    </div>
+</div>
+{% endblock body %}
+
+{% block script %}
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.bracket.min.js"></script>
+
+<script>
+var minimalData = {
+    teams: [
+           {% for round in tournament.round_set.all %}
+              {% for match in round.match_set.all %}
+                ["{{ match.home.name }}", "{{ match.away.name }}"],
+                    {% endfor %}
+                {% endfor %}
+           ],
+   results: [
+               {% for round in tournament.round_set.all %}
+               [
+                   {% for match in round.match_set.all %}
+                       [0, 1],
+                   {% endfor %}
+               ],
+               {% endfor %}
+           ]
+};
+$( function () {
+        $('#minimal .demo').bracket({
+            init: minimalData
+            })
+        });
+</script>
+{% endblock script %}

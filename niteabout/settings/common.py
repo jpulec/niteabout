@@ -111,6 +111,7 @@ INSTALLED_APPS = (
     'organizations',
     'niteabout.apps.main',
     'niteabout.apps.events',
+    'niteabout.apps.beerpong',
     'niteabout.apps.gatherer',
     'niteabout.apps.plan',
     'niteabout.apps.places',
