@@ -5,46 +5,46 @@ var directionService = new google.maps.DirectionsService();
 
 function initialize() {
     var mapOptions = {
+        {% for place in event.locations.all %}
+        {% if forloop.first %}
         center: new google.maps.LatLng( {{ place.geom.y }}, {{ place.geom.x }} ),
+        {% endif %}
+        {% endfor %}
         zoom: 16,
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     var map = new google.maps.Map(document.getElementById("map-canvas"),
             mapOptions);
-    if(navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (position) {
-                window.initialLocation = new google.maps.LatLng(position.coords.latitude,
-                    position.coords.longitude);
-                calcRoute("WALKING");
-                }, function () {
-                handleNoGeolocation(true);
-                });
-    }
-    else {
-        handleNoGeolocation(false);
-    }
-
-    function handleNoGeolocation(errorFlag) {
-        if (errorFlag == true ) {
-            alert("Geolocation failed");
-            initialLocation = null;
-        } else {
-            alert("Your browser doesn't support geolocation.");
-            initialLocation = null;
-        }
-    }
-
+    
     directionsDisplay = new google.maps.DirectionsRenderer();
     directionsDisplay.setMap(map);
+    calcRoute();
 }
 
-function calcRoute(selectedMode) {
-    var start = window.initialLocation;
+function calcRoute() {
+    {% for place in event.locations.all %}
+    {% if forloop.first %}
+    var start = new google.maps.LatLng( {{ place.geom.y }}, {{ place.geom.x }} );
+    {% endif %}
+    {% endfor %}
+
+    {% for place in event.locations.all %}
+    {% if forloop.last %}
     var end = new google.maps.LatLng( {{ place.geom.y }}, {{ place.geom.x }} );
+    {% endif %}
+    {% endfor %}
     var request = {
-origin: start,
+        origin: start,
         destination: end,
-        travelMode: google.maps.TravelMode[selectedMode]
+        waypoints: [ 
+                     {% for place in event.locations.all %}
+                     { 
+                        location: new google.maps.LatLng( {{ place.geom.y }}, {{ place.geom.x }} ),
+                        stopover: true
+                     },
+                     {% endfor %}
+                   ],
+        travelMode: google.maps.TravelMode.WALKING
     };
     directionService.route(request, function(result, status) {
             if (status == google.maps.DirectionsStatus.OK) {

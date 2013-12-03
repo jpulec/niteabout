@@ -7,7 +7,26 @@
         <h1>{{ event.name }}</h1>
         <h2>{{ event.dt }}</h2>
         <p>{{ event.description }}</p>
+        <div id="map-container">
+            <div id="map-canvas" style="width:100%;height:400px">
+            </div>
+        </div>
     </div>
-    <a class="btn btn-lg btn-primary" href="{% url "signup" event.pk %}">Sign Up?</a>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <script
+            src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+            data-key="pk_test_ZJTw2SaOMdkGe7bxJsDb8wxu"
+            data-amount="{{ event.cost }}"
+            data-name="NiteAbout"
+            data-description="2 widgets ($20.00)"
+            data-image="/128x128.png">
+        </script>
+    </form>
 </div>
 {% endblock body %}
+
+{% block script %}
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBaLOIWJwRzsQWsWBrfdRA4C5XRnzenh5s&sensor=true"></script>
+{% include "place/place_view_js.html" %}
+{% endblock script %}
