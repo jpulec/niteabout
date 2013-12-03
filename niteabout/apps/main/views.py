@@ -12,25 +12,35 @@ from organizations.models import OrganizationUser, Organization
 from registration.backends.simple.views import RegistrationView
 
 from niteabout.apps.places.models import Place
-from niteabout.apps.main.forms import ContactForm, GoForm
+from niteabout.apps.main.forms import ContactForm, GoForm, SignUpForm
 from niteabout.apps.plan.models import NitePlan
 from niteabout.apps.business.models import Business
+from niteabout.apps.main.models import Event
 
-class Home(FormView):
+class Home(ListView):
     template_name = "main/home.html"
-    form_class = GoForm
+    context_object_name = "events"
+    queryset = Event.objects.filter(active=True)
 
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)
         context['selected'] = "home"
         return context
 
-    def form_valid(self, form):
-        self.request.session['query'] = form.cleaned_data
-        return super(Home, self).form_valid(form)
+class EventView(DetailView):
+    template_name = "main/event.html"
+    model = Event
+    context_object_name = "event"
 
-    def get_success_url(self):
-        return reverse('plan')
+class SignUp(FormView):
+    template_name = "main/signup.html"
+    form_class = SignUpForm
+
+    def get_success_url(self, request, user):
+        return reverse('signup_done')
+
+class SignUpDone(TemplateView):
+    template_name = "main/signup_done.html"
 
 class About(TemplateView):
     template_name = "main/about.html"

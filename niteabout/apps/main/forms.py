@@ -18,3 +18,7 @@ class GoForm(forms.Form):
                                                                                                                         'data-live-search':'true'}))
     where = forms.ChoiceField(choices=WHERE_CHOICES, label="Where are you?", widget=forms.Select(attrs={'class':'selectpicker'}))
     when = forms.DateField(label="When?", widget=forms.TextInput(attrs={'class':'form-control datepicker'}))
+
+
+class SignUpForm(forms.Form):
+    pass

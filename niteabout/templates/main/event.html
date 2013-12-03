@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ event.name }}{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1>{{ event.name }}</h1>
+        <h2>{{ event.dt }}</h2>
+        <p>{{ event.description }}</p>
+    </div>
+    <a class="btn btn-lg btn-primary" href="{% url "signup" event.pk %}">Sign Up?</a>
+</div>
+{% endblock body %}
