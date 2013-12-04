@@ -11,7 +11,7 @@ MANAGERS = ADMINS
 DATABASES = {
         'default':
             {
-                'ENGINE': 'django.contrib.gis.db.backends.postgis',
+                'ENGINE': 'django.db.backends.postgresql_psycopg2',
                 'NAME': os.environ['POSTGRESQL_NAME'],
                 'USER': os.environ['POSTGRESQL_USERNAME'],
                 'PASSWORD': os.environ['POSTGRESQL_PASSWORD'],
@@ -103,20 +103,13 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'django.contrib.gis',
-    'djangoratings',
     'south',
     'mathfilters',
     'registration',
-    'organizations',
     'niteabout.apps.main',
     'niteabout.apps.events',
     'niteabout.apps.beerpong',
-    'niteabout.apps.gatherer',
-    'niteabout.apps.plan',
-    'niteabout.apps.places',
-    'niteabout.apps.movies',
-    'niteabout.apps.business',
+    'niteabout.apps.pubgolf',
 )
 
 # A sample logging configuration. The only tangible logging

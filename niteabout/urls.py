@@ -7,10 +7,8 @@ from django.contrib.auth.decorators import login_required
 
 from organizations.backends import invitation_backend
 
-from niteabout.apps.main.views import Home, About, Contact, Thanks, Profile, PastPlans, Review, Register, EventView, SignUp, SignUpDone
-from niteabout.apps.plan.views import Plan, Offers, Finalize, Update, Refine
-from niteabout.apps.places.views import Place
-from niteabout.apps.business.views import BusinessView, BusinessPush, BusinessProfile
+from niteabout.apps.main.views import Home, About, Contact, Thanks, Profile, Register
+from niteabout.apps.events.views import EventView
 
 urlpatterns = patterns('',
     url(r'^$', Home.as_view(), name="home"),
@@ -22,8 +20,6 @@ urlpatterns = patterns('',
     #url(r'^offers/$', Offers.as_view(), name="offers"),
     #url(r'^place/(?P<pk>\d+)/$', Place.as_view(), name="place"),
     url(r'^event/(?P<pk>\d+)/$', EventView.as_view(), name="event"),
-    url(r'^signup/(?P<pk>\d+)/$', login_required(SignUp.as_view()), name="signup"),
-    url(r'^signup/done/$', SignUpDone.as_view(), name="signup_done"),
     url(r'^about/$', About.as_view(), name="about"),
     url(r'^contact/$', Contact.as_view(), name='contact'),
     url(r'^thanks/$', Thanks.as_view(), name="thanks"),
@@ -32,6 +28,7 @@ urlpatterns = patterns('',
     url(r'^accounts/register/$', Register.as_view(), name="register"),
     url(r'^accounts/', include('registration.backends.simple.urls')),
     url(r'^games/', include('niteabout.apps.beerpong.urls')),
+    url(r'^games/', include('niteabout.apps.pubgolf.urls')),
     url(r'^accounts/profile/$', Profile.as_view(), name="profile"),
     #url(r'^accounts/profile/past/$', PastPlans.as_view(), name="pastplans"),
     #url(r'^accounts/profile/review/$', Review.as_view(), name="reviewplaces"),

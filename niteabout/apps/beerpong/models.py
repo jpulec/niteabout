@@ -18,8 +18,8 @@ class Round(models.Model):
 
 class Team(models.Model):
     name = models.CharField(max_length=256)
-    player1 = models.ForeignKey(UserProfile, related_name="player1")
-    player2 = models.ForeignKey(UserProfile, related_name="player2")
+    player1 = models.ForeignKey(UserProfile, related_name="beerpong_player1")
+    player2 = models.ForeignKey(UserProfile, related_name="beerpong_player2")
 
     def __unicode__(self):
         return "Team:" + unicode(self.name) + " with players " + unicode(self.player1) + ", " + unicode(self.player2)

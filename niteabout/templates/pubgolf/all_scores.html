@@ -5,9 +5,53 @@
 {% block body %}
 <div class="well">
     <div class="container">
+        {% for team in tournament.teams.all %}
+        <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">{{ team.name }}</h2>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
         <table class="table table-bordered">
-
+            <thead>
+                <tr>
+                    <td>Hole</td>
+                    <td>{{ team.player1 }}</td>
+                    <td>{{ team.player2 }}</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hole in tournament.holes.all %}
+                        <tr>
+                            <td>{{ hole.location }}</td>
+                            {% for score in team.player1.pubgolf_score.all %}
+                            <td>
+                            {% if score.hole.id == hole.id %}
+                                {{ score.score }}
+                            {% endif %}
+                            </td>
+                            {% empty %}
+                            <td></td>
+                            {% endfor %}
+                            {% for score in team.player2.pubgolf_score.all %}
+                            <td>
+                            {% if score.hole.id == hole.id %}
+                                {{ score.score }}
+                            {% endif %}
+                            </td>
+                            {% empty %}
+                            <td></td>
+                            {% endfor %}
+                        </tr>
+                {% endfor %}
+            </tbody>
         </table>
+    </div>
+</div>
+</div>
+    </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock body %}

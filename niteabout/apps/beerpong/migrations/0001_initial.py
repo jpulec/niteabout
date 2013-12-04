@@ -27,8 +27,8 @@ class Migration(SchemaMigration):
         db.create_table(u'beerpong_team', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('player1', self.gf('django.db.models.fields.related.ForeignKey')(related_name='player1', to=orm['main.UserProfile'])),
-            ('player2', self.gf('django.db.models.fields.related.ForeignKey')(related_name='player2', to=orm['main.UserProfile'])),
+            ('player1', self.gf('django.db.models.fields.related.ForeignKey')(related_name='beerpong_player1', to=orm['main.UserProfile'])),
+            ('player2', self.gf('django.db.models.fields.related.ForeignKey')(related_name='beerpong_player2', to=orm['main.UserProfile'])),
         ))
         db.send_create_signal(u'beerpong', ['Team'])
 
@@ -39,7 +39,7 @@ class Migration(SchemaMigration):
             ('match_type', self.gf('django.db.models.fields.CharField')(default='n', max_length=1)),
             ('home', self.gf('django.db.models.fields.related.ForeignKey')(related_name='home', to=orm['beerpong.Team'])),
             ('away', self.gf('django.db.models.fields.related.ForeignKey')(related_name='away', to=orm['beerpong.Team'])),
-            ('winner', self.gf('django.db.models.fields.related.ForeignKey')(related_name='winner', null=True, to=orm['beerpong.Team'])),
+            ('winner', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='winner', null=True, to=orm['beerpong.Team'])),
         ))
         db.send_create_signal(u'beerpong', ['Match'])
 
@@ -95,7 +95,7 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'match_type': ('django.db.models.fields.CharField', [], {'default': "'n'", 'max_length': '1'}),
             'round': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['beerpong.Round']"}),
-            'winner': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'winner'", 'null': 'True', 'to': u"orm['beerpong.Team']"})
+            'winner': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'winner'", 'null': 'True', 'to': u"orm['beerpong.Team']"})
         },
         u'beerpong.round': {
             'Meta': {'object_name': 'Round'},
@@ -107,8 +107,8 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Team'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'player1': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'player1'", 'to': u"orm['main.UserProfile']"}),
-            'player2': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'player2'", 'to': u"orm['main.UserProfile']"})
+            'player1': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'beerpong_player1'", 'to': u"orm['main.UserProfile']"}),
+            'player2': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'beerpong_player2'", 'to': u"orm['main.UserProfile']"})
         },
         u'beerpong.tournament': {
             'Meta': {'object_name': 'Tournament'},

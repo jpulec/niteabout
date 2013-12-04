@@ -1,0 +1,23 @@
+{% extends "admin/change_form.html" %}
+
+{% block extrahead %} {{ block.super }}
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.js"></script>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false"></script>
+<script>
+
+$(document).ready( function() {
+        var input = document.getElementById('id_name');
+        var options = {
+            types: ['establishment']
+            };
+
+        autocomplete = new google.maps.places.Autocomplete(input, options);
+
+        google.maps.event.addListener(autocomplete, 'place_changed', function() {
+            var place = autocomplete.getPlace();
+            console.log(place.id);
+            $('#id_g_id').val(place.id);
+            });
+        });
+</script>
+{% endblock %}

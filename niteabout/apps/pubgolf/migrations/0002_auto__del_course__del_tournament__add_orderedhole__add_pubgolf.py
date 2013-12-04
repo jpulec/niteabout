@@ -8,67 +8,60 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'GooglePlace'
-        db.create_table(u'events_googleplace', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('g_id', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=256)),
-        ))
-        db.send_create_signal(u'events', ['GooglePlace'])
+        # Deleting model 'Course'
+        db.delete_table(u'pubgolf_course')
 
-        # Adding model 'OrderedPlace'
-        db.create_table(u'events_orderedplace', (
+        # Removing M2M table for field holes on 'Course'
+        db.delete_table(db.shorten_name(u'pubgolf_course_holes'))
+
+        # Deleting model 'Tournament'
+        db.delete_table(u'pubgolf_tournament')
+
+        # Adding model 'OrderedHole'
+        db.create_table(u'pubgolf_orderedhole', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('place', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['events.GooglePlace'])),
-            ('event', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['events.Event'])),
+            ('hole', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['pubgolf.Hole'])),
+            ('game', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['pubgolf.PubGolf'])),
             ('order', self.gf('django.db.models.fields.IntegerField')()),
         ))
-        db.send_create_signal(u'events', ['OrderedPlace'])
+        db.send_create_signal(u'pubgolf', ['OrderedHole'])
 
-        # Adding model 'EventType'
-        db.create_table(u'events_eventtype', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=256)),
+        # Adding model 'PubGolf'
+        db.create_table(u'pubgolf_pubgolf', (
+            (u'event_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['events.Event'], unique=True, primary_key=True)),
         ))
-        db.send_create_signal(u'events', ['EventType'])
-
-        # Adding model 'Event'
-        db.create_table(u'events_event', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('active', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('dt', self.gf('django.db.models.fields.DateTimeField')()),
-            ('type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['events.EventType'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('description', self.gf('django.db.models.fields.TextField')()),
-            ('cost', self.gf('django.db.models.fields.IntegerField')()),
-        ))
-        db.send_create_signal(u'events', ['Event'])
-
-        # Adding M2M table for field attendees on 'Event'
-        m2m_table_name = db.shorten_name(u'events_event_attendees')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('event', models.ForeignKey(orm[u'events.event'], null=False)),
-            ('userprofile', models.ForeignKey(orm[u'main.userprofile'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['event_id', 'userprofile_id'])
+        db.send_create_signal(u'pubgolf', ['PubGolf'])
 
 
     def backwards(self, orm):
-        # Deleting model 'GooglePlace'
-        db.delete_table(u'events_googleplace')
+        # Adding model 'Course'
+        db.create_table(u'pubgolf_course', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+        ))
+        db.send_create_signal(u'pubgolf', ['Course'])
 
-        # Deleting model 'OrderedPlace'
-        db.delete_table(u'events_orderedplace')
+        # Adding M2M table for field holes on 'Course'
+        m2m_table_name = db.shorten_name(u'pubgolf_course_holes')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('course', models.ForeignKey(orm[u'pubgolf.course'], null=False)),
+            ('hole', models.ForeignKey(orm[u'pubgolf.hole'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['course_id', 'hole_id'])
 
-        # Deleting model 'EventType'
-        db.delete_table(u'events_eventtype')
+        # Adding model 'Tournament'
+        db.create_table(u'pubgolf_tournament', (
+            ('course', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['pubgolf.Course'])),
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=256)),
+        ))
+        db.send_create_signal(u'pubgolf', ['Tournament'])
 
-        # Deleting model 'Event'
-        db.delete_table(u'events_event')
+        # Deleting model 'OrderedHole'
+        db.delete_table(u'pubgolf_orderedhole')
 
-        # Removing M2M table for field attendees on 'Event'
-        db.delete_table(db.shorten_name(u'events_event_attendees'))
+        # Deleting model 'PubGolf'
+        db.delete_table(u'pubgolf_pubgolf')
 
 
     models = {
@@ -111,17 +104,9 @@ class Migration(SchemaMigration):
         u'events.event': {
             'Meta': {'object_name': 'Event'},
             'active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'attendees': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['main.UserProfile']", 'symmetrical': 'False', 'blank': 'True'}),
             'cost': ('django.db.models.fields.IntegerField', [], {}),
             'description': ('django.db.models.fields.TextField', [], {}),
             'dt': ('django.db.models.fields.DateTimeField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'locations': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'ordered_places'", 'symmetrical': 'False', 'through': u"orm['events.OrderedPlace']", 'to': u"orm['events.GooglePlace']"}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['events.EventType']"})
-        },
-        u'events.eventtype': {
-            'Meta': {'object_name': 'EventType'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '256'})
         },
@@ -131,18 +116,44 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '256'})
         },
-        u'events.orderedplace': {
-            'Meta': {'object_name': 'OrderedPlace'},
-            'event': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['events.Event']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'order': ('django.db.models.fields.IntegerField', [], {}),
-            'place': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['events.GooglePlace']"})
-        },
         u'main.userprofile': {
             'Meta': {'object_name': 'UserProfile'},
             'auth': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+        },
+        u'pubgolf.hole': {
+            'Meta': {'object_name': 'Hole'},
+            'drink': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'location': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['events.GooglePlace']"}),
+            'par': ('django.db.models.fields.IntegerField', [], {})
+        },
+        u'pubgolf.orderedhole': {
+            'Meta': {'object_name': 'OrderedHole'},
+            'game': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['pubgolf.PubGolf']"}),
+            'hole': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['pubgolf.Hole']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.IntegerField', [], {})
+        },
+        u'pubgolf.pubgolf': {
+            'Meta': {'object_name': 'PubGolf', '_ormbases': [u'events.Event']},
+            u'event_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['events.Event']", 'unique': 'True', 'primary_key': 'True'}),
+            'holes': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'holes'", 'symmetrical': 'False', 'through': u"orm['pubgolf.OrderedHole']", 'to': u"orm['pubgolf.Hole']"})
+        },
+        u'pubgolf.score': {
+            'Meta': {'object_name': 'Score'},
+            'hole': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['pubgolf.Hole']"}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'score': ('django.db.models.fields.IntegerField', [], {}),
+            'team': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['pubgolf.Team']"})
+        },
+        u'pubgolf.team': {
+            'Meta': {'object_name': 'Team'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
+            'player1': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'pubgolf_player1'", 'to': u"orm['main.UserProfile']"}),
+            'player2': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'pubgolf_player2'", 'to': u"orm['main.UserProfile']"})
         }
     }
 
-    complete_apps = ['events']
+    complete_apps = ['pubgolf']
