@@ -8,7 +8,7 @@ from niteabout.apps.main.models import UserProfile
 
 logger = logging.getLogger(__name__)
 
-@receiver(post_save, sender=User)
+#@receiver(post_save, sender=User)
 def create_user(sender, **kwargs):
     created = kwargs.pop('created', False)
     if created:

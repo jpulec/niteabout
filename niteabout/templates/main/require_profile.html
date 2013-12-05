@@ -1,16 +1,16 @@
 {% extends "base.html" %}
-{% block title %}Contact Us{% endblock %}
+{% block title %}Profile{% endblock %}
 
 
 {% block body %}
 <div class="well">
-    <h2>Contact Us</h2>
+    <h2>Enter Profile Info</h2>
     <form method="POST">
         {% csrf_token %}
         <table class="table">
         {{ form.as_table }}
     </table>
-        <button class="btn btn-primary" type="submit">Send</button>
+        <button class="btn btn-primary" type="submit">Go!</button>
     </form>
 </div>
 {% endblock body %}

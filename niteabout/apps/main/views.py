@@ -1,36 +1,26 @@
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, CreateView
 from django.views.generic.list import ListView
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.forms import PasswordChangeForm
+from django.shortcuts import redirect
 
-from organizations.models import OrganizationUser, Organization
+import requests
 
 from registration.backends.simple.views import RegistrationView
 
-from niteabout.apps.places.models import Place
-from niteabout.apps.main.forms import ContactForm, GoForm
-from niteabout.apps.plan.models import NitePlan
-from niteabout.apps.business.models import Business
+from niteabout.apps.main.forms import ContactForm, RequireProfileForm
 
-class Home(FormView):
+class Home(TemplateView):
     template_name = "main/home.html"
-    form_class = GoForm
 
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)
         context['selected'] = "home"
         return context
-
-    def form_valid(self, form):
-        self.request.session['query'] = form.cleaned_data
-        return super(Home, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse('plan')
 
 class About(TemplateView):
     template_name = "main/about.html"
@@ -58,35 +48,23 @@ class Contact(FormView):
 class Thanks(TemplateView):
     template_name = "main/thanks.html"
 
-class Profile(FormView):
+class Profile(TemplateView):
     template_name = "main/profile.html"
-    form_class = PasswordChangeForm
 
-    def get_form_kwargs(self):
-        kwargs = super(Profile, self).get_form_kwargs()
-        kwargs.update({'user':self.request.user})
-        return kwargs
+    def get_context_data(self, **kwargs):
+        context = super(Profile, self).get_context_data(**kwargs)
+        r = requests.get('https://graph.facebook.com/%s/?fields=picture.type(large)' % self.request.user.social_auth.all()[0].uid)
+        data = r.json() 
+        context['userpic'] = data['picture']['data']['url']
+        return context
 
-class PastPlans(ListView):
-    template_name = "main/pastplans.html"
-    context_object_name = "past_plans"
+class RequireProfile(CreateView):
+    template_name = "main/require_profile.html"
+    form_class = RequireProfileForm
 
-    def get_queryset(self):
-        return NitePlan.objects.filter(userprofile=self.request.user.userprofile).order_by('dt')
-
-class Review(ListView):
-    template_name = "main/reviewplaces.html"
-    context_object_name = "past_places"
-
-    def get_queryset(self):
-        past_places = set()
-        for plan in NitePlan.objects.filter(userprofile=self.request.user.userprofile):
-            for event in plan.events.all():
-                for feature in event.place.feature_set.all():
-                    if feature.rating.get_rating_for_user(self.request.user) == None:
-                        past_places.add(event.place)
-        return past_places
-
-class Register(RegistrationView):
-    def get_success_url(self, request, user):
-        return reverse('profile')
+    def post(self, request, *args, **kwargs):
+        profile = request.POST.dict()
+        profile.pop('csrfmiddlewaretoken', None)
+        request.session['saved_profile'] = profile
+        backend = request.session['partial_pipeline']['backend']
+        return redirect('social:complete', backend=backend)

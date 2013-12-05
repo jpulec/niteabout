@@ -1,45 +1,29 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 
-{% block header %}
-<link href="{{ STATIC_URL }}css/bootstrap-datepicker.css" rel="stylesheet">
-{% endblock header %}
-
 {% block body %}
 <div class="jumbotron">
     <div class="container">
     <div class="col-md-6">
         <h1>NiteAbout</h1>
-        <div class="col-md-offset-2 tag">Stop Planning, Start Doing.</div>
+        <div class="col-md-offset-2 tag">Never Go Without Your Wings</div>
     </div>
-    <form id="goform" class="col-md-6" method="POST">
-        {% csrf_token %}
-        <table>
-            <div class="input-group">
-        {{ form.as_table }}
-        <tr>
-            <td></td>
-            <td>
-            </div>
-        </td>
-    </tr>
-        </table>
-    </form>
-    <div style="text-align:center">
-    <button id="gobutton" class="btn btn-lg btn-primary" type="button">Let's Go!</button>
+    <div class="col-md-6">
+        <h2>What We Do</h2>
+        <ol>
+            <li>Sign Up With Facebook</li>
+            <li>Choose 2 Wings to Go With You</li>
+            <li>We'll Match You Up With 3 Other People</li>
+            <li>We'll Schedule an Event, and Setup a Date and Time With All of You</li>
+            <li>Enjoy the Event. The First Round of Drinks is on Us</li>
+        </ol>
+        <div style="text-align:center">
+        <a class="btn btn-lg btn-primary" href="{% url "social:begin" "facebook" %}">Let's Do It
+        <span class="glyphicon glyphicon-thumbs-up"></span>
+        </a>
+    </div>
+    </div>
 </div>
 </div>
 </div>
 {% endblock body %}
-
-{% block script %}
-<script src="{{ STATIC_URL }}js/bootstrap-datepicker.js"></script>
-<script>
-$(document).ready(function() {
-        $(".datepicker").datepicker();
-        });
-$("#gobutton").click( function() {
-   $("#goform").submit();
-   });
-</script>
-{% endblock script %}

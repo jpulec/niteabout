@@ -11,7 +11,7 @@ MANAGERS = ADMINS
 DATABASES = {
         'default':
             {
-                'ENGINE': 'django.contrib.gis.db.backends.postgis',
+                'ENGINE': 'django.db.backends.postgresql_psycopg2',
                 'NAME': os.environ['POSTGRESQL_NAME'],
                 'USER': os.environ['POSTGRESQL_USERNAME'],
                 'PASSWORD': os.environ['POSTGRESQL_PASSWORD'],
@@ -72,6 +72,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.tz',
     'django.core.context_processors.i18n',
     'django.contrib.messages.context_processors.messages',
+    'social.apps.django_app.context_processors.backends',
+    'social.apps.django_app.context_processors.login_redirect',
     #'niteabout.apps.business.context_processors.add_business',
     )
 
@@ -103,19 +105,11 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'django.contrib.gis',
-    'djangoratings',
     'south',
     'mathfilters',
     'registration',
-    'organizations',
+    'social.apps.django_app.default',
     'niteabout.apps.main',
-    'niteabout.apps.events',
-    'niteabout.apps.gatherer',
-    'niteabout.apps.plan',
-    'niteabout.apps.places',
-    'niteabout.apps.movies',
-    'niteabout.apps.business',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -186,3 +180,27 @@ LOGGING = {
 TIME_INPUT_FORMATS = ['%H:%M', '%I:%M%p', '%I:%M %p']
 
 ACCOUNT_ACTIVATION_DAYS = 2
+
+AUTHENTICATION_BACKENDS = (
+        'social.backends.facebook.FacebookOAuth2',
+        'django.contrib.auth.backends.ModelBackend',
+        )
+
+SOCIAL_AUTH_FACEBOOK_KEY = os.environ['FACEBOOK_KEY']
+SOCIAL_AUTH_FACEBOOK_SECRET = os.environ['FACEBOOK_SECRET']
+
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email','user_friends','user_activities','user_interests',]
+
+SOCIAL_AUTH_PIPELINE = (
+        'social.pipeline.social_auth.social_details',
+        'social.pipeline.social_auth.social_uid',
+        'social.pipeline.social_auth.auth_allowed',
+        'social.pipeline.social_auth.social_user',
+        'social.pipeline.user.get_username',
+        'niteabout.apps.main.pipeline.require_profile',
+        'social.pipeline.user.create_user',
+        'social.pipeline.social_auth.associate_user',
+        'niteabout.apps.main.pipeline.associate_profile',
+        'social.pipeline.social_auth.load_extra_data',
+        'social.pipeline.user.user_details',
+        )

@@ -12,25 +12,16 @@ class Migration(SchemaMigration):
         db.create_table(u'main_userprofile', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('auth', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True)),
+            ('phone', self.gf('django.db.models.fields.CharField')(max_length=24, blank=True)),
+            ('location', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('interested', self.gf('django.db.models.fields.CharField')(max_length=1, blank=True)),
         ))
         db.send_create_signal(u'main', ['UserProfile'])
-
-        # Adding M2M table for field past_plans on 'UserProfile'
-        m2m_table_name = db.shorten_name(u'main_userprofile_past_plans')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('userprofile', models.ForeignKey(orm[u'main.userprofile'], null=False)),
-            ('niteplan', models.ForeignKey(orm[u'plan.niteplan'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['userprofile_id', 'niteplan_id'])
 
 
     def backwards(self, orm):
         # Deleting model 'UserProfile'
         db.delete_table(u'main_userprofile')
-
-        # Removing M2M table for field past_plans on 'UserProfile'
-        db.delete_table(db.shorten_name(u'main_userprofile_past_plans'))
 
 
     models = {
@@ -74,59 +65,9 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'UserProfile'},
             'auth': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'past_plans': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['plan.NitePlan']", 'null': 'True', 'blank': 'True'})
-        },
-        u'places.cuisine': {
-            'Meta': {'object_name': 'Cuisine'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
-        },
-        u'places.place': {
-            'Meta': {'object_name': 'Place'},
-            'categories': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.PlaceCategory']", 'symmetrical': 'False'}),
-            'cuisines': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['places.Cuisine']", 'null': 'True', 'blank': 'True'}),
-            'geom': ('django.contrib.gis.db.models.fields.PointField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
-            'osm_id': ('django.db.models.fields.BigIntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['places.Tag']", 'null': 'True', 'blank': 'True'}),
-            'timestamp': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'version': ('django.db.models.fields.IntegerField', [], {'null': 'True'})
-        },
-        u'places.placecategory': {
-            'Meta': {'object_name': 'PlaceCategory'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
-        },
-        u'places.tag': {
-            'Meta': {'unique_together': "(('key', 'value'),)", 'object_name': 'Tag'},
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'key': ('django.db.models.fields.CharField', [], {'max_length': "'128'"}),
-            'value': ('django.db.models.fields.CharField', [], {'max_length': "'256'"})
-        },
-        u'plan.niteactivity': {
-            'Meta': {'ordering': "('order',)", 'object_name': 'NiteActivity'},
-            'activity_name': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['plan.NiteActivityName']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'order': ('django.db.models.fields.IntegerField', [], {})
-        },
-        u'plan.niteactivityname': {
-            'Meta': {'object_name': 'NiteActivityName'},
-            'categories': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['places.PlaceCategory']", 'symmetrical': 'False'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'})
-        },
-        u'plan.niteevent': {
-            'Meta': {'object_name': 'NiteEvent'},
-            'activity': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['plan.NiteActivity']"}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'place': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['places.Place']"})
-        },
-        u'plan.niteplan': {
-            'Meta': {'object_name': 'NitePlan'},
-            'dt': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'events': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['plan.NiteEvent']", 'symmetrical': 'False'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+            'interested': ('django.db.models.fields.CharField', [], {'max_length': '1', 'blank': 'True'}),
+            'location': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'phone': ('django.db.models.fields.CharField', [], {'max_length': '24', 'blank': 'True'})
         }
     }
 
