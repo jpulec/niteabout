@@ -7,7 +7,7 @@ class OrderedPlaceInline(admin.TabularInline):
     extra = 2
 
 class EventAdmin(admin.ModelAdmin):
-    inlines = (OrderedPlaceInline,)
+    pass
 
 admin.site.register(Event, EventAdmin)
 admin.site.register(GooglePlace)

@@ -1,13 +1,10 @@
 from django.db import models
 
 from niteabout.apps.main.models import UserProfile
+from niteabout.apps.events.models import Event
 
-
-class Tournament(models.Model):
-    name = models.CharField(max_length=256)
-
-    def __unicode__(self):
-        return self.name
+class Tournament(Event):
+    teams = models.ManyToManyField('Team', related_name="teams")
 
 class Round(models.Model):
     number = models.IntegerField()

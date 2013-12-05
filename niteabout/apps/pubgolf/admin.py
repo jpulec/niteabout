@@ -6,7 +6,7 @@ class OrderedHoleInline(admin.TabularInline):
     model = OrderedHole
     ordering = ('order',)
     max_num = 9
-    extra = 0
+    extra = 9
 
 class PubGolfAdmin(admin.ModelAdmin):
     inlines = (OrderedHoleInline,)
