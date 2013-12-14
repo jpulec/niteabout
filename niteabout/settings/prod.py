@@ -42,3 +42,28 @@ EMAIL_PORT = 587
 RAVEN_CONFIG = {
         'dsn': os.environ['DSN'],
         }
+
+LOGGING['handlers'].update({
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'verbose',
+            'filename': os.path.join(BASE_DIR,'../../logs/django.log'),
+            'mode': 'a',
+            'maxBytes': '10485760',
+            'backupCount': 5,
+            },
+        })
+
+LOGGING['loggers'] = {
+        'django': {
+            'handlers': ['file', 'sentry'],
+            'propagate': True,
+            'level' : 'INFO',
+            },
+        'niteabout': {
+            'handlers': ['file', 'sentry'],
+            "level": 'DEBUG',
+            "propagate": True
+            },
+        }

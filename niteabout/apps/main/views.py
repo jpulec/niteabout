@@ -79,3 +79,9 @@ class RequireProfile(CreateView):
         request.session['saved_profile'] = profile
         backend = request.session['partial_pipeline']['backend']
         return redirect('social:complete', backend=backend)
+
+class Waiting(TemplateView):
+    template_name = "main/waiting.html"
+
+class Invite(TemplateView):
+    template_name = "main/invite.html"

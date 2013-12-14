@@ -143,15 +143,6 @@ LOGGING = {
             'class': "logging.StreamHandler",
             'formatter': 'simple'
             },
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'verbose',
-            'filename': os.path.join(BASE_DIR,'../../logs/django.log'),
-            'mode': 'a',
-            'maxBytes': '10485760',
-            'backupCount': 5,
-            },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -163,18 +154,6 @@ LOGGING = {
             'class': 'raven.contrib.django.handlers.SentryHandler',
             },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['file', 'sentry'],
-            'propagate': True,
-            'level' : 'INFO',
-            },
-        'niteabout': {
-            'handlers': ['file', 'sentry'],
-            "level": 'DEBUG',
-            "propagate": True
-            },
-    }
 }
 
 TIME_INPUT_FORMATS = ['%H:%M', '%I:%M%p', '%I:%M %p']
@@ -190,6 +169,10 @@ SOCIAL_AUTH_FACEBOOK_KEY = os.environ['FACEBOOK_KEY']
 SOCIAL_AUTH_FACEBOOK_SECRET = os.environ['FACEBOOK_SECRET']
 
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email','user_friends','user_activities','user_interests',]
+
+SOCIAL_AUTH_LOGIN_REDIRECT = '/accounts/profile'
+
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/newuser/'
 
 SOCIAL_AUTH_PIPELINE = (
         'social.pipeline.social_auth.social_details',
