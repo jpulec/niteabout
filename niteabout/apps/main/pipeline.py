@@ -2,7 +2,11 @@ from django.shortcuts import redirect
 
 from social.pipeline.partial import partial
 
+import logging
+
 from niteabout.apps.main.models import UserProfile
+
+logger = logging.getLogger(__name__)
 
 @partial
 def require_profile(strategy, details, user=None, is_new=False, *args, **kwargs):
@@ -19,7 +23,7 @@ def associate_profile(strategy, details, uid, user=None, profile=None, *args, **
         try:
             profile = UserProfile.objects.create(auth=user, **details['user_profile'])
         except Exception as e:
-            print e
+            logger.exception(e)
         else:
             return {'profile': profile,
                     'user': profile.auth}

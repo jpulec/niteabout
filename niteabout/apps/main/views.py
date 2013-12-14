@@ -12,7 +12,7 @@ import requests
 
 from registration.backends.simple.views import RegistrationView
 
-from niteabout.apps.main.forms import ContactForm, RequireProfileForm
+from niteabout.apps.main.forms import ContactForm, RequireProfileForm, InviteWingsForm
 
 class Home(TemplateView):
     template_name = "main/home.html"
@@ -56,7 +56,18 @@ class Profile(TemplateView):
         r = requests.get('https://graph.facebook.com/%s/?fields=picture.type(large)' % self.request.user.social_auth.all()[0].uid)
         data = r.json() 
         context['userpic'] = data['picture']['data']['url']
+        context['fb_id'] = self.request.user.social_auth.all()[0].uid
+        context['token'] = self.request.user.social_auth.all()[0].extra_data['access_token']
         return context
+
+class InviteWings(FormView):
+    template_name = "main/invite_wings.html"
+    form_class = InviteWingsForm
+
+    def get_form_kwargs(self):
+        kwargs = super(InviteWings, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
 class RequireProfile(CreateView):
     template_name = "main/require_profile.html"

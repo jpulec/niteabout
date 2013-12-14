@@ -5,5 +5,70 @@
 <div class="jumbotron">
     <h1>{{ user.username }}'s Profile</h1>
     <img height="100" width="100" src="{{ userpic }}">
+    <p>Invite A Few Wings</p>
+    <div id="fb-root">
+        <div id='mfs'>
+        </div>
+    </div>
+
 </div>
 {% endblock body %}
+
+{% block script %}
+<script id="facebook-jssdk" async="" src="//connect.facebook.net/en_US/all.js"></script>
+<script>
+window.fbAsyncInit = function() {
+        FB.init({
+            appId: '650651538310979',
+            });
+        renderMFS();
+        };
+
+function renderMFS() {
+    FB.api('/{{ fb_id }}/?fields=friends&access_token={{ token }}', function(response) {
+            console.log(response);
+            var container = document.getElementById('mfs');
+            var mfsForm = document.createElement('form');
+            
+            mfsForm.id = 'mfsForm';
+
+            for(var i = 0; i < Math.min(response.friends.length, 10); i++) {
+                var friendItem = document.createElement('div');
+                friendItem.id = 'friend_' + response.friends[i].id;
+                friendItem.innerHTML = '<input type="checkbox" name="friends" value="'
+                    + response.friends[i].id
+                    + '" />' + reponse.friends[i].name;
+                    mfsForm.appendChild(friendItem);
+                    }
+            container.appendChild(mfsForm);
+
+            var sendButton = document.createElement('input');
+            sendButton.type = 'button';
+            sendButton.value = 'Send Request';
+            sendButton.onClick = sendRequest;
+            mfsForm.appendChild(sendButton);
+    });
+}
+
+function sendRequest() {
+    var sendUIDs = '';
+    var mfsForm = document.getElementById('mfsForm');
+    for(var i = 0; i < mfsForm.friends.length; i++) {
+        if(mfsForm.friends[i].checked) {
+            sendUIDs += mfsForm.friends[i].value + '.';
+        }
+    }
+
+    FB.ui( { method: 'apprequests',
+            to: sendUIDs,
+            title: 'NiteAbout',
+            message: 'Be my wing!',
+            },
+            callback);
+}
+
+function callback(response) {
+    console.log(response);
+}
+</script>
+{% endblock script %}
