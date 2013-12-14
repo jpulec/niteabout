@@ -1,9 +1,27 @@
 {% extends "base.html" %}
-{% block title %}Invite{% endblock %}
+{% block title %}{{ niteabout.organizer.first_name }}'s NiteAbout{% endblock %}
 
 {% block body %}
 <div class="jumbotron">
-    <h1>Grab Some Wings<h1>
-            `
+    <h2>Welcome!</h2>
+    <p>Your friend {{ niteabout.organizer.auth.first_name }} has requested that you
+    attend an amazing experience. Simply put, we'll send 
+    {{ niteabout.organizer.auth.first_name }}, you, and one other friend out to have
+    a fun experience. Sometimes this is a special event at a bar. Other times,
+    it's some crazy idea or compeition we've concocted here at NiteAbout. 
+    And the best part, we'll be matching you up with three random people of the
+    opposite gender, and the first round of drinks is paid for. So? What do you
+    think? Are you ready to see what we have in store for you?</p>
+    <div class="col-md-6">
+        <a href="{% url "accept" %}" class="btn btn-large btn-primary">
+            I'm In!
+        <a>
+    </div>
+    <div class="col-md-6">
+        <a href="{% url "decline" %}" class="btn btn-large btn-primary">
+            I don't Think It's For Me
+        </a>
+    </div>
+
 </div>
 {% endblock body %}

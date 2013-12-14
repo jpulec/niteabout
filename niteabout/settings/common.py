@@ -170,9 +170,9 @@ SOCIAL_AUTH_FACEBOOK_SECRET = os.environ['FACEBOOK_SECRET']
 
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email','user_friends','user_activities','user_interests',]
 
-SOCIAL_AUTH_LOGIN_REDIRECT = '/accounts/profile'
+LOGIN_URL = '/'
 
-SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/newuser/'
+LOGIN_REDIRECT_URL = '/'
 
 SOCIAL_AUTH_PIPELINE = (
         'social.pipeline.social_auth.social_details',
@@ -183,9 +183,7 @@ SOCIAL_AUTH_PIPELINE = (
         'niteabout.apps.main.pipeline.require_profile',
         'social.pipeline.user.create_user',
         'social.pipeline.social_auth.associate_user',
-        'niteabout.apps.main.pipeline.associate_profile',
         'social.pipeline.social_auth.load_extra_data',
         'social.pipeline.user.user_details',
+        #'niteabout.apps.main.pipeline.check_if_niteabout',
         )
-
-SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/invite/'

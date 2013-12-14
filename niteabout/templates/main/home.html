@@ -2,6 +2,37 @@
 {% block title %}Home{% endblock %}
 
 {% block body %}
+{% if user.is_authenticated %}
+<div class="jumbotron">
+    <h1>You're Good...</h1>
+    <p>We're now finding a match...</p>
+    {% if not niteabout.filled %}
+    <p>But once we find a match, we need you to have 2 Wings. Invite them
+    below...</p>
+    <div id="fb-root">
+        <div id='mfs'>
+        </div>
+    </div>
+    <div id="invite">
+        <button id="fb" class="btn btn-large btn-primary">
+            Invite Your Wings via Facebook
+        </button>
+        <p>Or</p>
+        <button id="email" class="btn btn-large btn-primary">Send an Email</button>
+    </div>
+    <form method="POST" action=".">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input class="btn btn-primary" type="submit" value="Send"></input>
+        <button id="cancel" class="btn btn-primary" type="button">Cancel</button>
+    </form>
+    {% else %}
+    <p>You've got 2 Wings ready to go. As soon as we match you up, we'll let
+    you know</p>
+    {% endif %}
+</div>
+
+{% else %}
 <div class="jumbotron">
     <div class="container">
     <div class="col-md-6">
@@ -26,4 +57,41 @@
 </div>
 </div>
 </div>
+{% endif %}
 {% endblock body %}
+
+{% block script %}
+<script id="facebook-jssdk" async="" src="//connect.facebook.net/en_US/all.js"></script>
+<script>
+$(document).ready(function() {
+        $('form').hide();
+        $('#email').click(function() {
+            $('#invite').hide();
+            $('form').show();
+            });
+        $('#cancel').click(function() {
+            $('form').hide();
+            $('#invite').show();
+            });
+
+        $.ajaxSetup({ cache: true});
+        $.getScript('//connect.facebook.net/en_US/all.js', function() {
+            FB.init({
+                appId: '650651538310979',
+                });
+            $("#fb").click(function() {
+                sendDialog();
+                }
+                );
+            });
+        });
+
+function sendDialog() {
+    FB.ui( { method: 'send',
+            link: '{{ niteabout_url }}'
+            }
+        );
+}
+
+</script>
+{% endblock script %}

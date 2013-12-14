@@ -1,22 +1,44 @@
 from django import forms
-from django.forms.widgets import Textarea
+from django.forms.widgets import Textarea, CheckboxSelectMultiple
+from django.core.validators import validate_email
+
+
+import requests
+import logging
 
 from niteabout.apps.main.models import UserProfile
 
+logger = logging.getLogger(__name__)
+
 class ContactForm(forms.Form):
     sender = forms.EmailField(widget=forms.TextInput(attrs={'class':'form-control'}))
-    subject = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class':'form-control'}))
-    message = forms.CharField(widget=forms.Textarea(attrs={'class':'form-control', 'style':'resize:none'}))
+    subject = forms.CharField(max_length=100,
+                              widget=forms.TextInput(attrs={'class':'form-control'}))
+    message = forms.CharField(widget=forms.Textarea(attrs={'class':'form-control',
+                                                           'style':'resize:none'}))
+
+class InviteForm(forms.Form):
+    friends = forms.CharField(max_length=256,
+                              widget=forms.TextInput(attrs={'class':'form-control'}))
+    message = forms.CharField(widget=forms.Textarea(attrs={'class':'form-control',
+                                                           'style':'resize:none'}))
+
+    def clean_friends(self):
+        recipients = self.cleaned_data['friends'].split(',')
+        for recipient in recipients:
+            validate_email(recipient)
+        return recipients
 
 class RequireProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        exclude = ('auth',)
-
-class InviteWingsForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user')
-        super(InviteWingsForm, self).__init__(*args, **kwargs)
-        r = requests.get("https://graph.facebook.com/%s/?fields=friends&access_token=%s" % (user.social_auth.all()[0].uid, user.social_auth.all()[0].extra_data['access_token'])).json()
-        for friend in r['friends']:
-            self.fields["id_%s" % friend] = forms.CharField(max_length=64)
+        fields = ['phone', 'location', 'interested']
+        widgets = {
+                'phone': forms.TextInput(attrs={'class':'form-control'}),
+                }
+        help_texts = {
+                'phone': "We're not gonna fuck around with your phone number." +
+                         " We only need it in case we need to contact you, or" +
+                         " the other group on your Nite needs to get a hold" +
+                         " of you. We will NOT use it for anything else."
+                }

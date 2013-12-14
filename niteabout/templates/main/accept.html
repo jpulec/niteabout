@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Accepted{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <h1>Accepted</h1>
+    Great!
+    Since you're here, do you want to make a NiteAbout account? This way if you
+    choose to use our service again, you can quickly set up your own Nite, and 
+    have a list of your Wings at your fingers.
+    <div style="text-align:center">
+        <a class="btn btn-lg btn-primary" href="{% url "social:begin" "facebook" %}">
+            Let's Do It
+            <span class="glyphicon glyphicon-thumbs-up"></span>
+        </a>
+    </div>
+
+</div>
+{% endblock body %}

@@ -3,24 +3,80 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView, CreateView
 from django.views.generic.list import ListView
 from django.core.mail import send_mail
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.core.urlresolvers import reverse
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import redirect
+from django.conf import settings
+from django.utils.http import urlencode
 
 import requests
+import cPickle as pickle
+import hashlib
+import zlib
+import logging
 
 from registration.backends.simple.views import RegistrationView
 
-from niteabout.apps.main.forms import ContactForm, RequireProfileForm, InviteWingsForm
+from models import NiteAbout
 
-class Home(TemplateView):
+from forms import ContactForm, RequireProfileForm, InviteForm
+
+logger = logging.getLogger(__name__)
+
+class Home(FormView):
     template_name = "main/home.html"
+    form_class = InviteForm
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated():
+            self.object = self.get_object()
+        return super(Home, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated():
+            self.object = self.get_object()
+        return super(Home, self).post(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('invited')
+
+    def form_valid(self, form):
+        send_mail(self.request.user.first_name +
+                  " Requests That You Be Their Wing",
+                  "NiteAbout",
+                  form.cleaned_data['message'] +
+                  "Go to " + self.generate_url() +
+                  " to confirm or deny your attendance" +
+                  " and to learn more about NiteAbout.",
+                  form.cleaned_data['friends'])
+        return super(Home, self).form_valid(form)
+
+    def get_object(self):
+        return None
+        niteabout, created = NiteAbout.objects.get_or_create(
+                organizer=self.request.user.userprofile,
+                happened=False)
+        return niteabout
 
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)
-        context['selected'] = "home"
+        if self.request.user.is_authenticated():
+            fb_association = self.request.user.social_auth.all()[0]
+            context['fb_id'] = fb_association.uid
+            context['token'] = fb_association.extra_data['access_token']
+            context['niteabout_url'] = self.generate_url()
+            context['niteabout'] = self.get_object()
+            context['selected'] = "home"
         return context
+
+    def generate_url(self):
+        text = zlib.compress(pickle.dumps(self.object,
+                                0)
+                            ).encode('base64').replace('\n', '')
+        m = hashlib.md5(settings.SECRET_KEY + text).hexdigest()[:12]
+        url = "http://niteabout.com/invite/?" + urlencode({'m':m, 'text':text})
+        return url
 
 class About(TemplateView):
     template_name = "main/about.html"
@@ -41,8 +97,11 @@ class Contact(FormView):
         return context
 
     def form_valid(self, form):
-        recipients = ["jpulec@gmail.com"]
-        send_mail(form.cleaned_data['subject'], form.cleaned_data['message'], form.cleaned_data['sender'], recipients)
+        recipients = ["james@niteabout.com"]
+        send_mail(form.cleaned_data['subject'],
+                  form.cleaned_data['message'],
+                  form.cleaned_data['sender'],
+                  recipients)
         return super(Contact, self).form_valid(form)
 
 class Thanks(TemplateView):
@@ -53,35 +112,54 @@ class Profile(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(Profile, self).get_context_data(**kwargs)
-        r = requests.get('https://graph.facebook.com/%s/?fields=picture.type(large)' % self.request.user.social_auth.all()[0].uid)
-        data = r.json() 
+        r = requests.get(
+            'https://graph.facebook.com/%s/?fields=picture.type(large)' %
+            self.request.user.social_auth.all()[0].uid)
+        data = r.json()
         context['userpic'] = data['picture']['data']['url']
-        context['fb_id'] = self.request.user.social_auth.all()[0].uid
-        context['token'] = self.request.user.social_auth.all()[0].extra_data['access_token']
         return context
 
-class InviteWings(FormView):
-    template_name = "main/invite_wings.html"
-    form_class = InviteWingsForm
+class Invite(DetailView):
+    template_name = "main/invite.html"
+    model = NiteAbout
+    context_object_name = "niteabout"
 
-    def get_form_kwargs(self):
-        kwargs = super(InviteWings, self).get_form_kwargs()
-        kwargs['user'] = self.request.user
-        return kwargs
+    def get_object(self):
+        try:
+            text = self.request.GET['text']
+        except KeyError as e:
+            logger.exception("Invite requires 'text' query parameter")
+            return HttpResponseNotFound()
+        m = hashlib.md5(settings.SECRET_KEY + text).hexdigest()[:12]
+        try:
+            if m != self.request.GET['m']:
+                raise Exception("Bad Hash!")
+        except KeyError as e:
+            logger.exception("Invite requires 'm' query parameter")
+            return HttpResponseNotFound()
+        niteabout = pickle.loads(zlib.decompress(text.decode('base64')))
+        self.request.session['niteabout'] = niteabout
+        return niteabout
 
-class RequireProfile(CreateView):
+class RequireProfile(FormView):
     template_name = "main/require_profile.html"
     form_class = RequireProfileForm
 
-    def post(self, request, *args, **kwargs):
-        profile = request.POST.dict()
+    def form_valid(self, form):
+        profile = self.request.POST.dict()
         profile.pop('csrfmiddlewaretoken', None)
-        request.session['saved_profile'] = profile
-        backend = request.session['partial_pipeline']['backend']
+        self.request.session['saved_profile'] = profile
+        backend = self.request.session['partial_pipeline']['backend']
         return redirect('social:complete', backend=backend)
 
-class Waiting(TemplateView):
-    template_name = "main/waiting.html"
+class Invited(TemplateView):
+    template_name = "main/invited.html"
 
-class Invite(TemplateView):
-    template_name = "main/invite.html"
+class Accept(TemplateView):
+    template_name = "main/accept.html"
+
+class Decline(TemplateView):
+    template_name = "main/decline.html"
+
+class FAQ(TemplateView):
+    template_name = "main/faq.html"

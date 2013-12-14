@@ -5,7 +5,7 @@
 {% block body %}
 <div class="well">
     <h2>Enter Profile Info</h2>
-    <form method="POST">
+    <form method="POST" action=".">
         {% csrf_token %}
         <table class="table">
         {{ form.as_table }}
