@@ -17,3 +17,16 @@ INSTALLED_APPS += ('debug_toolbar','django_pdb')
 TEMPLATE_CONTEXT_PROCESSORS += ( 'django.core.context_processors.debug',)
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+LOGGING['loggers'] = {
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level' : 'INFO',
+            },
+        'niteabout': {
+            'handlers': ['console'],
+            "level": 'DEBUG',
+            "propagate": True
+            },
+        }

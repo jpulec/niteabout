@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <h1>You're Good...</h1>
+    <p>You're all set and we're now finding a match...</p>
+    <p>We estimate it will take a 2-3 weeks.</p>
+    <p>In the meantime...</p>
+    <a class="btn btn-large" href="{% url "invite" %}">Invite Your Wings</a>
+</div>
+{% endblock body %}
