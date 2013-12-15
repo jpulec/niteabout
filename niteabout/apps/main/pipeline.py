@@ -10,10 +10,10 @@ logger = logging.getLogger(__name__)
 
 @partial
 def require_profile(strategy, details, user=None, is_new=False, *args, **kwargs):
-    logger.info(is_new)
-    logger.info(kwargs)
     if user and hasattr(user, "userprofile") and user.userprofile:
-        return
+        return {'user': user,
+                'userprofile': user.userprofile,
+                'is_new': is_new}
     elif is_new:
         if strategy.session_get('saved_profile'):
             return {'userprofile': strategy.session_pop('saved_profile'),
