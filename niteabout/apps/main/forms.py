@@ -50,3 +50,12 @@ class AcceptForm(forms.Form):
 class DeclineForm(forms.Form):
     why = forms.CharField(widget=forms.Textarea(attrs={'class':'form-control',
                                                        'style':'resize:none'}))
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['phone', 'location', 'interested']
+        widgets = {
+                'phone': forms.TextInput(attrs={'class':'form-control'}),
+                }
+

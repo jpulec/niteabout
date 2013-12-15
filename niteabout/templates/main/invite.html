@@ -2,6 +2,19 @@
 {% block title %}{{ niteabout.organizer.first_name }}'s NiteAbout{% endblock %}
 
 {% block body %}
+{% if niteabout.filled %}
+<div class="jumbotron">
+    <h2>Sorry!</h2>
+    <p>It looks like your friend {{ niteabout.organizer.auth.first_name }} has already found two wings for their NiteAbout. Maybe you can join them next time. Or would you like to setup your own Nite? </p>
+        <div style="text-align:center">
+        <a class="btn btn-lg btn-primary" href="{% url "social:begin" "facebook" %}">
+            Let's Do It
+        <span class="glyphicon glyphicon-thumbs-up"></span>
+    </a>
+    </div>
+</div>
+
+{% else %}
 <div class="jumbotron">
     <h2>Welcome!</h2>
     <p>Your friend {{ niteabout.organizer.auth.first_name }} has requested that you
@@ -39,6 +52,7 @@
 
 
 </div>
+{% endif %}
 {% endblock body %}
 
 {% block script %}

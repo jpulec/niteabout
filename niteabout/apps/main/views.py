@@ -1,6 +1,6 @@
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormView, CreateView, FormMixin
+from django.views.generic.edit import FormView, CreateView, FormMixin, UpdateView
 from django.views.generic.list import ListView
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseNotFound, Http404
@@ -19,9 +19,9 @@ import logging
 
 from registration.backends.simple.views import RegistrationView
 
-from models import NiteAbout
+from models import NiteAbout, UserProfile
 
-from forms import ContactForm, RequireProfileForm, InviteForm, AcceptForm, DeclineForm
+from forms import ContactForm, RequireProfileForm, InviteForm, AcceptForm, DeclineForm, ProfileForm
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +57,13 @@ class Home(FormView):
         if 'niteabout' in self.request.session:
             return self.request.session['niteabout']
         else:
-            niteabout, created = NiteAbout.objects.get_or_create(
-                    organizer=self.request.user.userprofile,
-                    happened=False)
+            try:
+                niteabout, created = NiteAbout.objects.get_or_create(
+                        organizer=self.request.user.userprofile,
+                        happened=False)
+            except UserProfile.DoesNotExist as e:
+                logger.exception(e)
+                return None
             return niteabout
 
     def get_context_data(self, **kwargs):
@@ -74,7 +78,7 @@ class Home(FormView):
         return context
 
     def generate_url(self):
-        text = zlib.compress(pickle.dumps(self.object,
+        text = zlib.compress(pickle.dumps(self.object.id,
                                 0)
                             ).encode('base64').replace('\n', '')
         m = hashlib.md5(settings.SECRET_KEY + text).hexdigest()[:12]
@@ -111,8 +115,14 @@ class Contact(FormView):
 class Thanks(TemplateView):
     template_name = "main/thanks.html"
 
-class Profile(TemplateView):
+class Profile(UpdateView):
     template_name = "main/profile.html"
+    form_class = ProfileForm
+    model = UserProfile
+    success_url = '.'
+
+    def get_object(self):
+        return UserProfile.objects.get(auth=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super(Profile, self).get_context_data(**kwargs)
@@ -135,6 +145,8 @@ class Invite(DetailView, FormMixin):
         return super(Invite, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        if self.request.session['niteabout'].filled:
+            raise Http404
         form = None
         if 'name' in self.request.POST:
             form = AcceptForm(data=self.request.POST)
@@ -146,6 +158,31 @@ class Invite(DetailView, FormMixin):
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
+
+    def form_valid(self, form):
+        if isinstance(form, AcceptForm):
+            prof = UserProfile.objects.create(name=form.cleaned_data['name'])
+            niteabout = self.request.session['niteabout']
+            niteabout.attendees.add(prof)
+            if niteabout.attendees.all().count() >= 2:
+                niteabout.filled = True
+                niteabout.save()
+            self.request.session['prof'] = prof
+            self.request.session['niteabout'] = niteabout
+            recipients = [niteabout.organizer.auth.email]
+            send_mail("NiteAbout Wing Update",
+                      "Hey. It looks like your friend %s has " % form.cleaned_data['name'] +
+                      "aggreed to be your Wing for your NiteAbout.",
+                      "NiteAbout",
+                      recipients)
+
+        elif isinstance(form, DeclineForm):
+            recipients = ["james@niteabout.com"]
+            send_mail("NiteAbout Decline Feedback",
+                      form.cleaned_data['why'],
+                      "NiteAbout",
+                      recipients)
+        return super(Invite, self).form_valid(form)
 
     def get_success_url(self):
         if 'name' in self.request.POST:
@@ -172,8 +209,8 @@ class Invite(DetailView, FormMixin):
         except MultiValueDictKeyError as e:
             logger.exception("Invite requires 'm' query parameter")
             raise Http404
-        niteabout = pickle.loads(zlib.decompress(text.decode('base64')))
-        self.request.session['niteabout'] = niteabout
+        niteabout_id = pickle.loads(zlib.decompress(text.decode('base64')))
+        niteabout = self.request.session['niteabout'] = NiteAbout.objects.get(id=niteabout_id)
         return niteabout
 
 class RequireProfile(FormView):

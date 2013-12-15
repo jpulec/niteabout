@@ -26,4 +26,9 @@ def associate_profile(strategy, user, userprofile, is_new=False, *args, **kwargs
     if user and hasattr(user, "userprofile") and user.userprofile:
         return
     else:
-        profile = UserProfile.objects.create(auth=user, **userprofile)
+        if strategy.session_get('prof'):
+            prof = strategy.session_pop('prof')
+            prof.auth = user
+            prof.__dict__.update(userprofile)
+        else:
+            profile = UserProfile.objects.create(auth=user, **userprofile)
