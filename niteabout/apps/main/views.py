@@ -3,7 +3,8 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView, CreateView
 from django.views.generic.list import ListView
 from django.core.mail import send_mail
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, Http404
+from django.utils.datastructures import MultiValueDictKeyError
 from django.core.urlresolvers import reverse
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import redirect
@@ -130,23 +131,23 @@ class Invite(DetailView):
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated():
             # TODO:handle inviting wings that already exist
-            return HttpResponseNotFound()
+            raise Http404
         return super(Invite, self).get(request, *args, **kwargs)
 
     def get_object(self):
         logger.info(self.request.GET)
         try:
             text = self.request.GET['text']
-        except KeyError as e:
+        except MultiValueDictKeyError as e:
             logger.exception("Invite requires 'text' query parameter")
-            return HttpResponseNotFound()
+            raise Http404
         m = hashlib.md5(settings.SECRET_KEY + text).hexdigest()[:12]
         try:
             if m != self.request.GET['m']:
                 raise Exception("Bad Hash!")
-        except KeyError as e:
+        except MultiValueDictKeyError as e:
             logger.exception("Invite requires 'm' query parameter")
-            return HttpResponseNotFound()
+            raise Http404
         niteabout = pickle.loads(zlib.decompress(text.decode('base64')))
         self.request.session['niteabout'] = niteabout
         return niteabout
