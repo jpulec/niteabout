@@ -42,3 +42,11 @@ class RequireProfileForm(forms.ModelForm):
                          " the other group on your Nite needs to get a hold" +
                          " of you. We will NOT use it for anything else."
                 }
+
+class AcceptForm(forms.Form):
+    name = forms.CharField(max_length=100,
+                           widget=forms.TextInput(attrs={'class':'form-control'}))
+
+class DeclineForm(forms.Form):
+    why = forms.CharField(widget=forms.Textarea(attrs={'class':'form-control',
+                                                       'style':'resize:none'}))

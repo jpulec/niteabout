@@ -1,6 +1,6 @@
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormView, CreateView
+from django.views.generic.edit import FormView, CreateView, FormMixin
 from django.views.generic.list import ListView
 from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseNotFound, Http404
@@ -21,7 +21,7 @@ from registration.backends.simple.views import RegistrationView
 
 from models import NiteAbout
 
-from forms import ContactForm, RequireProfileForm, InviteForm
+from forms import ContactForm, RequireProfileForm, InviteForm, AcceptForm, DeclineForm
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ class Home(FormView):
             context['token'] = fb_association.extra_data['access_token']
             context['niteabout_url'] = self.generate_url()
             context['niteabout'] = self.get_object()
-            context['selected'] = "home"
+        context['selected'] = "home"
         return context
 
     def generate_url(self):
@@ -123,7 +123,7 @@ class Profile(TemplateView):
         context['userpic'] = data['picture']['data']['url']
         return context
 
-class Invite(DetailView):
+class Invite(DetailView, FormMixin):
     template_name = "main/invite.html"
     model = NiteAbout
     context_object_name = "niteabout"
@@ -133,6 +133,31 @@ class Invite(DetailView):
             # TODO:handle inviting wings that already exist
             raise Http404
         return super(Invite, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = None
+        if 'name' in self.request.POST:
+            form = AcceptForm(data=self.request.POST)
+        elif 'why' in self.request.POST:
+            form = DeclineForm(data=self.request.POST)
+        else:
+            raise Http404
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def get_success_url(self):
+        if 'name' in self.request.POST:
+            return reverse('accept')
+        elif 'why' in self.request.POST:
+            return reverse('thanks')
+
+    def get_context_data(self, **kwargs):
+        context = super(Invite, self).get_context_data(**kwargs)
+        context['accept_form'] = AcceptForm()
+        context['decline_form'] = DeclineForm()
+        return context
 
     def get_object(self):
         try:

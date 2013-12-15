@@ -12,16 +12,50 @@
     And the best part, we'll be matching you up with three random people of the
     opposite gender, and the first round of drinks is paid for. So? What do you
     think? Are you ready to see what we have in store for you?</p>
-    <div class="col-md-6" style="text-align:center">
-        <a href="{% url "accept" %}" class="btn btn-large btn-primary">
-            I'm In!
-        <a>
+    <div id="choices">
+        <div class="col-md-6" style="text-align:center">
+            <button id="accept" class="btn btn-large btn-primary">
+                I'm In!
+            </button>
+        </div>
+        <div class="col-md-6" style="text-align:center">
+            <button id="decline" class="btn btn-large btn-primary">
+                I don't Think It's For Me
+            </button>
+        </div>
     </div>
-    <div class="col-md-6" style="text-align:center">
-        <a href="{% url "decline" %}" class="btn btn-large btn-primary">
-            I don't Think It's For Me
-        </a>
-    </div>
+    <form id="accept-form" method="POST" action=".">
+        {% csrf_token %}
+        {{ accept_form.as_p }}
+        <input type="submit" class="btn btn-primary" value="Let Your Friend Know Who You Are">
+        </input>
+    </form>
+    <form id="decline-form" method="POST" action=".">
+        {% csrf_token %}
+        {{ decline_form.as_p }}
+        <input type="submit" class="btn btn-primary" value="We Appreciate Your Feedback">
+        </input>
+    </form>
+
 
 </div>
 {% endblock body %}
+
+{% block script %}
+<script>
+$(document).ready( function() {
+        $('#accept-form').hide();
+        $('#decline-form').hide();
+        $('#accept').click( function() {
+            $('#choices').hide('slow');
+            $('#accept-form').show('slow');
+            });
+        $('#decline').click( function() {
+            $('#choices').hide('slow');
+            $('#decline-form').show('slow');
+            });
+        });
+</script>
+
+
+{% endblock script %}

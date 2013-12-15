@@ -27,10 +27,3 @@ def associate_profile(strategy, user, userprofile, is_new=False, *args, **kwargs
         return
     else:
         profile = UserProfile.objects.create(auth=user, **userprofile)
-
-
-def check_if_niteabout(strategy, request, user, args, **kwargs):
-    if strategy.session_get('niteabout'):
-        niteabout = strategy.session_pop('niteabout')
-        logger.info(niteabout)
-        #niteabout.attendees.add(user.userprofile)
