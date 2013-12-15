@@ -88,7 +88,7 @@ $(document).ready(function() {
 
 function sendDialog() {
     FB.ui( { method: 'send',
-            link: '{{ niteabout_url }}'
+            link: '{{ niteabout_url|safe }}'
             }
         );
 }

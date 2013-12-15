@@ -78,6 +78,7 @@ class Home(FormView):
                             ).encode('base64').replace('\n', '')
         m = hashlib.md5(settings.SECRET_KEY + text).hexdigest()[:12]
         url = "http://niteabout.com/invite/?" + urlencode({'m':m, 'text':text})
+        logger.info(url)
         return url
 
 class About(TemplateView):
@@ -133,6 +134,7 @@ class Invite(DetailView):
         return super(Invite, self).get(request, *args, **kwargs)
 
     def get_object(self):
+        logger.info(self.request.GET)
         try:
             text = self.request.GET['text']
         except KeyError as e:

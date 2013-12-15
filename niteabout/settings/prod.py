@@ -31,7 +31,7 @@ MEDIA_ROOT = "media/"
 STATIC_URL = S3_URL + STATIC_ROOT
 MEDIA_URL = S3_URL + MEDIA_ROOT
 
-INSTALLED_APPS += ('gunicorn', 'storages','pyqs','raven.contrib.django.raven_compat',)
+INSTALLED_APPS += ('gunicorn', 'storages','raven.contrib.django.raven_compat',)
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = os.environ['EMAIL_HOST']
