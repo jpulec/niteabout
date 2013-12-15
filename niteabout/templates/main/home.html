@@ -66,12 +66,12 @@
 $(document).ready(function() {
         $('form').hide();
         $('#email').click(function() {
-            $('#invite').hide();
-            $('form').show();
+            $('#invite').hide('slow');
+            $('form').show('slow');
             });
         $('#cancel').click(function() {
-            $('form').hide();
-            $('#invite').show();
+            $('form').hide('slow');
+            $('#invite').show('slow');
             });
 
         $.ajaxSetup({ cache: true});

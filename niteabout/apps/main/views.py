@@ -135,7 +135,6 @@ class Invite(DetailView):
         return super(Invite, self).get(request, *args, **kwargs)
 
     def get_object(self):
-        logger.info(self.request.GET)
         try:
             text = self.request.GET['text']
         except MultiValueDictKeyError as e:
