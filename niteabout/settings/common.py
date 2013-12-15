@@ -182,8 +182,9 @@ SOCIAL_AUTH_PIPELINE = (
         'social.pipeline.user.get_username',
         'niteabout.apps.main.pipeline.require_profile',
         'social.pipeline.user.create_user',
+        'niteabout.apps.main.pipeline.associate_profile',
         'social.pipeline.social_auth.associate_user',
         'social.pipeline.social_auth.load_extra_data',
         'social.pipeline.user.user_details',
-        #'niteabout.apps.main.pipeline.check_if_niteabout',
+        'niteabout.apps.main.pipeline.check_if_niteabout',
         )

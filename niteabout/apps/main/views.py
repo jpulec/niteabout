@@ -44,20 +44,22 @@ class Home(FormView):
     def form_valid(self, form):
         send_mail(self.request.user.first_name +
                   " Requests That You Be Their Wing",
-                  "NiteAbout",
                   form.cleaned_data['message'] +
-                  "Go to " + self.generate_url() +
+                  "\nGo to " + self.generate_url() +
                   " to confirm or deny your attendance" +
                   " and to learn more about NiteAbout.",
+                  "NiteAbout",
                   form.cleaned_data['friends'])
         return super(Home, self).form_valid(form)
 
     def get_object(self):
-        return None
-        niteabout, created = NiteAbout.objects.get_or_create(
-                organizer=self.request.user.userprofile,
-                happened=False)
-        return niteabout
+        if 'niteabout' in self.request.session:
+            return self.request.session['niteabout']
+        else:
+            niteabout, created = NiteAbout.objects.get_or_create(
+                    organizer=self.request.user.userprofile,
+                    happened=False)
+            return niteabout
 
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)
