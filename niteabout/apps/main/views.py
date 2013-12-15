@@ -126,6 +126,12 @@ class Invite(DetailView):
     model = NiteAbout
     context_object_name = "niteabout"
 
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            # TODO:handle inviting wings that already exist
+            return HttpResponseNotFound()
+        return super(Invite, self).get(request, *args, **kwargs)
+
     def get_object(self):
         try:
             text = self.request.GET['text']

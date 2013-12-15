@@ -14,7 +14,7 @@ def require_profile(strategy, details, user=None, is_new=False, *args, **kwargs)
     logger.info(kwargs)
     if user and hasattr(user, "userprofile") and user.userprofile:
         return
-    else:
+    elif is_new:
         if strategy.session_get('saved_profile'):
             return {'userprofile': strategy.session_pop('saved_profile'),
                     'user': user,
