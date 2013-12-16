@@ -118,65 +118,43 @@ INSTALLED_APPS = (
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    "formatters": {
-        "verbose": {
-            "format": "%(levelname)s %(asctime)s %(module)s %(message)s"
+        'version': 1,
+        'disable_existing_loggers': False,
+        "formatters": {
+            "verbose": {
+                "format": "%(levelname)s %(asctime)s %(module)s %(message)s"
+                },
+            "simple": {
+                "format": "%(levelname)s %(message)s"
+                },
             },
-        "simple": {
-            "format": "%(levelname)s %(message)s"
+        'filters': {
+            'require_debug_false': {
+                '()': 'django.utils.log.RequireDebugFalse'
+                }
             },
-        },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
+        'handlers': {
+            'null': {
+                'level':'DEBUG',
+                'class': 'logging.NullHandler',
+                },
+            'console': {
+                'level': 'DEBUG',
+                'class': "logging.StreamHandler",
+                'formatter': 'simple'
+                },
+            'mail_admins': {
+                'level': 'ERROR',
+                'filters': ['require_debug_false'],
+                'class': 'django.utils.log.AdminEmailHandler'
+                },
+            'sentry': {
+                'level': 'ERROR',
+                'filters': ['require_debug_false'],
+                'class': 'raven.contrib.django.handlers.SentryHandler',
+                },
+            },
         }
-    },
-    'handlers': {
-        'null': {
-            'level':'DEBUG',
-            'class': 'logging.NullHandler',
-            },
-        'console': {
-            'level': 'DEBUG',
-            'class': "logging.StreamHandler",
-            'formatter': 'simple'
-            },
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'verbose',
-            'filename': os.path.join(BASE_DIR,'../../logs/django.log'),
-            'mode': 'a',
-            'maxBytes': '10485760',
-            'backupCount': 5,
-            },
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        },
-        'sentry': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'raven.contrib.django.handlers.SentryHandler',
-            },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file', 'sentry'],
-            'propagate': True,
-            'level' : 'INFO',
-            },
-        'niteabout': {
-            'handlers': ['file', 'sentry'],
-            "level": 'DEBUG',
-            "propagate": True
-            },
-    }
-}
-
 TIME_INPUT_FORMATS = ['%H:%M', '%I:%M%p', '%I:%M %p']
 
 ACCOUNT_ACTIVATION_DAYS = 2

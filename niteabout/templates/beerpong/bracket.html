@@ -3,6 +3,11 @@
 
 {% block header %}
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/jquery.bracket.min.css">
+<style type="text/css">
+.team div.label {
+    color: blue;
+}
+</style>
 {% endblock header %}
 
 {% block body %}
@@ -33,7 +38,7 @@ var minimalData = {
                {% for round in tournament.round_set.all %}
                [
                    {% for match in round.match_set.all %}
-                       [0, 1],
+                       [0, 0],
                    {% endfor %}
                ],
                {% endfor %}

@@ -8,7 +8,7 @@ import stripe
 from niteabout.apps.events.models import Event
 
 class EventView(DetailView, FormView):
-    template_name = "main/event.html"
+    template_name = "events/event.html"
     model = Event
     context_object_name = "event"
 
